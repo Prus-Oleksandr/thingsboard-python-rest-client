@@ -254,3 +254,6 @@ cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm
 /main.py
+
+# swagger-codegen CLI jar, downloaded by codegen/generate.sh
+/codegen/bin/

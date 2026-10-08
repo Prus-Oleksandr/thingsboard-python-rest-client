@@ -1,0 +1,10 @@
+{
+  "packageName": "tb_rest_client",
+  "projectName": "tb-rest-client",
+  "packageVersion": "4.4.0",
+  "packageUrl": "https://github.com/thingsboard/thingsboard-python-rest-client",
+  "apiPackage": "api",
+  "modelPackage": "models",
+  "sortParamsByRequiredFlag": true,
+  "hideGenerationTimestamp": true
+}
