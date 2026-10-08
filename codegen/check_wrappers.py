@@ -30,7 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from client_parser import parse_api_dir, parse_models_dir  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-WRAPPER_FILES = ('rest_client_base.py', 'rest_client_ce.py', 'rest_client_pe.py')
+WRAPPER_FILES = ('rest_client.py', 'rest_client_base.py', 'rest_client_ce.py', 'rest_client_pe.py')
 
 parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 parser.add_argument('--old-package', default=os.path.join(ROOT, 'tb_rest_client'),
@@ -338,7 +338,7 @@ for f, tree in trees.items():
                        '%s:%d %s.%s' % (f, fn.lineno, cls.name, fn.name), ', '.join(unknown))
 
 # ---------- report ----------
-print('Wrappers: %s (%d controller calls)' % (os.path.join(args.old_package, 'rest_client_*.py'), len(mapping)))
+print('Wrappers: %s (%d controller calls)' % (', '.join(os.path.join(args.old_package, f) for f in controllers_by_file), len(mapping)))
 print('Old API:  %d operations in %s' % (sum(len(v) for v in old_api.values()), ', '.join(editions or ['api'])))
 print('New API:  %d operations in %s\n' % (len(new_ops), os.path.join(args.package, 'api')))
 severities = [{i['severity'] for i in e['issues']} for e in mapping]

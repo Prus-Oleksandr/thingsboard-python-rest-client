@@ -46,12 +46,21 @@ method with the same HTTP method + path. `ERROR` means the wrapper breaks even a
 (endpoint or param gone, new required param, or the call was already broken); `RENAME` lists
 mechanical renames; `INFO` lists new operations without a wrapper.
 
-Migrate the wrappers to the draft: copy them unmodified, apply the renames, then check the result
-against the draft itself (no renames should be left, only the errors kept for manual review):
+The 4.3 wrappers were migrated to the draft by copying them unmodified, applying the renames and
+checking the result against the draft itself (no renames should be left, only the errors kept for
+manual review):
 
 ```bash
 cp tb_rest_client/rest_client_{base,ce,pe}.py draft/tb_rest_client/
 python3 codegen/check_wrappers.py --json calls.json
 python3 codegen/apply_wrapper_renames.py calls.json draft/tb_rest_client
+python3 codegen/check_wrappers.py --old-package draft/tb_rest_client
+```
+
+ThingsBoard 4.4 has a single edition, so the draft then merged `RestClientBase`, `RestClientCE` and
+`RestClientPE` into one `RestClient` class (`draft/tb_rest_client/rest_client.py`). Check it after
+every regeneration of the draft:
+
+```bash
 python3 codegen/check_wrappers.py --old-package draft/tb_rest_client
 ```
