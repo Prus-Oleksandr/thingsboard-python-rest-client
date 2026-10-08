@@ -71,14 +71,24 @@ class RestClientCE(RestClientBase):
                                                                sort_property=sort_property, sort_order=sort_order,
                                                                start_time=start_time, end_time=end_time)
 
+    # Since 4.4 entities are not assigned to customers: the customer becomes the owner instead.
+    # The wrappers keep their 4.3 signatures and return the updated entity, as before.
+    def _assign_to_customer(self, customer_id: CustomerId, entity_type: str, entity_id: EntityId):
+        self.owner_controller.change_owner_to_customer(owner_id=self.get_id(customer_id), entity_type=entity_type,
+                                                       entity_id=self.get_id(entity_id))
+
+    def _unassign_from_customer(self, entity_type: str, entity_id: EntityId):
+        tenant_id = self.get_user().tenant_id
+        self.owner_controller.change_owner_to_tenant(owner_id=self.get_id(tenant_id), entity_type=entity_type,
+                                                     entity_id=self.get_id(entity_id))
+
     def assign_asset_to_customer(self, customer_id: CustomerId, asset_id: AssetId) -> Asset:
-        customer_id = self.get_id(customer_id)
-        asset_id = self.get_id(asset_id)
-        return self.asset_controller.assign_asset_to_customer_using_post(customer_id=customer_id, asset_id=asset_id)
+        self._assign_to_customer(customer_id, 'ASSET', asset_id)
+        return self.get_asset_by_id(asset_id)
 
     def unassign_asset_from_customer(self, asset_id: AssetId) -> Asset:
-        asset_id = self.get_id(asset_id)
-        return self.asset_controller.unassign_asset_from_customer_using_delete(asset_id=asset_id)
+        self._unassign_from_customer('ASSET', asset_id)
+        return self.get_asset_by_id(asset_id)
 
     def assign_asset_to_public_customer(self, asset_id: AssetId) -> Asset:
         asset_id = self.get_id(asset_id)
@@ -109,9 +119,8 @@ class RestClientCE(RestClientBase):
                                                             sort_order=sort_order)
 
     def assign_edge_to_customer(self, customer_id: CustomerId, edge_id: EdgeId) -> Edge:
-        customer_id = self.get_id(customer_id)
-        edge_id = self.get_id(edge_id)
-        return self.edge_controller.assign_edge_to_customer_using_post(customer_id=customer_id, edge_id=edge_id)
+        self._assign_to_customer(customer_id, 'EDGE', edge_id)
+        return self.get_edge_by_id(edge_id)
 
     def find_by_query_v2(self, body: Optional[EdgeSearchQuery] = None) -> List[Edge]:
         return self.edge_controller.find_edges_by_query(body=body)
@@ -165,8 +174,8 @@ class RestClientCE(RestClientBase):
                                               sort_property=sort_property, sort_order=sort_order)
 
     def unassign_edge_from_customer(self, edge_id: EdgeId) -> Edge:
-        edge_id = self.get_id(edge_id)
-        return self.edge_controller.unassign_edge_from_customer_using_delete(edge_id=edge_id)
+        self._unassign_from_customer('EDGE', edge_id)
+        return self.get_edge_by_id(edge_id)
 
     def assign_edge_to_public_customer(self, edge_id: EdgeId) -> Edge:
         edge_id = self.get_id(edge_id)
@@ -558,8 +567,8 @@ class RestClientCE(RestClientBase):
         return self.device_controller.assign_device_to_public_customer_using_post(device_id=device_id)
 
     def unassign_device_from_customer(self, device_id: DeviceId) -> Device:
-        device_id = self.get_id(device_id)
-        return self.device_controller.unassign_device_from_customer_using_delete(device_id=device_id)
+        self._unassign_from_customer('DEVICE', device_id)
+        return self.get_device_by_id(device_id)
 
     def get_device_by_id(self, device_id: DeviceId) -> Device:
         device_id = self.get_id(device_id)
@@ -628,9 +637,8 @@ class RestClientCE(RestClientBase):
         return self.device_controller.re_claim_device(device_name=device_name)
 
     def assign_device_to_customer(self, customer_id: CustomerId, device_id: DeviceId) -> Device:
-        customer_id = self.get_id(customer_id)
-        device_id = self.get_id(device_id)
-        return self.device_controller.assign_device_to_customer_using_post(customer_id=customer_id, device_id=device_id)
+        self._assign_to_customer(customer_id, 'DEVICE', device_id)
+        return self.get_device_by_id(device_id)
 
     def get_edge_devices(self, edge_id: EdgeId, page_size: int, page: int, type: Optional[str] = None,
                          text_search: Optional[str] = None,
@@ -737,10 +745,8 @@ class RestClientCE(RestClientBase):
         return self.entity_view_controller.delete_entity_view(entity_view_id=entity_view_id)
 
     def assign_entity_view_to_customer(self, customer_id: CustomerId, entity_view_id: EntityViewId) -> EntityView:
-        customer_id = self.get_id(customer_id)
-        entity_view_id = self.get_id(entity_view_id)
-        return self.entity_view_controller.assign_entity_view_to_customer_using_post(customer_id=customer_id,
-                                                                                     entity_view_id=entity_view_id)
+        self._assign_to_customer(customer_id, 'ENTITY_VIEW', entity_view_id)
+        return self.get_entity_view_by_id(entity_view_id)
 
     def get_entity_view_by_id(self, entity_view_id: EntityViewId) -> EntityView:
         entity_view_id = self.get_id(entity_view_id)
@@ -779,9 +785,8 @@ class RestClientCE(RestClientBase):
                                                                            end_time=end_time)
 
     def unassign_entity_view_from_customer(self, entity_view_id: EntityViewId) -> EntityView:
-        entity_view_id = self.get_id(entity_view_id)
-        return self.entity_view_controller.unassign_entity_view_from_customer_using_delete(
-            entity_view_id=entity_view_id)
+        self._unassign_from_customer('ENTITY_VIEW', entity_view_id)
+        return self.get_entity_view_by_id(entity_view_id)
 
     def save_entity_view(self, body: Optional[EntityView] = None) -> EntityView:
         return self.entity_view_controller.save_entity_view(body=body)
@@ -1056,10 +1061,8 @@ class RestClientCE(RestClientBase):
                                                                sort_order=sort_order)
 
     def assign_dashboard_to_customer(self, customer_id: CustomerId, dashboard_id: DashboardId) -> Dashboard:
-        customer_id = self.get_id(customer_id)
-        dashboard_id = self.get_id(dashboard_id)
-        return self.dashboard_controller.assign_dashboard_to_customer_using_post(customer_id=customer_id,
-                                                                                 dashboard_id=dashboard_id)
+        self._assign_to_customer(customer_id, 'DASHBOARD', dashboard_id)
+        return self.get_dashboard_by_id(dashboard_id)
 
     def set_tenant_home_dashboard_info(self, body: Optional[HomeDashboardInfo] = None) -> None:
         return self.dashboard_controller.set_tenant_home_dashboard_info(body=body)
@@ -1074,10 +1077,8 @@ class RestClientCE(RestClientBase):
                                                                        sort_order=sort_order)
 
     def unassign_dashboard_from_customer(self, customer_id: CustomerId, dashboard_id: DashboardId) -> Dashboard:
-        customer_id = self.get_id(customer_id)
-        dashboard_id = self.get_id(dashboard_id)
-        return self.dashboard_controller.unassign_dashboard_from_customer_using_delete(customer_id=customer_id,
-                                                                                       dashboard_id=dashboard_id)
+        self._unassign_from_customer('DASHBOARD', dashboard_id)
+        return self.get_dashboard_by_id(dashboard_id)
 
     # Entity Query Controller
     def find_alarm_data_by_query(self, body: Optional[AlarmDataQuery] = None) -> PageDataAlarmData:

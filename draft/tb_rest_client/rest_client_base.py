@@ -50,6 +50,7 @@ from tb_rest_client.api.o_auth_2_config_template_controller_api import OAuth2Con
 from tb_rest_client.api.o_auth_2_controller_api import OAuth2ControllerApi
 from tb_rest_client.api.ota_package_controller_api import OtaPackageControllerApi
 from tb_rest_client.api.queue_controller_api import QueueControllerApi
+from tb_rest_client.api.owner_controller_api import OwnerControllerApi
 from tb_rest_client.api.rpc_v_1_controller_api import RpcV1ControllerApi
 from tb_rest_client.api.rpc_v_2_controller_api import RpcV2ControllerApi
 from tb_rest_client.api.rule_chain_controller_api import RuleChainControllerApi
@@ -2345,6 +2346,7 @@ class RestClientBase(Thread):
         self.tb_resource_controller = TbResourceControllerApi(self.api_client)
         self.auth_controller = AuthControllerApi(self.api_client)
         self.queue_controller = QueueControllerApi(self.api_client)
+        self.owner_controller = OwnerControllerApi(self.api_client)
         self.ota_package_controller = OtaPackageControllerApi(self.api_client)
         self.alarm_controller = AlarmControllerApi(self.api_client)
         self.edge_event_controller = EdgeEventControllerApi(self.api_client)
