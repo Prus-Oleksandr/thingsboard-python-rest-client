@@ -51,7 +51,26 @@ def fix_discriminator_maps(pkg_dir):
     print('discriminator maps: fixed %d models' % len(changed))
 
 
-FIXES = [fix_discriminator_maps]
+def fix_entity_id_arg_order(pkg_dir):
+    """The 4.4 spec lists entityType before id, so the generated constructor is
+    EntityId(entity_type, id), while 4.3 had EntityId(id, entity_type). Code written for 4.3,
+    DeviceId(uuid, 'DEVICE'), would silently swap the fields and call /api/device/DEVICE.
+    All *Id classes pass *args to EntityId.__init__, so fixing it fixes them too."""
+    path = os.path.join(pkg_dir, 'models', 'entity_id.py')
+    src = open(path).read()
+    generated = 'def __init__(self, entity_type=None, id=None):'
+    fixed = 'def __init__(self, id=None, entity_type=None):'
+    if generated in src:
+        with open(path, 'w') as f:
+            f.write(src.replace(generated, fixed))
+        print('EntityId argument order: restored (id, entity_type)')
+    elif fixed in src:
+        print('EntityId argument order: already (id, entity_type)')
+    else:
+        sys.exit('EntityId argument order: unexpected constructor in %s, check the fix' % path)
+
+
+FIXES = [fix_discriminator_maps, fix_entity_id_arg_order]
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

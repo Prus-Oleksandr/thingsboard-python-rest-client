@@ -93,7 +93,7 @@ class EntityId(object):
             'WIDGET_TYPE'.lower(): 'WidgetTypeId',
     }
 
-    def __init__(self, entity_type=None, id=None):  # noqa: E501
+    def __init__(self, id=None, entity_type=None):  # noqa: E501
         """EntityId - a model defined in Swagger"""  # noqa: E501
         self._entity_type = None
         self._id = None
