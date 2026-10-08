@@ -59,6 +59,11 @@ def rewrite(path, entries, api_classes):
                      % (path, entry['line'], entry['old']))
         if new_method != old_method:
             replace(node.func.end_lineno, node.func.end_col_offset - len(old_method.encode()), old_method, new_method)
+            # keep continuation lines aligned with the opening parenthesis
+            aligned = node.func.end_col_offset + 1
+            for line in range(node.func.end_lineno + 1, node.end_lineno + 1):
+                if len(lines[line - 1]) - len(lines[line - 1].lstrip(b' ')) == aligned:
+                    replace(line, 0, ' ' * aligned, ' ' * (aligned + len(new_method) - len(old_method)))
         for kw in node.keywords:
             if kw.arg in kwarg_renames:
                 replace(kw.lineno, kw.col_offset, kw.arg, kwarg_renames[kw.arg])
