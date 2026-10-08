@@ -7,7 +7,8 @@ API (the one the wrappers were written for) to its HTTP method + path, and then
 matched by HTTP method + path in the new client, because method names change
 between spec versions. When the path is gone, or now belongs to another variant,
 the new op implemented by the same Java controller method (the name the summary
-ends with) is used, if the HTTP method and response type agree. Findings:
+ends with), or else with the same summary title in the same controller, is used
+if the HTTP method and response type agree. Findings:
   ERROR  the wrapper will not work even after renaming (endpoint or param gone,
          new required param not passed, call already broken in the old client)
   RENAME mechanical changes: new method, controller or param name
@@ -150,10 +151,11 @@ for op in new_ops:
     new_by_name[base_name(op['name'])].append(op)
 
 
-new_by_java = collections.defaultdict(list)
+new_by = {'java': collections.defaultdict(list), 'title': collections.defaultdict(list)}
 for op in new_ops:
-    if op['java']:
-        new_by_java[op['java']].append(op)
+    for key in new_by:
+        if op[key]:
+            new_by[key][op[key]].append(op)
 
 
 def path_similarity(a, b):
@@ -163,13 +165,14 @@ def path_similarity(a, b):
     return len(segments(a) & segments(b)) / len(segments(a) | segments(b))
 
 
-def find_by_java(old, old_cls):
-    """The new op implemented by the same controller method as the old one, if unambiguous.
-    The HTTP method must match (PUT update vs POST save differ even with one summary).
-    Several controllers have methods with the same name (findByQuery), so the same class
-    is preferred, then the most similar path."""
-    candidates = [op for op in new_by_java.get(old['java'], []) if op['http_method'] == old['http_method']]
-    if any(op['class'] == old_cls for op in candidates):
+def find_same_operation(old, old_cls, key):
+    """The new op with the same Java controller method name (key='java') or summary title
+    (key='title') as the old one, if unambiguous. The HTTP method must match (PUT update vs
+    POST save differ even with one summary). Several controllers have methods with the same
+    name (findByQuery), so the same class is preferred, then the most similar path."""
+    candidates = [op for op in new_by[key].get(old[key], []) if op['http_method'] == old['http_method']]
+    if key == 'title' or any(op['class'] == old_cls for op in candidates):
+        # titles like 'Update oauth2 clients' repeat across controllers
         candidates = [op for op in candidates if op['class'] == old_cls]
     if len(candidates) > 1:
         candidates.sort(key=lambda op: -path_similarity(old['path'], op['path']))
@@ -244,15 +247,19 @@ for call in calls:
     entry['http'] = '%s %s' % (old['http_method'], old['path'])
     new = new_by_key.get(path_key(old))
     collapsed = new is not None and new['java'] != old['java'] and not is_kept_variant(old)
-    # The controller method behind an operation survives path and operationId changes. Summaries
-    # are sometimes copy-pasted from another operation, so the path wins when it still exists, and
-    # a move is only trusted when the response type agrees.
-    same_java = find_by_java(old, old_cls) if old['java'] and (new is None or collapsed) else None
-    if same_java is not None and not compatible_response(old, same_java):
-        same_java = None
-    if same_java is not None:
-        new = same_java
-        issue('RENAME', 'endpoint moved (same Java method)', entry['http'], '%s %s' % (new['http_method'], new['path']))
+    # The controller method name, or at least the summary title, survives path and operationId
+    # changes. Summaries are sometimes copy-pasted from another operation, so the path wins when
+    # it still exists, and a move is only trusted when the response type agrees.
+    moved_to, moved_by = None, None
+    if new is None or collapsed:
+        for key, label in (('java', 'same Java method'), ('title', 'same summary')):
+            candidate = find_same_operation(old, old_cls, key) if old[key] else None
+            if candidate is not None and compatible_response(old, candidate):
+                moved_to, moved_by = candidate, label
+                break
+    if moved_to is not None:
+        new = moved_to
+        issue('RENAME', 'endpoint moved (%s)' % moved_by, entry['http'], '%s %s' % (new['http_method'], new['path']))
     elif new is None:
         how, candidate = moved_candidate(old)
         if how == 'same name':

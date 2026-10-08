@@ -47,6 +47,7 @@ def parse_api(path):
             'name': name,
             'summary': summary,
             'java': java_method(summary),
+            'title': re.sub(r'\s*\([a-z]\w*\)$', '', summary).lower() if java_method(summary) != summary else None,
             'positional': positional.get(name, []),
             'http_method': call.group(2),
             # older springfox specs put query params into the path: {?a,b}, ?scope=ANY, ?a=b{&c,d}
