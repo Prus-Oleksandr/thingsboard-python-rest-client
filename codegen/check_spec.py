@@ -8,11 +8,14 @@ spec is lost or wrong in the client) and WARN (known generator limitations).
 By default up to 3 examples per finding are printed; --full prints all of them.
 """
 import argparse
-import ast
 import collections
 import json
 import os
 import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from client_parser import parse_api_dir, parse_models_dir  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HTTP_METHODS = ('get', 'post', 'put', 'delete', 'patch', 'head', 'options')
@@ -109,37 +112,7 @@ def spec_props(name, seen=()):
 
 
 # ---------- generated models ----------
-def parse_model(path):
-    src = open(path).read()
-    cls = next(n for n in ast.parse(src).body if isinstance(n, ast.ClassDef))
-    info = {'bases': [b.id for b in cls.bases if isinstance(b, ast.Name) and b.id != 'object'],
-            'swagger_types': {}, 'attribute_map': {}, 'disc_map': {}, 'enum_values': [],
-            'allowed': {}, 'required': set()}
-    for st in cls.body:
-        if isinstance(st, ast.Assign) and isinstance(st.targets[0], ast.Name):
-            target = st.targets[0].id
-            if target in ('swagger_types', 'attribute_map'):
-                info[target] = ast.literal_eval(st.value)
-            elif target == 'discriminator_value_class_map':
-                # keys look like 'VALUE'.lower()
-                info['disc_map'] = {
-                    (k.func.value.value.lower() if isinstance(k, ast.Call) else k.value): v.value
-                    for k, v in zip(st.value.keys, st.value.values)}
-            elif isinstance(st.value, ast.Constant) and isinstance(st.value.value, str):
-                info['enum_values'].append(st.value.value)
-        elif isinstance(st, ast.FunctionDef) and len(st.args.args) == 2:  # property setter
-            body = ast.get_source_segment(src, st)
-            m = re.search(r'allowed_values = (\[.*?\])', body)
-            if m:
-                info['allowed'][st.name] = ast.literal_eval(m.group(1))
-            if 'must not be `None`' in body:
-                info['required'].add(st.name)
-    return cls.name, info
-
-
-models_dir = os.path.join(args.package, 'models')
-gen_classes = dict(parse_model(os.path.join(models_dir, f)) for f in sorted(os.listdir(models_dir))
-                   if f.endswith('.py') and f != '__init__.py')
+gen_classes = parse_models_dir(os.path.join(args.package, 'models'))
 class_by_norm = {norm(c): c for c in gen_classes}
 
 
@@ -208,42 +181,12 @@ def check_model(name, s):
 
 
 # ---------- generated APIs ----------
-def parse_api(path):
-    src = open(path).read()
-    cls = next(n for n in ast.parse(src).body if isinstance(n, ast.ClassDef))
-    for fn in cls.body:
-        if not (isinstance(fn, ast.FunctionDef) and fn.name.endswith('_with_http_info')):
-            continue
-        body = ast.get_source_segment(src, fn)
-        method_path = re.search(r"call_api\(\s*'([^']+)', '([A-Z]+)'", body)
-        params = {}
-        for location, regex in (('path', r"path_params\['([^']+)'\] = params\['(\w+)'\]"),
-                                ('query', r"query_params\.append\(\('([^']+)', params\['(\w+)'\]"),
-                                ('header', r"header_params\['([^']+)'\] = params\['(\w+)'\]")):
-            for wire, py in re.findall(regex, body):
-                params[(location, wire)] = py
-        content_type = re.search(r"select_header_content_type\(\s*(?:#.*\n\s*)?(\[[^\]]*\])", body)
-        response_type = re.search(r"response_type=(?:'([^']*)'|None)", body)
-        yield (method_path.group(2), method_path.group(1)), {
-            'name': fn.name[:-len('_with_http_info')],
-            'params': params,
-            'doc_types': {n: t for t, n in re.findall(r':param (\S+) (\w+):', body)},
-            'required': set(re.findall(r'Missing the required parameter `(\w+)`', body)),
-            'body': "body_params = params['body']" in body,
-            'form': re.findall(r"form_params\.append\(\('([^']+)'", body) + re.findall(r"local_var_files\['([^']+)'\]", body),
-            'content_type': ast.literal_eval(content_type.group(1)) if content_type else [],
-            'response_type': response_type.group(1) if response_type else None,
-        }
-
-
-api_dir = os.path.join(args.package, 'api')
 gen_ops = {}
-for f in sorted(os.listdir(api_dir)):
-    if f.endswith('_api.py'):
-        for key, op in parse_api(os.path.join(api_dir, f)):
-            if key in gen_ops:
-                report('ERROR', 'operation generated twice', key, gen_ops[key]['name'], op['name'])
-            gen_ops[key] = op
+for op in parse_api_dir(os.path.join(args.package, 'api')):
+    key = (op['http_method'], op['path'])
+    if key in gen_ops:
+        report('ERROR', 'operation generated twice', key, gen_ops[key]['name'], op['name'])
+    gen_ops[key] = op
 
 
 def check_operation(key, o):
@@ -262,7 +205,8 @@ def check_operation(key, o):
             compare_types((op_id, prm['name']), expected_type(prm.get('schema', {})), g['doc_types'][py])
     spec_params = {(p['in'], p['name']) for p in o.get('parameters', [])}
     for location, wire in g['params']:
-        if (location, wire) not in spec_params:
+        # multipart fields come from requestBody, not from parameters
+        if location != 'form' and (location, wire) not in spec_params:
             report('ERROR', 'param not in spec', op_id, location, wire)
     body = o.get('requestBody')
     if body:
@@ -290,6 +234,10 @@ def check_operation(key, o):
             report('ERROR', 'response type missing', op_id, first, expected_type(content[first].get('schema', {})))
         else:
             compare_types((op_id, 'response'), expected_type(content[first].get('schema', {})), g['response_type'])
+        # often a DeferredResult in the controller that actually returns JSON objects;
+        # a 'str' response type then turns them into Python repr strings
+        if content.get('application/json', {}).get('schema') == {'type': 'string'}:
+            report('WARN', 'spec: JSON response typed as string', op_id, '%s %s' % key)
 
 
 spec_ops = [((m.upper(), p), o) for p, v in spec['paths'].items() for m, o in v.items() if m in HTTP_METHODS]

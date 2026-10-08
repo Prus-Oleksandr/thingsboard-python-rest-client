@@ -8,6 +8,8 @@
 | `codegen/generate.sh` | Downloads the pinned swagger-codegen v3 CLI, generates the client and runs `postprocess.py`. |
 | `codegen/postprocess.py` | Idempotent fixes for known generator bugs, applied after every generation. |
 | `codegen/check_spec.py` | Compares a generated client with the spec and reports what is lost or wrong. |
+| `codegen/check_wrappers.py` | Maps every `rest_client_*.py` wrapper call to the new client and reports what breaks. |
+| `codegen/client_parser.py` | Shared parser of generated api and model code used by both checks. |
 | `draft/` | Generated draft that is reviewed and edited by hand. |
 
 Generate the draft (requires Java and curl):
@@ -28,4 +30,17 @@ python3 codegen/check_spec.py --package /tmp/gen/tb_rest_client --json report.js
 ```
 
 Operations are matched by HTTP method + path and models by schema name. `ERROR` means something
-from the spec is lost or wrong in the client; `WARN` lists known generator limitations.
+from the spec is lost or wrong in the client; `WARN` lists known generator limitations and spots
+where the spec itself looks wrong and should be checked on a server.
+
+Check the hand-written wrappers of the current client against the draft:
+
+```bash
+python3 codegen/check_wrappers.py                            # summary with examples
+python3 codegen/check_wrappers.py --full --json calls.json   # every finding + old -> new mapping of each call
+```
+
+Each wrapper call is resolved to the old generated method, its HTTP method + path, and the new
+method with the same HTTP method + path. `ERROR` means the wrapper breaks even after renaming
+(endpoint or param gone, new required param, or the call was already broken); `RENAME` lists
+mechanical renames; `INFO` lists new operations without a wrapper.
