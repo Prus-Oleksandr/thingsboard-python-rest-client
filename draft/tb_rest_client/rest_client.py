@@ -1237,12 +1237,6 @@ class RestClient(Thread):
     def get_login_processing_url(self, ) -> str:
         return self.o_auth2_controller.get_login_processing_url()
 
-    def get_current_o_auth2_info(self, ) -> OAuth2Info:
-        return self.o_auth2_controller.get_current_o_auth2_info_using_get()
-
-    def save_o_auth2_info(self, body: Optional[OAuth2Info] = None) -> OAuth2Info:
-        return self.o_auth2_controller.save_o_auth2_info_using_post(body=body)
-
     def get_o_auth2_clients(self, pkg_name: Optional[str] = None, platform: Optional[str] = None) -> List[OAuth2ClientInfo]:
         return self.o_auth2_controller.get_o_auth2_clients(pkg_name=pkg_name, platform=platform)
 
@@ -2414,10 +2408,6 @@ class RestClient(Thread):
         return id.id if hasattr(id, "id") else id
 
     # Asset Controller
-    def assign_asset_to_edge(self, edge_id: EdgeId, asset_id: AssetId) -> Asset:
-        edge_id = self.get_id(edge_id)
-        asset_id = self.get_id(asset_id)
-        return self.asset_controller.assign_asset_to_edge_using_post(edge_id=edge_id, asset_id=asset_id)
 
     def get_tenant_asset_infos(self, page_size: int, page: int, include_customers: Optional[bool] = None,
                                asset_profile_id: Optional[AssetProfileId] = None, text_search: Optional[str] = None,
@@ -2431,21 +2421,6 @@ class RestClient(Thread):
 
     def process_assets_bulk_import(self, body: BulkImportRequest) -> BulkImportResultAsset:
         return self.asset_controller.process_asset_bulk_import(body=body)
-
-    def unassign_asset_from_edge(self, edge_id: EdgeId, asset_id: AssetId) -> Asset:
-        edge_id = self.get_id(edge_id)
-        asset_id = self.get_id(asset_id)
-        return self.asset_controller.unassign_asset_from_edge_using_delete(edge_id=edge_id, asset_id=asset_id)
-
-    def get_edge_assets(self, edge_id: EdgeId, page_size: int, page: int, type: Optional[str] = None,
-                        text_search: Optional[str] = None,
-                        sort_property: Optional[str] = None, sort_order: Optional[str] = None, start_time: Optional[int] = None,
-                        end_time: Optional[int] = None) -> PageDataAsset:
-        edge_id = self.get_id(edge_id)
-        return self.asset_controller.get_edge_assets_using_get(edge_id=edge_id, page_size=page_size, page=page,
-                                                               type=type, text_search=text_search,
-                                                               sort_property=sort_property, sort_order=sort_order,
-                                                               start_time=start_time, end_time=end_time)
 
     # Since 4.4 entities are not assigned to customers: the customer becomes the owner instead.
     # The wrappers keep their 4.3 signatures and return the updated entity, as before.
@@ -2465,10 +2440,6 @@ class RestClient(Thread):
     def unassign_asset_from_customer(self, asset_id: AssetId) -> Asset:
         self._unassign_from_customer('ASSET', asset_id)
         return self.get_asset_by_id(asset_id)
-
-    def assign_asset_to_public_customer(self, asset_id: AssetId) -> Asset:
-        asset_id = self.get_id(asset_id)
-        return self.asset_controller.assign_asset_to_public_customer_using_post(asset_id=asset_id)
 
     # Edge Controller
     def get_tenant_edge_infos(self, page_size: int, page: int, type: Optional[str] = None, text_search: Optional[str] = None,
@@ -2499,10 +2470,6 @@ class RestClient(Thread):
         self._unassign_from_customer('EDGE', edge_id)
         return self.get_edge_by_id(edge_id)
 
-    def assign_edge_to_public_customer(self, edge_id: EdgeId) -> Edge:
-        edge_id = self.get_id(edge_id)
-        return self.edge_controller.assign_edge_to_public_customer_using_post(edge_id=edge_id)
-
     def delete_resource(self, rpc_id: RpcId) -> None:
         rpc_id = self.get_id(rpc_id)
         return self.rpc_v2_controller.delete_rpc(rpc_id=rpc_id)
@@ -2511,10 +2478,6 @@ class RestClient(Thread):
                   sort_order: Optional[str] = None) -> PageDataUser:
         return self.user_controller.get_user_users(page_size=page_size, page=page, text_search=text_search,
                                                    sort_property=sort_property, sort_order=sort_order)
-
-    def assign_device_to_public_customer(self, device_id: DeviceId) -> Device:
-        device_id = self.get_id(device_id)
-        return self.device_controller.assign_device_to_public_customer_using_post(device_id=device_id)
 
     def unassign_device_from_customer(self, device_id: DeviceId) -> Device:
         self._unassign_from_customer('DEVICE', device_id)
@@ -2531,38 +2494,9 @@ class RestClient(Thread):
                                                            text_search=text_search, sort_property=sort_property,
                                                            sort_order=sort_order)
 
-    def unassign_device_from_edge(self, edge_id: EdgeId, device_id: DeviceId) -> Device:
-        edge_id = self.get_id(edge_id)
-        device_id = self.get_id(device_id)
-        return self.device_controller.unassign_device_from_edge_using_delete(edge_id=edge_id, device_id=device_id)
-
-    def assign_device_to_edge(self, edge_id: EdgeId, device_id: DeviceId) -> Device:
-        edge_id = self.get_id(edge_id)
-        device_id = self.get_id(device_id)
-        return self.device_controller.assign_device_to_edge_using_post(edge_id=edge_id, device_id=device_id)
-
     def assign_device_to_customer(self, customer_id: CustomerId, device_id: DeviceId) -> Device:
         self._assign_to_customer(customer_id, 'DEVICE', device_id)
         return self.get_device_by_id(device_id)
-
-    def get_edge_devices(self, edge_id: EdgeId, page_size: int, page: int, type: Optional[str] = None,
-                         text_search: Optional[str] = None,
-                         sort_property: Optional[str] = None, sort_order: Optional[str] = None, start_time: Optional[int] = None,
-                         end_time: Optional[int] = None, device_profile_id: Optional[DeviceProfileId] = None, active: Optional[bool] = None) -> PageDataDevice:
-        edge_id = self.get_id(edge_id)
-
-        if device_profile_id:
-            device_profile_id = self.get_id(device_profile_id)
-        return self.device_controller.get_edge_devices_using_get(edge_id=edge_id, page_size=page_size, page=page,
-                                                                 type=type, text_search=text_search,
-                                                                 sort_property=sort_property, sort_order=sort_order,
-                                                                 start_time=start_time, end_time=end_time, device_profile_id=device_profile_id, active=active)
-
-    def assign_entity_view_to_edge(self, edge_id: EdgeId, entity_view_id: EntityViewId) -> EntityView:
-        edge_id = self.get_id(edge_id)
-        entity_view_id = self.get_id(entity_view_id)
-        return self.entity_view_controller.assign_entity_view_to_edge_using_post(edge_id=edge_id,
-                                                                                 entity_view_id=entity_view_id)
 
     def assign_entity_view_to_customer(self, customer_id: CustomerId, entity_view_id: EntityViewId) -> EntityView:
         self._assign_to_customer(customer_id, 'ENTITY_VIEW', entity_view_id)
@@ -2575,32 +2509,9 @@ class RestClient(Thread):
                                                                      sort_property=sort_property,
                                                                      sort_order=sort_order)
 
-    def get_edge_entity_views(self, edge_id: EdgeId, page: int, page_size: int, type: Optional[str] = None,
-                              text_search: Optional[str] = None,
-                              sort_property: Optional[str] = None, sort_order: Optional[str] = None, start_time: Optional[int] = None,
-                              end_time: Optional[int] = None) -> PageDataEntityView:
-        edge_id = self.get_id(edge_id)
-        return self.entity_view_controller.get_edge_entity_views_using_get(edge_id=edge_id, page=page,
-                                                                           page_size=page_size, type=type,
-                                                                           text_search=text_search,
-                                                                           sort_property=sort_property,
-                                                                           sort_order=sort_order, start_time=start_time,
-                                                                           end_time=end_time)
-
     def unassign_entity_view_from_customer(self, entity_view_id: EntityViewId) -> EntityView:
         self._unassign_from_customer('ENTITY_VIEW', entity_view_id)
         return self.get_entity_view_by_id(entity_view_id)
-
-    def unassign_entity_view_from_edge(self, edge_id: EdgeId, entity_view_id: EntityViewId) -> EntityView:
-        edge_id = self.get_id(edge_id)
-        entity_view_id = self.get_id(entity_view_id)
-        return self.entity_view_controller.unassign_entity_view_from_edge_using_delete(edge_id=edge_id,
-                                                                                       entity_view_id=entity_view_id)
-
-    def assign_entity_view_to_public_customer(self, entity_view_id: EntityViewId) -> EntityView:
-        entity_view_id = self.get_id(entity_view_id)
-        return self.entity_view_controller.assign_entity_view_to_public_customer_using_post(
-            entity_view_id=entity_view_id)
 
     def delete_resource_v1(self, resource_id: EntityId) -> TbResourceDeleteResult:
         resource_id = self.get_id(resource_id)
@@ -2611,49 +2522,10 @@ class RestClient(Thread):
         return self.device_profile_controller.get_device_profile_infos_by_ids(device_profile_ids=device_profile_ids)
 
     # Dashboard Controller
-    def add_dashboard_customers(self, dashboard_id: DashboardId, body: Optional[List[str]] = None) -> Dashboard:
-        dashboard_id = self.get_id(dashboard_id)
-        return self.dashboard_controller.add_dashboard_customers_using_post(dashboard_id=dashboard_id, body=body)
-
-    def assign_dashboard_to_edge(self, edge_id: EdgeId, dashboard_id: DashboardId) -> Dashboard:
-        edge_id = self.get_id(edge_id)
-        dashboard_id = self.get_id(dashboard_id)
-        return self.dashboard_controller.assign_dashboard_to_edge_using_post(edge_id=edge_id, dashboard_id=dashboard_id)
-
-    def remove_dashboard_customers(self, dashboard_id: DashboardId, body: Optional[List[str]] = None) -> Dashboard:
-        dashboard_id = self.get_id(dashboard_id)
-        return self.dashboard_controller.remove_dashboard_customers_using_post(dashboard_id=dashboard_id, body=body)
-
-    def assign_dashboard_to_public_customer(self, dashboard_id: DashboardId) -> Dashboard:
-        dashboard_id = self.get_id(dashboard_id)
-        return self.dashboard_controller.assign_dashboard_to_public_customer_using_post(dashboard_id=dashboard_id)
-
-    def update_dashboard_customers(self, dashboard_id: DashboardId, body: Optional[List[str]] = None) -> Dashboard:
-        dashboard_id = self.get_id(dashboard_id)
-        return self.dashboard_controller.update_dashboard_customers_using_post(dashboard_id=dashboard_id, body=body)
-
-    def unassign_dashboard_from_public_customer(self, dashboard_id: DashboardId) -> Dashboard:
-        dashboard_id = self.get_id(dashboard_id)
-        return self.dashboard_controller.unassign_dashboard_from_public_customer_using_delete(dashboard_id=dashboard_id)
-
-    def unassign_dashboard_from_edge(self, edge_id: EdgeId, dashboard_id: DashboardId) -> Dashboard:
-        edge_id = self.get_id(edge_id)
-        dashboard_id = self.get_id(dashboard_id)
-        return self.dashboard_controller.unassign_dashboard_from_edge_using_delete(edge_id=edge_id,
-                                                                                   dashboard_id=dashboard_id)
 
     def assign_dashboard_to_customer(self, customer_id: CustomerId, dashboard_id: DashboardId) -> Dashboard:
         self._assign_to_customer(customer_id, 'DASHBOARD', dashboard_id)
         return self.get_dashboard_by_id(dashboard_id)
-
-    def get_edge_dashboards(self, edge_id: EdgeId, page_size: int, page: int, text_search: Optional[str] = None,
-                            sort_property: Optional[str] = None,
-                            sort_order: Optional[str] = None) -> PageDataDashboardInfo:
-        edge_id = self.get_id(edge_id)
-        return self.dashboard_controller.get_edge_dashboards_using_get(edge_id=edge_id, page_size=page_size, page=page,
-                                                                       text_search=text_search,
-                                                                       sort_property=sort_property,
-                                                                       sort_order=sort_order)
 
     def unassign_dashboard_from_customer(self, customer_id: CustomerId, dashboard_id: DashboardId) -> Dashboard:
         self._unassign_from_customer('DASHBOARD', dashboard_id)
@@ -3516,23 +3388,6 @@ class RestClient(Thread):
                                                                             entity_group_id=entity_group_id)
 
     # Solution Controller
-    def get_solution_template_details(self, solution_template_id) -> TenantSolutionTemplateDetails:
-        return self.solution_controller.get_solution_template_details_using_get(
-            solution_template_id=solution_template_id)
-
-    def get_solution_template_infos(self) -> List[TenantSolutionTemplateInfo]:
-        return self.solution_controller.get_solution_template_infos_using_get()
-
-    def get_solution_template_instructions(self, solution_template_id) -> TenantSolutionTemplateInstructions:
-        return self.solution_controller.get_solution_template_instructions_using_get(
-            solution_template_id=solution_template_id)
-
-    def install_solution_template(self, solution_template_id) -> SolutionInstallResponse:
-        return self.solution_controller.install_solution_template_using_post(solution_template_id=solution_template_id)
-
-    def uninstall_solution_template(self, solution_template_id) -> None:
-        return self.solution_controller.uninstall_solution_template_using_delete(
-            solution_template_id=solution_template_id)
 
     # Asset Profile Controller
     def delete_asset_profile(self, asset_profile_id: AssetProfileId):
