@@ -1472,9 +1472,6 @@ class RestClient(Thread):
     def find_entity_data_by_query(self, body: Optional[EntityDataQuery] = None) -> PageDataEntityData:
         return self.entity_query_controller.find_entity_data_by_query(body=body)
 
-    def is_edqs_api_enabled(self) -> bool:
-        return self.entity_query_controller.is_edqs_api_enabled()
-
     def process_system_edqs_request(self, body: ToCoreEdqsRequest):
         return self.entity_query_controller.process_system_edqs_request(body=body)
 
@@ -2179,13 +2176,8 @@ class RestClient(Thread):
                                                                  sort_property=sort_property,
                                                                  sort_order=sort_order)
 
-    def save_mobile_app(self, body: MobileApp, oauth2_client_ids: Optional[str] = None) -> MobileApp:
-        if oauth2_client_ids is not None:
-            oauth2_client_ids = ','.join(oauth2_client_ids)
-        return self.mobile_app_controller.save_mobile_app(body=body, oauth2_client_ids=oauth2_client_ids)
-
-    def mobile_app_update_oauth2_clients(self, body: List[str], id: str):
-        return self.mobile_app_controller.update_oauth2_clients(body=body, id=id)
+    def save_mobile_app(self, body: MobileApp) -> MobileApp:
+        return self.mobile_app_controller.save_mobile_app(body=body)
 
     def get_login_mobile_info(self, pkg_name: str, platform: str) -> LoginMobileInfo:
         return self.mobile_app_controller.get_login_mobile_info(pkg_name=pkg_name, platform=platform)
@@ -2270,11 +2262,6 @@ class RestClient(Thread):
                                                                            sort_order=sort_order)
 
     # Trendz Controller
-    def get_trendz_settings(self) -> TrendzSettings:
-        return self.trendz_controller.get_trendz_settings()
-
-    def save_trendz_settings(self, body: TrendzSettings) -> TrendzSettings:
-        return self.trendz_controller.save_trendz_settings(body=body)
 
     # Job Controller
     def cancel_job(self, id: JobId) -> None:
@@ -2543,9 +2530,6 @@ class RestClient(Thread):
 
     def get_terms_of_use(self, ) -> str:
         return self.self_registration_controller.get_terms_of_use()
-
-    def delete_self_registration_params(self, domain_name: str):
-        return self.self_registration_controller.delete_self_registration_params_using_delete(domain_name=domain_name)
 
     def save_self_registration_params(self, body: Optional[SelfRegistrationParams] = None) -> SelfRegistrationParams:
         return self.self_registration_controller.save_web_self_registration_params(body=body)
