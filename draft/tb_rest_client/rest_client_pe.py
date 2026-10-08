@@ -101,28 +101,24 @@ class RestClientPE(RestClientBase):
             entity_group_ids = ','.join(entity_group_ids)
         return self.asset_controller.save_asset(body=body, entity_group_id=entity_group_id, entity_group_ids=entity_group_ids)
 
-    def get_all_customer_infos(self, page_size: int, page: int, type: Optional[str] = None,
+    def get_all_customer_infos(self, page_size: int, page: int, include_customers: Optional[bool] = None,
                                text_search: Optional[str] = None, sort_property: Optional[str] = None,
-                               sort_order: Optional[str] = None,
-                               include_customers: Optional[bool] = None) -> PageDataCustomerInfo:
-        return self.customer_controller.get_all_customer_infos_using_get(page_size=page_size, page=page, type=type,
-                                                                         text_search=text_search,
-                                                                         sort_property=sort_property,
-                                                                         sort_order=sort_order,
-                                                                         include_customers=include_customers)
+                               sort_order: Optional[str] = None) -> PageDataCustomerInfo:
+        return self.customer_controller.get_all_customer_infos(page_size=page_size, page=page,
+                                                               include_customers=include_customers,
+                                                               text_search=text_search, sort_property=sort_property,
+                                                               sort_order=sort_order)
 
     def get_customer_customer_infos(self, customer_id: CustomerId, page_size: int, page: int,
-                                    type: Optional[str] = None,
-                                    text_search: Optional[str] = None, sort_property: Optional[str] = None,
-                                    sort_order: Optional[str] = None,
-                                    include_customers: Optional[bool] = None) -> PageDataCustomerInfo:
+                                    include_customers: Optional[bool] = None, text_search: Optional[str] = None,
+                                    sort_property: Optional[str] = None,
+                                    sort_order: Optional[str] = None) -> PageDataCustomerInfo:
         customer_id = self.get_id(customer_id)
-        return self.customer_controller.get_customer_customer_infos_using_get(page_size=page_size, page=page, type=type,
-                                                                              text_search=text_search,
-                                                                              sort_property=sort_property,
-                                                                              sort_order=sort_order,
-                                                                              include_customers=include_customers,
-                                                                              customer_id=customer_id)
+        return self.customer_controller.get_customer_customer_infos(customer_id=customer_id, page_size=page_size,
+                                                                    page=page, include_customers=include_customers,
+                                                                    text_search=text_search,
+                                                                    sort_property=sort_property,
+                                                                    sort_order=sort_order)
 
     def get_customer_info_by_id(self, customer_id: CustomerId) -> CustomerInfo:
         customer_id = self.get_id(customer_id)
@@ -725,8 +721,8 @@ class RestClientPE(RestClientBase):
     def activate_email(self, email_code: str, pkg_name: Optional[str] = None) -> str:
         return self.sign_up_controller.activate_email(email_code=email_code, pkg_name=pkg_name)
 
-    def mobile_login(self, pkg_name: str) -> str:
-        return self.sign_up_controller.mobile_login_using_get(pkg_name=pkg_name)
+    def mobile_login(self, pkg_name: str, platform: str) -> str:
+        return self.sign_up_controller.mobile_login(pkg_name=pkg_name, platform=platform)
 
     def terms_of_use_accepted(self, ) -> bool:
         return self.sign_up_controller.terms_of_use_accepted()
@@ -773,8 +769,15 @@ class RestClientPE(RestClientBase):
         return self.scheduler_event_controller.get_scheduler_events_by_ids(
             scheduler_event_ids=str(scheduler_event_ids))
 
-    def get_scheduler_events(self, type: Optional[str] = None) -> List[SchedulerEventWithCustomerInfo]:
-        return self.scheduler_event_controller.get_scheduler_events_using_get(type=type)
+    def get_scheduler_events(self, page_size: int, page: int, text_search: Optional[str] = None,
+                             sort_property: Optional[str] = None, sort_order: Optional[str] = None,
+                             type: Optional[str] = None,
+                             edge_id: Optional[EdgeId] = None) -> PageDataSchedulerEventWithCustomerInfo:
+        edge_id = self.get_id(edge_id)
+        return self.scheduler_event_controller.get_scheduler_events(page_size=page_size, page=page,
+                                                                    text_search=text_search,
+                                                                    sort_property=sort_property,
+                                                                    sort_order=sort_order, type=type, edge_id=edge_id)
 
     def save_scheduler_event(self, body: Optional[SchedulerEvent] = None) -> SchedulerEvent:
         return self.scheduler_event_controller.save_scheduler_event(body=body)
@@ -1078,13 +1081,11 @@ class RestClientPE(RestClientBase):
     def get_current_white_label_params(self, ) -> WhiteLabelingParams:
         return self.white_labeling_controller.get_current_white_label_params()
 
-    def get_login_white_label_params(self, logo_image_checksum: str, favicon_checksum: str) -> LoginWhiteLabelingParams:
-        return self.white_labeling_controller.get_login_white_label_params_using_get(
-            logo_image_checksum=logo_image_checksum, favicon_checksum=favicon_checksum)
+    def get_login_white_label_params(self) -> LoginWhiteLabelingParams:
+        return self.white_labeling_controller.get_login_white_label_params()
 
-    def get_white_label_params(self, logo_image_checksum: str, favicon_checksum: str) -> WhiteLabelingParams:
-        return self.white_labeling_controller.get_white_label_params_using_get(logo_image_checksum=logo_image_checksum,
-                                                                               favicon_checksum=favicon_checksum)
+    def get_white_label_params(self) -> WhiteLabelingParams:
+        return self.white_labeling_controller.get_white_label_params()
 
     def is_customer_white_labeling_allowed(self, ) -> bool:
         return self.white_labeling_controller.is_customer_white_labeling_allowed()
@@ -1405,21 +1406,18 @@ class RestClientPE(RestClientBase):
                                                            include_customers=include_customers,
                                                            device_profile_id=device_profile_id)
 
-    def get_customer_device_infos(self, customer_id: CustomerId, page_size: int, page: int, type: Optional[str] = None,
-                                  device_profile_id: Optional[DeviceProfileId] = None,
-                                  text_search: Optional[str] = None,
-                                  sort_property: Optional[str] = None, sort_order: Optional[str] = None,
-                                  active: Optional[bool] = None,
-                                  include_customers: Optional[bool] = None) -> PageDataDeviceInfo:
+    def get_customer_device_infos(self, customer_id: CustomerId, page_size: int, page: int,
+                                  include_customers: Optional[bool] = None,
+                                  device_profile_id: Optional[DeviceProfileId] = None, active: Optional[bool] = None,
+                                  text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                                  sort_order: Optional[str] = None) -> PageDataDeviceInfo:
         customer_id = self.get_id(customer_id)
         device_profile_id = self.get_id(device_profile_id)
-        return self.device_controller.get_customer_device_infos_using_get(customer_id=customer_id, page_size=page_size,
-                                                                          page=page, type=type,
-                                                                          device_profile_id=device_profile_id,
-                                                                          text_search=text_search,
-                                                                          sort_property=sort_property,
-                                                                          sort_order=sort_order, active=active,
-                                                                          include_customers=include_customers)
+        return self.device_controller.get_customer_device_infos(customer_id=customer_id, page_size=page_size,
+                                                                page=page, include_customers=include_customers,
+                                                                device_profile_id=device_profile_id, active=active,
+                                                                text_search=text_search, sort_property=sort_property,
+                                                                sort_order=sort_order)
 
     def get_entity_group_entity_info_by_id(self, entity_group_id: EntityGroupId) -> EntityInfo:
         entity_group_id = self.get_id(entity_group_id)
@@ -1546,16 +1544,12 @@ class RestClientPE(RestClientBase):
                                                                           sort_order=sort_order,
                                                                           include_customers=include_customers)
 
-    def get_all_user_infos(self, page_size: int, page: int,
-                           type: Optional[str] = None,
+    def get_all_user_infos(self, page_size: int, page: int, include_customers: Optional[bool] = None,
                            text_search: Optional[str] = None, sort_property: Optional[str] = None,
-                           sort_order: Optional[str] = None,
-                           include_customers: Optional[bool] = None) -> PageDataUserInfo:
-        return self.user_controller.get_all_user_infos_using_get(page_size=page_size, page=page,
-                                                                 type=type, text_search=text_search,
-                                                                 sort_property=sort_property,
-                                                                 sort_order=sort_order,
-                                                                 include_customers=include_customers)
+                           sort_order: Optional[str] = None) -> PageDataUserInfo:
+        return self.user_controller.get_all_user_infos(page_size=page_size, page=page,
+                                                       include_customers=include_customers, text_search=text_search,
+                                                       sort_property=sort_property, sort_order=sort_order)
 
     def get_customer_user_infos(self, customer_id: CustomerId, page_size: int, page: int,
                                 text_search: Optional[str] = None, sort_property: Optional[str] = None,

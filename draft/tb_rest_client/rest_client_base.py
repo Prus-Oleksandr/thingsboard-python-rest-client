@@ -553,30 +553,31 @@ class RestClientBase(Thread):
         asset_id = self.get_id(asset_id)
         return self.asset_controller.get_asset_info_by_id(asset_id=asset_id)
 
-    def get_customer_asset_infos(self, customer_id: CustomerId, page_size: int, page: int, type: Optional[str] = None,
-                                 text_search: Optional[str] = None,
-                                 sort_property: Optional[str] = None, sort_order: Optional[str] = None, asset_profile_id: Optional[AssetProfileId] = None) -> PageDataAssetInfo:
+    def get_customer_asset_infos(self, customer_id: CustomerId, page_size: int, page: int,
+                                 include_customers: Optional[bool] = None,
+                                 asset_profile_id: Optional[AssetProfileId] = None, text_search: Optional[str] = None,
+                                 sort_property: Optional[str] = None,
+                                 sort_order: Optional[str] = None) -> PageDataAssetInfo:
         customer_id = self.get_id(customer_id)
-
-        if asset_profile_id:
-            asset_profile_id = self.get_id(asset_profile_id)
-        return self.asset_controller.get_customer_asset_infos_using_get(customer_id=customer_id, page_size=page_size,
-                                                                        page=page, type=type, text_search=text_search,
-                                                                        sort_property=sort_property,
-                                                                        sort_order=sort_order, asset_profile_id=asset_profile_id)
+        asset_profile_id = self.get_id(asset_profile_id)
+        return self.asset_controller.get_customer_asset_infos(customer_id=customer_id, page_size=page_size, page=page,
+                                                              include_customers=include_customers,
+                                                              asset_profile_id=asset_profile_id,
+                                                              text_search=text_search, sort_property=sort_property,
+                                                              sort_order=sort_order)
 
     def count_alarms_by_query(self, body: AlarmCountQuery) -> int:
         return self.entity_query_controller.count_alarms_by_query(body=body)
 
-    def get_customer_dashboards(self, customer_id: CustomerId, page_size: int, page: int, mobile: Optional[bool] = None,
-                                text_search: Optional[str] = None,
-                                sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataDashboardInfo:
+    def get_customer_dashboards(self, customer_id: CustomerId, page_size: int, page: int,
+                                include_customers: Optional[bool] = None, text_search: Optional[str] = None,
+                                sort_property: Optional[str] = None,
+                                sort_order: Optional[str] = None) -> PageDataDashboardInfo:
         customer_id = self.get_id(customer_id)
-        return self.dashboard_controller.get_customer_dashboards_using_get(customer_id=customer_id, page_size=page_size,
-                                                                           page=page, mobile=mobile,
-                                                                           text_search=text_search,
-                                                                           sort_property=sort_property,
-                                                                           sort_order=sort_order)
+        return self.dashboard_controller.get_customer_dashboards(customer_id=customer_id, page_size=page_size,
+                                                                 page=page, include_customers=include_customers,
+                                                                 text_search=text_search, sort_property=sort_property,
+                                                                 sort_order=sort_order)
 
     def get_user_settings(self) -> JsonNode:
         return self.user_controller.get_general_user_settings()
@@ -868,15 +869,12 @@ class RestClientBase(Thread):
 
     # Queue Controller
     def get_tenant_queues_by_service_type(self, service_type: str, page_size: int, page: int,
-                                          type: Optional[str] = None,
-                                          text_search: Optional[str] = None,
-                                          sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> List[str]:
-        return self.queue_controller.get_tenant_queues_by_service_type_using_get(service_type=service_type,
-                                                                                 page_size=page_size,
-                                                                                 page=page, type=type,
-                                                                                 text_search=text_search,
-                                                                                 sort_property=sort_property,
-                                                                                 sort_order=sort_order)
+                                          text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                                          sort_order: Optional[str] = None) -> PageDataQueue:
+        return self.queue_controller.get_tenant_queues_by_service_type(service_type=service_type, page_size=page_size,
+                                                                       page=page, text_search=text_search,
+                                                                       sort_property=sort_property,
+                                                                       sort_order=sort_order)
 
     def save_queue(self, service_type: str, body: Optional[Queue] = None) -> Queue:
         return self.queue_controller.save_queue(service_type=service_type, body=body)
@@ -1329,8 +1327,15 @@ class RestClientBase(Thread):
         widgets_bundle_id = self.get_id(widgets_bundle_id)
         return self.widgets_bundle_controller.delete_widgets_bundle(widgets_bundle_id=widgets_bundle_id)
 
-    def get_widgets_bundles(self, ):
-        return self.widgets_bundle_controller.get_widgets_bundles_using_get()
+    def get_widgets_bundles(self, page_size: int, page: int, text_search: Optional[str] = None,
+                            sort_property: Optional[str] = None, sort_order: Optional[str] = None,
+                            tenant_only: Optional[bool] = None, full_search: Optional[bool] = None,
+                            scada_first: Optional[bool] = None) -> PageDataWidgetsBundle:
+        return self.widgets_bundle_controller.get_widgets_bundles(page_size=page_size, page=page,
+                                                                  text_search=text_search,
+                                                                  sort_property=sort_property, sort_order=sort_order,
+                                                                  tenant_only=tenant_only, full_search=full_search,
+                                                                  scada_first=scada_first)
 
     def get_widgets_bundles_by_ids(self, widget_bundle_ids: List[str]) -> List[WidgetsBundle]:
         widget_bundle_ids = ','.join(widget_bundle_ids)
@@ -1427,10 +1432,12 @@ class RestClientBase(Thread):
     def get_home_dashboard_info(self) -> HomeDashboardInfo:
         return self.dashboard_controller.get_home_dashboard_info()
 
-    def get_dashboard_by_id(self, dashboard_id: DashboardId, inline_images: Optional[bool] = None) -> Dashboard:
+    def get_dashboard_by_id(self, dashboard_id: DashboardId, include_resources: Optional[bool] = None,
+                            accept_encoding: Optional[str] = None) -> Dashboard:
         dashboard_id = self.get_id(dashboard_id)
-        return self.dashboard_controller.get_dashboard_by_id_using_get(dashboard_id=dashboard_id,
-                                                                       inline_images=inline_images)
+        return self.dashboard_controller.get_dashboard_by_id(dashboard_id=dashboard_id,
+                                                             include_resources=include_resources,
+                                                             accept_encoding=accept_encoding)
 
     def get_tenant_dashboards(self, page_size: int, page: int, mobile: Optional[bool] = None, text_search: Optional[str] = None,
                               sort_property: Optional[str] = None,
@@ -1539,10 +1546,10 @@ class RestClientBase(Thread):
                                                                          widget_type_list=widget_type_list)
 
     def get_bundle_widget_types_details(self, widgets_bundle_id: WidgetsBundleId,
-                                        inline_images: Optional[bool] = None) -> List[WidgetTypeDetails]:
+                                        include_resources: Optional[bool] = None) -> List[WidgetTypeDetails]:
         widgets_bundle_id = self.get_id(widgets_bundle_id)
-        return self.widget_type_controller.get_bundle_widget_types_details_using_get(
-            widgets_bundle_id=widgets_bundle_id, inline_images=inline_images)
+        return self.widget_type_controller.get_bundle_widget_types_details(widgets_bundle_id=widgets_bundle_id,
+                                                                           include_resources=include_resources)
 
     def delete_widget_type(self, widget_type_id: WidgetTypeId) -> None:
         widget_type_id = self.get_id(widget_type_id)
@@ -1557,10 +1564,11 @@ class RestClientBase(Thread):
         widgets_bundle_id = self.get_id(widgets_bundle_id)
         return self.widget_type_controller.get_bundle_widget_types(widgets_bundle_id=widgets_bundle_id)
 
-    def get_widget_type_by_id(self, widget_type_id: WidgetTypeId, inline_images: Optional[bool] = None) -> WidgetType:
+    def get_widget_type_by_id(self, widget_type_id: WidgetTypeId,
+                              include_resources: Optional[bool] = None) -> WidgetTypeDetails:
         widget_type_id = self.get_id(widget_type_id)
-        return self.widget_type_controller.get_widget_type_by_id_using_get(widget_type_id=widget_type_id,
-                                                                           inline_images=inline_images)
+        return self.widget_type_controller.get_widget_type_by_id(widget_type_id=widget_type_id,
+                                                                 include_resources=include_resources)
 
     # Audit Log Controller
     def get_audit_logs_by_customer_id(self, customer_id: CustomerId, page_size: int, page: int,
@@ -1989,9 +1997,10 @@ class RestClientBase(Thread):
                                                                             sort_property=sort_property,
                                                                             sort_order=sort_order)
 
-    def get_recipients_for_notification_target_config(self, page_size: int, page: int):
-        return self.notification_target_controller.get_recipients_for_notification_target_config_using_post(
-            page_size=page_size, page=page)
+    def get_recipients_for_notification_target_config(self, body: NotificationTarget, page_size: int,
+                                                      page: int) -> PageDataUser:
+        return self.notification_target_controller.get_recipients_for_notification_target_config(
+            body=body, page_size=page_size, page=page)
 
     def save_notification_target(self, body: NotificationTarget) -> NotificationTarget:
         return self.notification_target_controller.save_notification_target(body=body)
@@ -2036,8 +2045,10 @@ class RestClientBase(Thread):
     def delete_image(self, _type: str, key: str, force: Optional[bool] = None) -> TbImageDeleteResult:
         return self.image_controller.delete_image(type=_type, key=key, force=force)
 
-    def download_image_preview(self, _type: str, key: str, if_none_match: Optional[str] = '') -> ByteArrayResource:
-        return self.image_controller.download_image_preview_using_get(type=_type, key=key, if_none=if_none_match)
+    def download_image_preview(self, type: str, key: str, if_none_match: Optional[str] = None,
+                               accept_encoding: Optional[str] = None) -> str:
+        return self.image_controller.download_image_preview(type=type, key=key, if_none_match=if_none_match,
+                                                            accept_encoding=accept_encoding)
 
     def download_image(self, _type: str, key: str, if_none_match: Optional[str] = '') -> ByteArrayResource:
         return self.image_controller.download_image(type=_type, key=key, if_none_match=if_none_match)

@@ -43,16 +43,15 @@ class RestClientCE(RestClientBase):
         asset_id = self.get_id(asset_id)
         return self.asset_controller.assign_asset_to_edge_using_post(edge_id=edge_id, asset_id=asset_id)
 
-    def get_tenant_asset_infos(self, page_size: int, page: int, type: Optional[str] = None, text_search: Optional[str] = None,
+    def get_tenant_asset_infos(self, page_size: int, page: int, include_customers: Optional[bool] = None,
+                               asset_profile_id: Optional[AssetProfileId] = None, text_search: Optional[str] = None,
                                sort_property: Optional[str] = None,
-                               sort_order: Optional[str] = None, asset_profile_id: Optional[AssetProfileId] = None) -> PageDataAssetInfo:
-
-        if asset_profile_id:
-            asset_profile_id = self.get_id(asset_profile_id)
-        return self.asset_controller.get_tenant_asset_infos_using_get(page_size=page_size, page=page, type=type,
-                                                                      text_search=text_search,
-                                                                      sort_property=sort_property,
-                                                                      sort_order=sort_order, asset_profile_id=asset_profile_id)
+                               sort_order: Optional[str] = None) -> PageDataAssetInfo:
+        asset_profile_id = self.get_id(asset_profile_id)
+        return self.asset_controller.get_all_asset_infos(page_size=page_size, page=page,
+                                                         include_customers=include_customers,
+                                                         asset_profile_id=asset_profile_id, text_search=text_search,
+                                                         sort_property=sort_property, sort_order=sort_order)
 
     def process_assets_bulk_import(self, body: BulkImportRequest) -> BulkImportResultAsset:
         return self.asset_controller.process_asset_bulk_import(body=body)
@@ -566,30 +565,29 @@ class RestClientCE(RestClientBase):
         device_id = self.get_id(device_id)
         return self.device_controller.get_device_by_id(device_id=device_id)
 
-    def get_tenant_device_infos(self, page_size: int, page: int, type: Optional[str] = None,
-                                device_profile_id: Optional[DeviceProfileId] = None, text_search: Optional[str] = None,
-                                sort_property: Optional[str] = None, sort_order: Optional[str] = None,
-                                active: Optional[bool] = None) -> PageDataDeviceInfo:
+    def get_tenant_device_infos(self, page_size: int, page: int, include_customers: Optional[bool] = None,
+                                device_profile_id: Optional[DeviceProfileId] = None, active: Optional[bool] = None,
+                                text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                                sort_order: Optional[str] = None) -> PageDataDeviceInfo:
         device_profile_id = self.get_id(device_profile_id)
-        return self.device_controller.get_tenant_device_infos_using_get(page_size=page_size, page=page, type=type,
-                                                                        device_profile_id=device_profile_id,
-                                                                        text_search=text_search,
-                                                                        sort_property=sort_property,
-                                                                        sort_order=sort_order, active=active)
+        return self.device_controller.get_all_device_infos(page_size=page_size, page=page,
+                                                           include_customers=include_customers,
+                                                           device_profile_id=device_profile_id, active=active,
+                                                           text_search=text_search, sort_property=sort_property,
+                                                           sort_order=sort_order)
 
-    def get_customer_device_infos(self, customer_id: CustomerId, page_size: int, page: int, type: Optional[str] = None,
-                                  device_profile_id: Optional[DeviceProfileId] = None,
-                                  text_search: Optional[str] = None,
-                                  sort_property: Optional[str] = None, sort_order: Optional[str] = None,
-                                  active: Optional[bool] = None) -> PageDataDeviceInfo:
+    def get_customer_device_infos(self, customer_id: CustomerId, page_size: int, page: int,
+                                  include_customers: Optional[bool] = None,
+                                  device_profile_id: Optional[DeviceProfileId] = None, active: Optional[bool] = None,
+                                  text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                                  sort_order: Optional[str] = None) -> PageDataDeviceInfo:
         customer_id = self.get_id(customer_id)
         device_profile_id = self.get_id(device_profile_id)
-        return self.device_controller.get_customer_device_infos_using_get(customer_id=customer_id, page_size=page_size,
-                                                                          page=page, type=type,
-                                                                          device_profile_id=device_profile_id,
-                                                                          text_search=text_search,
-                                                                          sort_property=sort_property,
-                                                                          sort_order=sort_order, active=active)
+        return self.device_controller.get_customer_device_infos(customer_id=customer_id, page_size=page_size,
+                                                                page=page, include_customers=include_customers,
+                                                                device_profile_id=device_profile_id, active=active,
+                                                                text_search=text_search, sort_property=sort_property,
+                                                                sort_order=sort_order)
 
     def get_tenant_devices(self, page_size: int, page: int, type: Optional[str] = None,
                            text_search: Optional[str] = None,
@@ -926,8 +924,15 @@ class RestClientCE(RestClientBase):
         widgets_bundle_id = self.get_id(widgets_bundle_id)
         return self.widgets_bundle_controller.delete_widgets_bundle(widgets_bundle_id=widgets_bundle_id)
 
-    def get_widgets_bundles(self, ) -> List[WidgetsBundle]:
-        return self.widgets_bundle_controller.get_widgets_bundles_using_get()
+    def get_widgets_bundles(self, page_size: int, page: int, text_search: Optional[str] = None,
+                            sort_property: Optional[str] = None, sort_order: Optional[str] = None,
+                            tenant_only: Optional[bool] = None, full_search: Optional[bool] = None,
+                            scada_first: Optional[bool] = None) -> PageDataWidgetsBundle:
+        return self.widgets_bundle_controller.get_widgets_bundles(page_size=page_size, page=page,
+                                                                  text_search=text_search,
+                                                                  sort_property=sort_property, sort_order=sort_order,
+                                                                  tenant_only=tenant_only, full_search=full_search,
+                                                                  scada_first=scada_first)
 
     # Device Profile Controller
     def get_device_profile_infos(self, page_size: int, page: int, text_search: Optional[str] = None,
