@@ -1,0 +1,9 @@
+[
+ {"label": "get_events_get (hidden)", "method": "GET", "path": "/api/events/DEVICE/{deviceId}?tenantId={tenantId}&pageSize=5&page=0"},
+ {"label": "  documented: getEventsByType LC_EVENT", "method": "GET", "path": "/api/events/DEVICE/{deviceId}/LC_EVENT?tenantId={tenantId}&pageSize=5&page=0"},
+ {"label": "widget types by bundleAlias (hidden)", "method": "GET", "path": "/api/widgetTypes?isSystem=true&bundleAlias=charts"},
+ {"label": "widget types details by alias (hidden)", "method": "GET", "path": "/api/widgetTypesDetails?isSystem=true&bundleAlias=charts"},
+ {"label": "widget types infos by alias (hidden)", "method": "GET", "path": "/api/widgetTypesInfos?isSystem=true&bundleAlias=charts"},
+ {"label": "widget type by bundle + type alias (hidden)", "method": "GET", "path": "/api/widgetType?isSystem=true&bundleAlias=charts&alias=time_series_chart"},
+ {"label": "  documented: getWidgetType by fqn", "method": "GET", "path": "/api/widgetType?fqn=system.time_series_chart"}
+]

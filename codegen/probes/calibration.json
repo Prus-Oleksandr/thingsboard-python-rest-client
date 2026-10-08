@@ -1,0 +1,7 @@
+[
+ {"label": "route that never existed", "method": "GET", "path": "/api/thisRouteDoesNotExist123"},
+ {"label": "existing route, missing entity", "method": "GET", "path": "/api/device/{randomId}"},
+ {"label": "existing route, existing entity", "method": "GET", "path": "/api/device/{deviceId}"},
+ {"label": "existing path, wrong HTTP method", "method": "DELETE", "path": "/api/widgetTypes"},
+ {"label": "existing path, no params (lists variants)", "method": "GET", "path": "/api/widgetTypes"}
+]

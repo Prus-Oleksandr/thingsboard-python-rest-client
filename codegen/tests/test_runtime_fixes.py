@@ -1,0 +1,70 @@
+"""Checks the runtime fixes in api_client.py and configuration.py of the draft without a server.
+
+Usage: python3 codegen/tests/test_runtime_fixes.py [package_parent_dir]   (default: draft)
+"""
+import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'draft'))
+
+from tb_rest_client.api_client import ApiClient
+from tb_rest_client.configuration import Configuration
+from tb_rest_client.api.asset_controller_api import AssetControllerApi
+from tb_rest_client.api.custom_menu_controller_api import CustomMenuControllerApi
+from tb_rest_client.api.device_controller_api import DeviceControllerApi
+from tb_rest_client.models.device_id import DeviceId
+
+sent = []
+
+
+class FakeResponse:
+    status, reason, data = 200, 'OK', '{}'
+
+    def getheaders(self):
+        return {}
+
+
+def fake_request(method, url, query_params=None, headers=None, post_params=None, body=None,
+                 _preload_content=True, _request_timeout=None):
+    sent.append({'method': method, 'url': url, 'query': query_params, 'headers': headers})
+    return FakeResponse()
+
+
+def check(name, ok, detail):
+    print('%-4s %s: %s' % ('OK' if ok else 'FAIL', name, detail))
+    if not ok:
+        check.failed = True
+
+
+check.failed = False
+
+a, b = Configuration(), Configuration()
+a.api_key['X-Authorization'] = 'tenant-token'
+check('configs do not share api_key', b.api_key == {}, 'b.api_key=%s' % b.api_key)
+
+conf = Configuration()
+conf.host = 'http://tb:8080'
+conf.api_key['X-Authorization'] = 'jwt'
+conf.api_key_prefix['X-Authorization'] = 'Bearer'
+client = ApiClient(conf)
+check('thread pool created lazily', client._pool is None, '_pool=%s' % client._pool)
+client.request = fake_request
+
+AssetControllerApi(client).get_tenant_assets(page_size=10, page=0, type=None, text_search=None,
+                                             sort_property='name', sort_order=None)
+r = sent[-1]
+check('None query params dropped', r['query'] == [('pageSize', 10), ('page', 0), ('sortProperty', 'name')], r['query'])
+check('auth header sent', r['headers'].get('X-Authorization') == 'Bearer jwt'
+      and 'Authorization' not in r['headers'], r['headers'])
+
+device_id = DeviceId(id='784f394c-42b6-435a-983c-b7beff2784f9', entity_type='DEVICE')
+DeviceControllerApi(client).get_device_by_id(device_id)
+check('entity id object in path', sent[-1]['url'].endswith('/api/device/784f394c-42b6-435a-983c-b7beff2784f9'),
+      sent[-1]['url'])
+
+CustomMenuControllerApi(client).get_custom_menu(if_none_match=None)
+check('None header params dropped', 'If-None-Match' not in sent[-1]['headers'], sent[-1]['headers'])
+
+del client
+sys.exit(1 if check.failed else 0)
