@@ -38,9 +38,9 @@ class NotificationTargetConfig(object):
     }
 
     discriminator_value_class_map = {
-            'PLATFORM_USERS'.lower(): '#/components/schemas/PlatformUsersNotificationTargetConfig',
-            'SLACK'.lower(): '#/components/schemas/SlackNotificationTargetConfig',
-            'MICROSOFT_TEAMS'.lower(): '#/components/schemas/MicrosoftTeamsNotificationTargetConfig',
+            'PLATFORM_USERS'.lower(): 'PlatformUsersNotificationTargetConfig',
+            'SLACK'.lower(): 'SlackNotificationTargetConfig',
+            'MICROSOFT_TEAMS'.lower(): 'MicrosoftTeamsNotificationTargetConfig',
     }
 
     def __init__(self, description=None, type=None):  # noqa: E501

@@ -36,11 +36,11 @@ class DeviceTransportConfiguration(object):
     }
 
     discriminator_value_class_map = {
-            'DEFAULT'.lower(): '#/components/schemas/DefaultDeviceTransportConfiguration',
-            'MQTT'.lower(): '#/components/schemas/MqttDeviceTransportConfiguration',
-            'COAP'.lower(): '#/components/schemas/CoapDeviceTransportConfiguration',
-            'LWM2M'.lower(): '#/components/schemas/Lwm2mDeviceTransportConfiguration',
-            'SNMP'.lower(): '#/components/schemas/SnmpDeviceTransportConfiguration',
+            'DEFAULT'.lower(): 'DefaultDeviceTransportConfiguration',
+            'MQTT'.lower(): 'MqttDeviceTransportConfiguration',
+            'COAP'.lower(): 'CoapDeviceTransportConfiguration',
+            'LWM2M'.lower(): 'Lwm2mDeviceTransportConfiguration',
+            'SNMP'.lower(): 'SnmpDeviceTransportConfiguration',
     }
 
     def __init__(self, type=None):  # noqa: E501

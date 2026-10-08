@@ -36,8 +36,8 @@ class CfArgumentDynamicSourceConfiguration(object):
     }
 
     discriminator_value_class_map = {
-            'RELATION_PATH_QUERY'.lower(): '#/components/schemas/RelationPathQueryDynamicSourceConfiguration',
-            'CURRENT_OWNER'.lower(): '#/components/schemas/CurrentOwnerDynamicSourceConfiguration',
+            'RELATION_PATH_QUERY'.lower(): 'RelationPathQueryDynamicSourceConfiguration',
+            'CURRENT_OWNER'.lower(): 'CurrentOwnerDynamicSourceConfiguration',
     }
 
     def __init__(self, type=None):  # noqa: E501

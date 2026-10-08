@@ -36,8 +36,8 @@ class NotificationDeliveryMethodConfig(object):
     }
 
     discriminator_value_class_map = {
-            'SLACK'.lower(): '#/components/schemas/SlackNotificationDeliveryMethodConfig',
-            'MOBILE_APP'.lower(): '#/components/schemas/MobileAppNotificationDeliveryMethodConfig',
+            'SLACK'.lower(): 'SlackNotificationDeliveryMethodConfig',
+            'MOBILE_APP'.lower(): 'MobileAppNotificationDeliveryMethodConfig',
     }
 
     def __init__(self, method=None):  # noqa: E501

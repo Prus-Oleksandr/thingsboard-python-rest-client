@@ -36,9 +36,9 @@ class SmsProviderConfiguration(object):
     }
 
     discriminator_value_class_map = {
-            'AWS_SNS'.lower(): '#/components/schemas/AwsSnsSmsProviderConfiguration',
-            'TWILIO'.lower(): '#/components/schemas/TwilioSmsProviderConfiguration',
-            'SMPP'.lower(): '#/components/schemas/SmppSmsProviderConfiguration',
+            'AWS_SNS'.lower(): 'AwsSnsSmsProviderConfiguration',
+            'TWILIO'.lower(): 'TwilioSmsProviderConfiguration',
+            'SMPP'.lower(): 'SmppSmsProviderConfiguration',
     }
 
     def __init__(self, type=None):  # noqa: E501

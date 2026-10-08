@@ -36,8 +36,8 @@ class TbChatResponse(object):
     }
 
     discriminator_value_class_map = {
-            'SUCCESS'.lower(): '#/components/schemas/Success',
-            'FAILURE'.lower(): '#/components/schemas/Failure',
+            'SUCCESS'.lower(): 'Success',
+            'FAILURE'.lower(): 'Failure',
     }
 
     def __init__(self, status=None):  # noqa: E501

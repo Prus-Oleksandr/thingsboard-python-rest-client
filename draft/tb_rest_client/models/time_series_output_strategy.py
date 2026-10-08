@@ -36,8 +36,8 @@ class TimeSeriesOutputStrategy(object):
     }
 
     discriminator_value_class_map = {
-            'IMMEDIATE'.lower(): '#/components/schemas/TimeSeriesImmediateOutputStrategy',
-            'RULE_CHAIN'.lower(): '#/components/schemas/TimeSeriesRuleChainOutputStrategy',
+            'IMMEDIATE'.lower(): 'TimeSeriesImmediateOutputStrategy',
+            'RULE_CHAIN'.lower(): 'TimeSeriesRuleChainOutputStrategy',
     }
 
     def __init__(self, type=None):  # noqa: E501

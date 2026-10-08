@@ -36,10 +36,10 @@ class LwM2MBootstrapServerCredential(object):
     }
 
     discriminator_value_class_map = {
-            'NO_SEC'.lower(): '#/components/schemas/NoSecLwM2MBootstrapServerCredential',
-            'PSK'.lower(): '#/components/schemas/PSKLwM2MBootstrapServerCredential',
-            'RPK'.lower(): '#/components/schemas/RPKLwM2MBootstrapServerCredential',
-            'X509'.lower(): '#/components/schemas/X509LwM2MBootstrapServerCredential',
+            'NO_SEC'.lower(): 'NoSecLwM2MBootstrapServerCredential',
+            'PSK'.lower(): 'PSKLwM2MBootstrapServerCredential',
+            'RPK'.lower(): 'RPKLwM2MBootstrapServerCredential',
+            'X509'.lower(): 'X509LwM2MBootstrapServerCredential',
     }
 
     def __init__(self, security_mode=None):  # noqa: E501

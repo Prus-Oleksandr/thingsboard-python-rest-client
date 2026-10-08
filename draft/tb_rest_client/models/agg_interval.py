@@ -36,14 +36,14 @@ class AggInterval(object):
     }
 
     discriminator_value_class_map = {
-            'HOUR'.lower(): '#/components/schemas/HourInterval',
-            'DAY'.lower(): '#/components/schemas/DayInterval',
-            'WEEK'.lower(): '#/components/schemas/WeekInterval',
-            'WEEK_SUN_SAT'.lower(): '#/components/schemas/WeekSunSatInterval',
-            'MONTH'.lower(): '#/components/schemas/MonthInterval',
-            'QUARTER'.lower(): '#/components/schemas/QuarterInterval',
-            'YEAR'.lower(): '#/components/schemas/YearInterval',
-            'CUSTOM'.lower(): '#/components/schemas/CustomInterval',
+            'HOUR'.lower(): 'HourInterval',
+            'DAY'.lower(): 'DayInterval',
+            'WEEK'.lower(): 'WeekInterval',
+            'WEEK_SUN_SAT'.lower(): 'WeekSunSatInterval',
+            'MONTH'.lower(): 'MonthInterval',
+            'QUARTER'.lower(): 'QuarterInterval',
+            'YEAR'.lower(): 'YearInterval',
+            'CUSTOM'.lower(): 'CustomInterval',
     }
 
     def __init__(self, type=None):  # noqa: E501

@@ -36,8 +36,8 @@ class AggInput(object):
     }
 
     discriminator_value_class_map = {
-            'key'.lower(): '#/components/schemas/AggKeyInput',
-            'function'.lower(): '#/components/schemas/AggFunctionInput',
+            'key'.lower(): 'AggKeyInput',
+            'function'.lower(): 'AggFunctionInput',
     }
 
     def __init__(self, type=None):  # noqa: E501

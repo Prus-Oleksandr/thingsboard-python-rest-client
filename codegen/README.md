@@ -5,7 +5,8 @@
 | `tb_rest_client/` | Current released client. Not touched by generation. |
 | `codegen/spec/thingsboard-swagger.json` | OpenAPI spec the draft is generated from. |
 | `codegen/config.json` | swagger-codegen options for the Python generator. |
-| `codegen/generate.sh` | Downloads the pinned swagger-codegen v3 CLI and generates the client. |
+| `codegen/generate.sh` | Downloads the pinned swagger-codegen v3 CLI, generates the client and runs `postprocess.py`. |
+| `codegen/postprocess.py` | Idempotent fixes for known generator bugs, applied after every generation. |
 | `draft/` | Generated draft that is reviewed and edited by hand. |
 
 Generate the draft (requires Java and curl):

@@ -36,10 +36,10 @@ class KeyFilterPredicate(object):
     }
 
     discriminator_value_class_map = {
-            'STRING'.lower(): '#/components/schemas/StringFilterPredicate',
-            'NUMERIC'.lower(): '#/components/schemas/NumericFilterPredicate',
-            'BOOLEAN'.lower(): '#/components/schemas/BooleanFilterPredicate',
-            'COMPLEX'.lower(): '#/components/schemas/ComplexFilterPredicate',
+            'STRING'.lower(): 'StringFilterPredicate',
+            'NUMERIC'.lower(): 'NumericFilterPredicate',
+            'BOOLEAN'.lower(): 'BooleanFilterPredicate',
+            'COMPLEX'.lower(): 'ComplexFilterPredicate',
     }
 
     def __init__(self, type=None):  # noqa: E501

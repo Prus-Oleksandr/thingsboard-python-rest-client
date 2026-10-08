@@ -54,9 +54,9 @@ class JobResult(object):
     }
 
     discriminator_value_class_map = {
-            'DUMMY'.lower(): '#/components/schemas/DummyJobResult',
-            'CF_REPROCESSING'.lower(): '#/components/schemas/CfReprocessingJobResult',
-            'REPORT'.lower(): '#/components/schemas/ReportJobResult',
+            'DUMMY'.lower(): 'DummyJobResult',
+            'CF_REPROCESSING'.lower(): 'CfReprocessingJobResult',
+            'REPORT'.lower(): 'ReportJobResult',
     }
 
     def __init__(self, successful_count=None, failed_count=None, discarded_count=None, total_count=None, results=None, general_error=None, start_ts=None, finish_ts=None, cancellation_ts=None, job_type=None):  # noqa: E501

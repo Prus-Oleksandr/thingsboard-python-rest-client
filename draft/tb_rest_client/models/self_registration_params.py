@@ -62,8 +62,8 @@ class SelfRegistrationParams(object):
     }
 
     discriminator_value_class_map = {
-            'WEB'.lower(): '#/components/schemas/WebSelfRegistrationParams',
-            'MOBILE'.lower(): '#/components/schemas/MobileSelfRegistrationParams',
+            'WEB'.lower(): 'WebSelfRegistrationParams',
+            'MOBILE'.lower(): 'MobileSelfRegistrationParams',
     }
 
     def __init__(self, type=None, enabled=None, title=None, captcha=None, permissions=None, notification_recipient=None, sign_up_fields=None, customer_title_prefix=None, show_privacy_policy=None, show_terms_of_use=None, default_dashboard=None, home_dashboard=None, customer_group_id=None, custom_menu_id=None):  # noqa: E501

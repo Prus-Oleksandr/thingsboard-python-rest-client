@@ -36,7 +36,7 @@ class TenantProfileConfiguration(object):
     }
 
     discriminator_value_class_map = {
-            'DEFAULT'.lower(): '#/components/schemas/DefaultTenantProfileConfiguration',
+            'DEFAULT'.lower(): 'DefaultTenantProfileConfiguration',
     }
 
     def __init__(self, type=None):  # noqa: E501

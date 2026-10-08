@@ -36,10 +36,10 @@ class TwoFaProviderConfig(object):
     }
 
     discriminator_value_class_map = {
-            'TOTP'.lower(): '#/components/schemas/TotpTwoFaProviderConfig',
-            'SMS'.lower(): '#/components/schemas/SmsTwoFaProviderConfig',
-            'EMAIL'.lower(): '#/components/schemas/EmailTwoFaProviderConfig',
-            'BACKUP_CODE'.lower(): '#/components/schemas/BackupCodeTwoFaProviderConfig',
+            'TOTP'.lower(): 'TotpTwoFaProviderConfig',
+            'SMS'.lower(): 'SmsTwoFaProviderConfig',
+            'EMAIL'.lower(): 'EmailTwoFaProviderConfig',
+            'BACKUP_CODE'.lower(): 'BackupCodeTwoFaProviderConfig',
     }
 
     def __init__(self, provider_type=None):  # noqa: E501

@@ -36,11 +36,11 @@ class AlarmRuleKeyFilterPredicate(object):
     }
 
     discriminator_value_class_map = {
-            'STRING'.lower(): '#/components/schemas/AlarmRuleStringFilterPredicate',
-            'NUMERIC'.lower(): '#/components/schemas/AlarmRuleNumericFilterPredicate',
-            'BOOLEAN'.lower(): '#/components/schemas/AlarmRuleBooleanFilterPredicate',
-            'NO_DATA'.lower(): '#/components/schemas/NoDataFilterPredicate',
-            'COMPLEX'.lower(): '#/components/schemas/AlarmRuleComplexFilterPredicate',
+            'STRING'.lower(): 'AlarmRuleStringFilterPredicate',
+            'NUMERIC'.lower(): 'AlarmRuleNumericFilterPredicate',
+            'BOOLEAN'.lower(): 'AlarmRuleBooleanFilterPredicate',
+            'NO_DATA'.lower(): 'NoDataFilterPredicate',
+            'COMPLEX'.lower(): 'AlarmRuleComplexFilterPredicate',
     }
 
     def __init__(self, type=None):  # noqa: E501

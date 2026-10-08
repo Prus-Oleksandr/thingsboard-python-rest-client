@@ -36,9 +36,9 @@ class OllamaAuth(object):
     }
 
     discriminator_value_class_map = {
-            'NONE'.lower(): '#/components/schemas/None',
-            'BASIC'.lower(): '#/components/schemas/Basic',
-            'TOKEN'.lower(): '#/components/schemas/Token',
+            'NONE'.lower(): 'ModelNone',
+            'BASIC'.lower(): 'Basic',
+            'TOKEN'.lower(): 'Token',
     }
 
     def __init__(self, type=None):  # noqa: E501

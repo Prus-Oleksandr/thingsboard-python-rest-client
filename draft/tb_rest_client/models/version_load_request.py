@@ -38,8 +38,8 @@ class VersionLoadRequest(object):
     }
 
     discriminator_value_class_map = {
-            'SINGLE_ENTITY'.lower(): '#/components/schemas/SingleEntityVersionLoadRequest',
-            'ENTITY_TYPE'.lower(): '#/components/schemas/EntityTypeVersionLoadRequest',
+            'SINGLE_ENTITY'.lower(): 'SingleEntityVersionLoadRequest',
+            'ENTITY_TYPE'.lower(): 'EntityTypeVersionLoadRequest',
     }
 
     def __init__(self, version_id=None, type=None):  # noqa: E501

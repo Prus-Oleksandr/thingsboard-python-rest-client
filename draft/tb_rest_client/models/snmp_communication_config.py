@@ -36,11 +36,11 @@ class SnmpCommunicationConfig(object):
     }
 
     discriminator_value_class_map = {
-            'TELEMETRY_QUERYING'.lower(): '#/components/schemas/TelemetryQueryingSnmpCommunicationConfig',
-            'CLIENT_ATTRIBUTES_QUERYING'.lower(): '#/components/schemas/ClientAttributesQueryingSnmpCommunicationConfig',
-            'SHARED_ATTRIBUTES_SETTING'.lower(): '#/components/schemas/SharedAttributesSettingSnmpCommunicationConfig',
-            'TO_DEVICE_RPC_REQUEST'.lower(): '#/components/schemas/ToDeviceRpcRequestSnmpCommunicationConfig',
-            'TO_SERVER_RPC_REQUEST'.lower(): '#/components/schemas/ToServerRpcRequestSnmpCommunicationConfig',
+            'TELEMETRY_QUERYING'.lower(): 'TelemetryQueryingSnmpCommunicationConfig',
+            'CLIENT_ATTRIBUTES_QUERYING'.lower(): 'ClientAttributesQueryingSnmpCommunicationConfig',
+            'SHARED_ATTRIBUTES_SETTING'.lower(): 'SharedAttributesSettingSnmpCommunicationConfig',
+            'TO_DEVICE_RPC_REQUEST'.lower(): 'ToDeviceRpcRequestSnmpCommunicationConfig',
+            'TO_SERVER_RPC_REQUEST'.lower(): 'ToServerRpcRequestSnmpCommunicationConfig',
     }
 
     def __init__(self, spec=None):  # noqa: E501

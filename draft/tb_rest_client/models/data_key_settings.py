@@ -36,9 +36,9 @@ class DataKeySettings(object):
     }
 
     discriminator_value_class_map = {
-            'COLUMN'.lower(): '#/components/schemas/ColumnSettings',
-            'TIME_SERIES_CHART'.lower(): '#/components/schemas/TimeSeriesChartKeySettings',
-            'DEFAULT'.lower(): '#/components/schemas/DefaultDataKeySettings',
+            'COLUMN'.lower(): 'ColumnSettings',
+            'TIME_SERIES_CHART'.lower(): 'TimeSeriesChartKeySettings',
+            'DEFAULT'.lower(): 'DefaultDataKeySettings',
     }
 
     def __init__(self, type=None):  # noqa: E501

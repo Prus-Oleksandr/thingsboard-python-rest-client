@@ -38,15 +38,15 @@ class EventFilter(object):
     }
 
     discriminator_value_class_map = {
-            'DEBUG_RULE_NODE'.lower(): '#/components/schemas/RuleNodeDebugEventFilter',
-            'DEBUG_RULE_CHAIN'.lower(): '#/components/schemas/RuleChainDebugEventFilter',
-            'ERROR'.lower(): '#/components/schemas/ErrorEventFilter',
-            'LC_EVENT'.lower(): '#/components/schemas/LifeCycleEventFilter',
-            'STATS'.lower(): '#/components/schemas/StatisticsEventFilter',
-            'DEBUG_CALCULATED_FIELD'.lower(): '#/components/schemas/CalculatedFieldDebugEventFilter',
-            'DEBUG_INTEGRATION'.lower(): '#/components/schemas/DebugIntegrationEventFilter',
-            'DEBUG_CONVERTER'.lower(): '#/components/schemas/DebugConverterEventFilter',
-            'RAW_DATA'.lower(): '#/components/schemas/RawDataEventFilter',
+            'DEBUG_RULE_NODE'.lower(): 'RuleNodeDebugEventFilter',
+            'DEBUG_RULE_CHAIN'.lower(): 'RuleChainDebugEventFilter',
+            'ERROR'.lower(): 'ErrorEventFilter',
+            'LC_EVENT'.lower(): 'LifeCycleEventFilter',
+            'STATS'.lower(): 'StatisticsEventFilter',
+            'DEBUG_CALCULATED_FIELD'.lower(): 'CalculatedFieldDebugEventFilter',
+            'DEBUG_INTEGRATION'.lower(): 'DebugIntegrationEventFilter',
+            'DEBUG_CONVERTER'.lower(): 'DebugConverterEventFilter',
+            'RAW_DATA'.lower(): 'RawDataEventFilter',
     }
 
     def __init__(self, event_type=None, not_empty=None):  # noqa: E501

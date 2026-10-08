@@ -38,20 +38,20 @@ class ReportComponent(object):
     }
 
     discriminator_value_class_map = {
-            'HEADING'.lower(): '#/components/schemas/HeadingComponent',
-            'RICH_TEXT'.lower(): '#/components/schemas/RichTextComponent',
-            'ENTITY_TABLE'.lower(): '#/components/schemas/EntityTableComponent',
-            'PAGE_BREAK'.lower(): '#/components/schemas/PageBreakComponent',
-            'TIME_SERIES_TABLE'.lower(): '#/components/schemas/TimeseriesTableComponent',
-            'ALARM_TABLE'.lower(): '#/components/schemas/AlarmTableComponent',
-            'TIME_SERIES_CHART'.lower(): '#/components/schemas/TimeseriesChartComponent',
-            'LATEST_CHART'.lower(): '#/components/schemas/LatestChartComponent',
-            'DASHBOARD'.lower(): '#/components/schemas/DashboardComponent',
-            'IMAGE'.lower(): '#/components/schemas/ImageComponent',
-            'SUB_REPORT'.lower(): '#/components/schemas/SubReportComponent',
-            'ERROR'.lower(): '#/components/schemas/ErrorComponent',
-            'DIVIDER'.lower(): '#/components/schemas/DividerComponent',
-            'SPLIT_VIEW'.lower(): '#/components/schemas/SplitViewComponent',
+            'HEADING'.lower(): 'HeadingComponent',
+            'RICH_TEXT'.lower(): 'RichTextComponent',
+            'ENTITY_TABLE'.lower(): 'EntityTableComponent',
+            'PAGE_BREAK'.lower(): 'PageBreakComponent',
+            'TIME_SERIES_TABLE'.lower(): 'TimeseriesTableComponent',
+            'ALARM_TABLE'.lower(): 'AlarmTableComponent',
+            'TIME_SERIES_CHART'.lower(): 'TimeseriesChartComponent',
+            'LATEST_CHART'.lower(): 'LatestChartComponent',
+            'DASHBOARD'.lower(): 'DashboardComponent',
+            'IMAGE'.lower(): 'ImageComponent',
+            'SUB_REPORT'.lower(): 'SubReportComponent',
+            'ERROR'.lower(): 'ErrorComponent',
+            'DIVIDER'.lower(): 'DividerComponent',
+            'SPLIT_VIEW'.lower(): 'SplitViewComponent',
     }
 
     def __init__(self, sub_type=None, type=None):  # noqa: E501

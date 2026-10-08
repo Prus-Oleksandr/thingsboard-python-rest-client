@@ -40,9 +40,9 @@ class AlarmCondition(object):
     }
 
     discriminator_value_class_map = {
-            'SIMPLE'.lower(): '#/components/schemas/SimpleAlarmCondition',
-            'DURATION'.lower(): '#/components/schemas/DurationAlarmCondition',
-            'REPEATING'.lower(): '#/components/schemas/RepeatingAlarmCondition',
+            'SIMPLE'.lower(): 'SimpleAlarmCondition',
+            'DURATION'.lower(): 'DurationAlarmCondition',
+            'REPEATING'.lower(): 'RepeatingAlarmCondition',
     }
 
     def __init__(self, expression=None, schedule=None, type=None):  # noqa: E501

@@ -36,9 +36,9 @@ class CaptchaParams(object):
     }
 
     discriminator_value_class_map = {
-            'enterprise'.lower(): '#/components/schemas/EnterpriseCaptchaParams',
-            'v2'.lower(): '#/components/schemas/V2CaptchaParams',
-            'v3'.lower(): '#/components/schemas/V3CaptchaParams',
+            'enterprise'.lower(): 'EnterpriseCaptchaParams',
+            'v2'.lower(): 'V2CaptchaParams',
+            'v3'.lower(): 'V3CaptchaParams',
     }
 
     def __init__(self, version=None):  # noqa: E501

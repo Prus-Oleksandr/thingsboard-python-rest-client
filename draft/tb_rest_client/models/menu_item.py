@@ -38,9 +38,9 @@ class MenuItem(object):
     }
 
     discriminator_value_class_map = {
-            'HOME'.lower(): '#/components/schemas/HomeMenuItem',
-            'DEFAULT'.lower(): '#/components/schemas/DefaultMenuItem',
-            'CUSTOM'.lower(): '#/components/schemas/CustomMenuItem',
+            'HOME'.lower(): 'HomeMenuItem',
+            'DEFAULT'.lower(): 'DefaultMenuItem',
+            'CUSTOM'.lower(): 'CustomMenuItem',
     }
 
     def __init__(self, type=None, visible=None):  # noqa: E501

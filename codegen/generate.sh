@@ -46,3 +46,5 @@ java -jar "$JAR" generate \
     -c "$CONFIG" \
     -o "$OUT" \
     -DapiTests=false,modelTests=false,apiDocs=false,modelDocs=false
+
+python3 -I "$CODEGEN_DIR/postprocess.py" "$OUT/tb_rest_client"

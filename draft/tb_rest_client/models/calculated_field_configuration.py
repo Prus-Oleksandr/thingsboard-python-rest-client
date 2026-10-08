@@ -38,13 +38,13 @@ class CalculatedFieldConfiguration(object):
     }
 
     discriminator_value_class_map = {
-            'SIMPLE'.lower(): '#/components/schemas/SimpleCalculatedFieldConfiguration',
-            'SCRIPT'.lower(): '#/components/schemas/ScriptCalculatedFieldConfiguration',
-            'GEOFENCING'.lower(): '#/components/schemas/GeofencingCalculatedFieldConfiguration',
-            'ALARM'.lower(): '#/components/schemas/AlarmCalculatedFieldConfiguration',
-            'PROPAGATION'.lower(): '#/components/schemas/PropagationCalculatedFieldConfiguration',
-            'RELATED_ENTITIES_AGGREGATION'.lower(): '#/components/schemas/RelatedEntitiesAggregationCalculatedFieldConfiguration',
-            'ENTITY_AGGREGATION'.lower(): '#/components/schemas/EntityAggregationCalculatedFieldConfiguration',
+            'SIMPLE'.lower(): 'SimpleCalculatedFieldConfiguration',
+            'SCRIPT'.lower(): 'ScriptCalculatedFieldConfiguration',
+            'GEOFENCING'.lower(): 'GeofencingCalculatedFieldConfiguration',
+            'ALARM'.lower(): 'AlarmCalculatedFieldConfiguration',
+            'PROPAGATION'.lower(): 'PropagationCalculatedFieldConfiguration',
+            'RELATED_ENTITIES_AGGREGATION'.lower(): 'RelatedEntitiesAggregationCalculatedFieldConfiguration',
+            'ENTITY_AGGREGATION'.lower(): 'EntityAggregationCalculatedFieldConfiguration',
     }
 
     def __init__(self, output=None, type=None):  # noqa: E501

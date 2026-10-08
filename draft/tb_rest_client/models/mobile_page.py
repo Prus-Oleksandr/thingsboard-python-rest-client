@@ -38,10 +38,10 @@ class MobilePage(object):
     }
 
     discriminator_value_class_map = {
-            'DEFAULT'.lower(): '#/components/schemas/DefaultMobilePage',
-            'DASHBOARD'.lower(): '#/components/schemas/DashboardPage',
-            'WEB_VIEW'.lower(): '#/components/schemas/WebViewPage',
-            'CUSTOM'.lower(): '#/components/schemas/CustomMobilePage',
+            'DEFAULT'.lower(): 'DefaultMobilePage',
+            'DASHBOARD'.lower(): 'DashboardPage',
+            'WEB_VIEW'.lower(): 'WebViewPage',
+            'CUSTOM'.lower(): 'CustomMobilePage',
     }
 
     def __init__(self, type=None, visible=None):  # noqa: E501

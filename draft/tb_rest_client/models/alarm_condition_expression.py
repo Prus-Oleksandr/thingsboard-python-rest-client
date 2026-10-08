@@ -36,8 +36,8 @@ class AlarmConditionExpression(object):
     }
 
     discriminator_value_class_map = {
-            'SIMPLE'.lower(): '#/components/schemas/SimpleAlarmConditionExpression',
-            'TBEL'.lower(): '#/components/schemas/TbelAlarmConditionExpression',
+            'SIMPLE'.lower(): 'SimpleAlarmConditionExpression',
+            'TBEL'.lower(): 'TbelAlarmConditionExpression',
     }
 
     def __init__(self, type=None):  # noqa: E501

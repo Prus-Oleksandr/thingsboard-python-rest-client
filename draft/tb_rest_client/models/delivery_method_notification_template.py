@@ -40,12 +40,12 @@ class DeliveryMethodNotificationTemplate(object):
     }
 
     discriminator_value_class_map = {
-            'WEB'.lower(): '#/components/schemas/WebDeliveryMethodNotificationTemplate',
-            'EMAIL'.lower(): '#/components/schemas/EmailDeliveryMethodNotificationTemplate',
-            'SMS'.lower(): '#/components/schemas/SmsDeliveryMethodNotificationTemplate',
-            'SLACK'.lower(): '#/components/schemas/SlackDeliveryMethodNotificationTemplate',
-            'MICROSOFT_TEAMS'.lower(): '#/components/schemas/MicrosoftTeamsDeliveryMethodNotificationTemplate',
-            'MOBILE_APP'.lower(): '#/components/schemas/MobileAppDeliveryMethodNotificationTemplate',
+            'WEB'.lower(): 'WebDeliveryMethodNotificationTemplate',
+            'EMAIL'.lower(): 'EmailDeliveryMethodNotificationTemplate',
+            'SMS'.lower(): 'SmsDeliveryMethodNotificationTemplate',
+            'SLACK'.lower(): 'SlackDeliveryMethodNotificationTemplate',
+            'MICROSOFT_TEAMS'.lower(): 'MicrosoftTeamsDeliveryMethodNotificationTemplate',
+            'MOBILE_APP'.lower(): 'MobileAppDeliveryMethodNotificationTemplate',
     }
 
     def __init__(self, enabled=None, body=None, method=None):  # noqa: E501

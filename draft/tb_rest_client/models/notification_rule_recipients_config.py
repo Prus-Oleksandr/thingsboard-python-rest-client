@@ -36,21 +36,21 @@ class NotificationRuleRecipientsConfig(object):
     }
 
     discriminator_value_class_map = {
-            'ENTITY_ACTION'.lower(): '#/components/schemas/EntityActionRecipientsConfig',
-            'ALARM'.lower(): '#/components/schemas/EscalatedNotificationRuleRecipientsConfig',
-            'ALARM_COMMENT'.lower(): '#/components/schemas/AlarmCommentRecipientsConfig',
-            'ALARM_ASSIGNMENT'.lower(): '#/components/schemas/AlarmAssignmentRecipientsConfig',
-            'DEVICE_ACTIVITY'.lower(): '#/components/schemas/DeviceActivityRecipientsConfig',
-            'RULE_ENGINE_COMPONENT_LIFECYCLE_EVENT'.lower(): '#/components/schemas/RuleEngineComponentLifecycleEventRecipientsConfig',
-            'EDGE_CONNECTION'.lower(): '#/components/schemas/EdgeConnectionRecipientsConfig',
-            'EDGE_COMMUNICATION_FAILURE'.lower(): '#/components/schemas/EdgeCommunicationFailureRecipientsConfig',
-            'NEW_PLATFORM_VERSION'.lower(): '#/components/schemas/NewPlatformVersionRecipientsConfig',
-            'ENTITIES_LIMIT'.lower(): '#/components/schemas/EntitiesLimitRecipientsConfig',
-            'API_USAGE_LIMIT'.lower(): '#/components/schemas/ApiUsageLimitRecipientsConfig',
-            'RATE_LIMITS'.lower(): '#/components/schemas/RateLimitsRecipientsConfig',
-            'TASK_PROCESSING_FAILURE'.lower(): '#/components/schemas/TaskProcessingFailureRecipientsConfig',
-            'RESOURCES_SHORTAGE'.lower(): '#/components/schemas/ResourceShortageRecipientsConfig',
-            'INTEGRATION_LIFECYCLE_EVENT'.lower(): '#/components/schemas/IntegrationLifecycleEventRecipientsConfig',
+            'ENTITY_ACTION'.lower(): 'EntityActionRecipientsConfig',
+            'ALARM'.lower(): 'EscalatedNotificationRuleRecipientsConfig',
+            'ALARM_COMMENT'.lower(): 'AlarmCommentRecipientsConfig',
+            'ALARM_ASSIGNMENT'.lower(): 'AlarmAssignmentRecipientsConfig',
+            'DEVICE_ACTIVITY'.lower(): 'DeviceActivityRecipientsConfig',
+            'RULE_ENGINE_COMPONENT_LIFECYCLE_EVENT'.lower(): 'RuleEngineComponentLifecycleEventRecipientsConfig',
+            'EDGE_CONNECTION'.lower(): 'EdgeConnectionRecipientsConfig',
+            'EDGE_COMMUNICATION_FAILURE'.lower(): 'EdgeCommunicationFailureRecipientsConfig',
+            'NEW_PLATFORM_VERSION'.lower(): 'NewPlatformVersionRecipientsConfig',
+            'ENTITIES_LIMIT'.lower(): 'EntitiesLimitRecipientsConfig',
+            'API_USAGE_LIMIT'.lower(): 'ApiUsageLimitRecipientsConfig',
+            'RATE_LIMITS'.lower(): 'RateLimitsRecipientsConfig',
+            'TASK_PROCESSING_FAILURE'.lower(): 'TaskProcessingFailureRecipientsConfig',
+            'RESOURCES_SHORTAGE'.lower(): 'ResourceShortageRecipientsConfig',
+            'INTEGRATION_LIFECYCLE_EVENT'.lower(): 'IntegrationLifecycleEventRecipientsConfig',
     }
 
     def __init__(self, trigger_type=None):  # noqa: E501

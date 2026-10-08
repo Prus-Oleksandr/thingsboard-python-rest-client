@@ -40,9 +40,9 @@ class JobConfiguration(object):
     }
 
     discriminator_value_class_map = {
-            'DUMMY'.lower(): '#/components/schemas/DummyJobConfiguration',
-            'CF_REPROCESSING'.lower(): '#/components/schemas/CfReprocessingJobConfiguration',
-            'REPORT'.lower(): '#/components/schemas/ReportJobConfiguration',
+            'DUMMY'.lower(): 'DummyJobConfiguration',
+            'CF_REPROCESSING'.lower(): 'CfReprocessingJobConfiguration',
+            'REPORT'.lower(): 'ReportJobConfiguration',
     }
 
     def __init__(self, tasks_key=None, to_reprocess=None, type=None):  # noqa: E501

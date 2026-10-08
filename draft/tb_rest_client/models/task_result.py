@@ -46,9 +46,9 @@ class TaskResult(object):
     }
 
     discriminator_value_class_map = {
-            'CF_REPROCESSING'.lower(): '#/components/schemas/CfReprocessingTaskResult',
-            'REPORT'.lower(): '#/components/schemas/ReportTaskResult',
-            'DUMMY'.lower(): '#/components/schemas/DummyTaskResult',
+            'CF_REPROCESSING'.lower(): 'CfReprocessingTaskResult',
+            'REPORT'.lower(): 'ReportTaskResult',
+            'DUMMY'.lower(): 'DummyTaskResult',
     }
 
     def __init__(self, key=None, success=None, discarded=None, finish_ts=None, error=None, job_type=None):  # noqa: E501

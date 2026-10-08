@@ -44,8 +44,8 @@ class Output(object):
     }
 
     discriminator_value_class_map = {
-            'TIME_SERIES'.lower(): '#/components/schemas/TimeSeriesOutput',
-            'ATTRIBUTES'.lower(): '#/components/schemas/AttributesOutput',
+            'TIME_SERIES'.lower(): 'TimeSeriesOutput',
+            'ATTRIBUTES'.lower(): 'AttributesOutput',
     }
 
     def __init__(self, decimals_by_default=None, name=None, scope=None, strategy=None, type=None):  # noqa: E501

@@ -36,8 +36,8 @@ class TransportPayloadTypeConfiguration(object):
     }
 
     discriminator_value_class_map = {
-            'JSON'.lower(): '#/components/schemas/JsonTransportPayloadConfiguration',
-            'PROTOBUF'.lower(): '#/components/schemas/ProtoTransportPayloadConfiguration',
+            'JSON'.lower(): 'JsonTransportPayloadConfiguration',
+            'PROTOBUF'.lower(): 'ProtoTransportPayloadConfiguration',
     }
 
     def __init__(self, transport_payload_type=None):  # noqa: E501

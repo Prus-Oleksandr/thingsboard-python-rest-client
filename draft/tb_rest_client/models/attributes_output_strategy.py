@@ -36,8 +36,8 @@ class AttributesOutputStrategy(object):
     }
 
     discriminator_value_class_map = {
-            'IMMEDIATE'.lower(): '#/components/schemas/AttributesImmediateOutputStrategy',
-            'RULE_CHAIN'.lower(): '#/components/schemas/AttributesRuleChainOutputStrategy',
+            'IMMEDIATE'.lower(): 'AttributesImmediateOutputStrategy',
+            'RULE_CHAIN'.lower(): 'AttributesRuleChainOutputStrategy',
     }
 
     def __init__(self, type=None):  # noqa: E501

@@ -46,8 +46,8 @@ class ReportTemplateConfig(object):
     }
 
     discriminator_value_class_map = {
-            'PDF'.lower(): '#/components/schemas/PdfReportTemplateConfig',
-            'CSV'.lower(): '#/components/schemas/CsvReportTemplateConfig',
+            'PDF'.lower(): 'PdfReportTemplateConfig',
+            'CSV'.lower(): 'CsvReportTemplateConfig',
     }
 
     def __init__(self, name_pattern=None, time_data_pattern=None, format=None, entity_aliases=None, filters=None, components=None):  # noqa: E501

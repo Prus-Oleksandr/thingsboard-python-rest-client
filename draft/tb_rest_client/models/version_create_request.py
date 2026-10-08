@@ -40,8 +40,8 @@ class VersionCreateRequest(object):
     }
 
     discriminator_value_class_map = {
-            'SINGLE_ENTITY'.lower(): '#/components/schemas/SingleEntityVersionCreateRequest',
-            'COMPLEX'.lower(): '#/components/schemas/ComplexVersionCreateRequest',
+            'SINGLE_ENTITY'.lower(): 'SingleEntityVersionCreateRequest',
+            'COMPLEX'.lower(): 'ComplexVersionCreateRequest',
     }
 
     def __init__(self, version_name=None, branch=None, type=None):  # noqa: E501

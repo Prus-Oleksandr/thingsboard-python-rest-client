@@ -36,9 +36,9 @@ class AlarmSchedule(object):
     }
 
     discriminator_value_class_map = {
-            'ANY_TIME'.lower(): '#/components/schemas/AnyTimeSchedule',
-            'SPECIFIC_TIME'.lower(): '#/components/schemas/SpecificTimeSchedule',
-            'CUSTOM'.lower(): '#/components/schemas/CustomTimeSchedule',
+            'ANY_TIME'.lower(): 'AnyTimeSchedule',
+            'SPECIFIC_TIME'.lower(): 'SpecificTimeSchedule',
+            'CUSTOM'.lower(): 'CustomTimeSchedule',
     }
 
     def __init__(self, type=None):  # noqa: E501

@@ -36,15 +36,15 @@ class AiModelConfig(object):
     }
 
     discriminator_value_class_map = {
-            'OPENAI'.lower(): '#/components/schemas/OpenAiChatModelConfig',
-            'AZURE_OPENAI'.lower(): '#/components/schemas/AzureOpenAiChatModelConfig',
-            'GOOGLE_AI_GEMINI'.lower(): '#/components/schemas/GoogleAiGeminiChatModelConfig',
-            'GOOGLE_VERTEX_AI_GEMINI'.lower(): '#/components/schemas/GoogleVertexAiGeminiChatModelConfig',
-            'MISTRAL_AI'.lower(): '#/components/schemas/MistralAiChatModelConfig',
-            'ANTHROPIC'.lower(): '#/components/schemas/AnthropicChatModelConfig',
-            'AMAZON_BEDROCK'.lower(): '#/components/schemas/AmazonBedrockChatModelConfig',
-            'GITHUB_MODELS'.lower(): '#/components/schemas/GitHubModelsChatModelConfig',
-            'OLLAMA'.lower(): '#/components/schemas/OllamaChatModelConfig',
+            'OPENAI'.lower(): 'OpenAiChatModelConfig',
+            'AZURE_OPENAI'.lower(): 'AzureOpenAiChatModelConfig',
+            'GOOGLE_AI_GEMINI'.lower(): 'GoogleAiGeminiChatModelConfig',
+            'GOOGLE_VERTEX_AI_GEMINI'.lower(): 'GoogleVertexAiGeminiChatModelConfig',
+            'MISTRAL_AI'.lower(): 'MistralAiChatModelConfig',
+            'ANTHROPIC'.lower(): 'AnthropicChatModelConfig',
+            'AMAZON_BEDROCK'.lower(): 'AmazonBedrockChatModelConfig',
+            'GITHUB_MODELS'.lower(): 'GitHubModelsChatModelConfig',
+            'OLLAMA'.lower(): 'OllamaChatModelConfig',
     }
 
     def __init__(self, provider=None):  # noqa: E501

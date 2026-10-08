@@ -36,7 +36,7 @@ class TbContent(object):
     }
 
     discriminator_value_class_map = {
-            'TEXT'.lower(): '#/components/schemas/TbTextContent',
+            'TEXT'.lower(): 'TbTextContent',
     }
 
     def __init__(self, content_type=None):  # noqa: E501

@@ -36,8 +36,8 @@ class CoapDeviceTypeConfiguration(object):
     }
 
     discriminator_value_class_map = {
-            'DEFAULT'.lower(): '#/components/schemas/DefaultCoapDeviceTypeConfiguration',
-            'EFENTO'.lower(): '#/components/schemas/EfentoCoapDeviceTypeConfiguration',
+            'DEFAULT'.lower(): 'DefaultCoapDeviceTypeConfiguration',
+            'EFENTO'.lower(): 'EfentoCoapDeviceTypeConfiguration',
     }
 
     def __init__(self, coap_device_type=None):  # noqa: E501

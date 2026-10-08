@@ -36,16 +36,16 @@ class UsersFilter(object):
     }
 
     discriminator_value_class_map = {
-            'USER_LIST'.lower(): '#/components/schemas/UserListFilter',
-            'CUSTOMER_USERS'.lower(): '#/components/schemas/CustomerUsersFilter',
-            'TENANT_ADMINISTRATORS'.lower(): '#/components/schemas/TenantAdministratorsFilter',
-            'AFFECTED_TENANT_ADMINISTRATORS'.lower(): '#/components/schemas/AffectedTenantAdministratorsFilter',
-            'SYSTEM_ADMINISTRATORS'.lower(): '#/components/schemas/SystemAdministratorsFilter',
-            'ALL_USERS'.lower(): '#/components/schemas/AllUsersFilter',
-            'ORIGINATOR_ENTITY_OWNER_USERS'.lower(): '#/components/schemas/OriginatorEntityOwnerUsersFilter',
-            'AFFECTED_USER'.lower(): '#/components/schemas/AffectedUserFilter',
-            'USER_GROUP_LIST'.lower(): '#/components/schemas/UserGroupListFilter',
-            'USER_ROLE'.lower(): '#/components/schemas/UserRoleFilter',
+            'USER_LIST'.lower(): 'UserListFilter',
+            'CUSTOMER_USERS'.lower(): 'CustomerUsersFilter',
+            'TENANT_ADMINISTRATORS'.lower(): 'TenantAdministratorsFilter',
+            'AFFECTED_TENANT_ADMINISTRATORS'.lower(): 'AffectedTenantAdministratorsFilter',
+            'SYSTEM_ADMINISTRATORS'.lower(): 'SystemAdministratorsFilter',
+            'ALL_USERS'.lower(): 'AllUsersFilter',
+            'ORIGINATOR_ENTITY_OWNER_USERS'.lower(): 'OriginatorEntityOwnerUsersFilter',
+            'AFFECTED_USER'.lower(): 'AffectedUserFilter',
+            'USER_GROUP_LIST'.lower(): 'UserGroupListFilter',
+            'USER_ROLE'.lower(): 'UserRoleFilter',
     }
 
     def __init__(self, type=None):  # noqa: E501

@@ -38,10 +38,10 @@ class DeviceProfileProvisionConfiguration(object):
     }
 
     discriminator_value_class_map = {
-            'DISABLED'.lower(): '#/components/schemas/DisabledDeviceProfileProvisionConfiguration',
-            'ALLOW_CREATE_NEW_DEVICES'.lower(): '#/components/schemas/AllowCreateNewDevicesDeviceProfileProvisionConfiguration',
-            'CHECK_PRE_PROVISIONED_DEVICES'.lower(): '#/components/schemas/CheckPreProvisionedDevicesDeviceProfileProvisionConfiguration',
-            'X509_CERTIFICATE_CHAIN'.lower(): '#/components/schemas/X509CertificateChainProvisionConfiguration',
+            'DISABLED'.lower(): 'DisabledDeviceProfileProvisionConfiguration',
+            'ALLOW_CREATE_NEW_DEVICES'.lower(): 'AllowCreateNewDevicesDeviceProfileProvisionConfiguration',
+            'CHECK_PRE_PROVISIONED_DEVICES'.lower(): 'CheckPreProvisionedDevicesDeviceProfileProvisionConfiguration',
+            'X509_CERTIFICATE_CHAIN'.lower(): 'X509CertificateChainProvisionConfiguration',
     }
 
     def __init__(self, provision_device_secret=None, type=None):  # noqa: E501
