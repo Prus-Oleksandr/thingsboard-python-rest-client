@@ -417,7 +417,8 @@ class ApiClient(object):
         if collection_formats is None:
             collection_formats = {}
         for k, v in six.iteritems(params) if isinstance(params, dict) else params:  # noqa: E501
-            if k in collection_formats:
+            # a comma-separated string (the wrappers join id lists) is one value, not a collection
+            if k in collection_formats and not isinstance(v, six.string_types):
                 collection_format = collection_formats[k]
                 if collection_format == 'multi':
                     new_params.extend((k, value) for value in v)
