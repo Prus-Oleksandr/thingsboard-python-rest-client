@@ -47,6 +47,10 @@ def rewrite(path, entries, api_classes):
         if any(i['severity'] == 'ERROR' for i in entry['issues']):
             stats['left for manual review (errors)'] += 1
             continue
+        if entry['new'].split('.')[0] != entry['old'].split('.')[0]:
+            # the call would have to go through another controller attribute
+            stats['left for manual review (controller changed)'] += 1
+            continue
         old_method = entry['old'].split('.')[1]
         new_method = entry['new'].split('.')[1]
         kwarg_renames = {old: new for old, new in entry['kwargs'].items() if new and new != old}

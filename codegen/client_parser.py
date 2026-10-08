@@ -4,12 +4,24 @@ import os
 import re
 
 
+def java_method(summary):
+    """Controller method name from an operation summary.
+
+    ThingsBoard summaries end with it, 'Get Tenant Asset (getTenantAsset)', or are just
+    the name. It stays the same when the path or the operationId change between versions.
+    """
+    m = re.search(r'\(([a-z]\w*)\)$', summary) or re.match(r'^([a-z]\w*)$', summary)
+    return m.group(1) if m else None
+
+
 def parse_api(path):
     """Returns the operations of a generated *_api.py file, one dict per *_with_http_info method."""
     src = open(path).read()
     cls = next(n for n in ast.parse(src).body if isinstance(n, ast.ClassDef))
     # required params are positional args of the public method
     positional = {fn.name: [a.arg for a in fn.args.args[1:]] for fn in cls.body if isinstance(fn, ast.FunctionDef)}
+    summaries = {fn.name: (ast.get_docstring(fn) or '').split('\n')[0].replace('# noqa: E501', '').strip()
+                 for fn in cls.body if isinstance(fn, ast.FunctionDef)}
     ops = []
     for fn in cls.body:
         if not (isinstance(fn, ast.FunctionDef) and fn.name.endswith('_with_http_info')):
@@ -27,11 +39,15 @@ def parse_api(path):
         all_params = re.search(r'all_params = (\[.*?\])', body)
         content_type = re.search(r"select_header_content_type\(\s*(?:#.*\n\s*)?(\[[^\]]*\])", body)
         response_type = re.search(r"response_type=(?:'([^']*)'|None)", body)
+        name = fn.name[:-len('_with_http_info')]
+        summary = summaries.get(name, '')
         ops.append({
             'class': cls.name,
             'file': path,
-            'name': fn.name[:-len('_with_http_info')],
-            'positional': positional.get(fn.name[:-len('_with_http_info')], []),
+            'name': name,
+            'summary': summary,
+            'java': java_method(summary),
+            'positional': positional.get(name, []),
             'http_method': call.group(2),
             # older springfox specs put query params into the path: {?a,b}, ?scope=ANY, ?a=b{&c,d}
             'path': re.sub(r'\?[^{}]*$', '', re.sub(r'\{[?&][^}]*\}', '', call.group(1))),

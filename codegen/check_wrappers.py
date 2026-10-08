@@ -5,7 +5,9 @@ Usage: python3 codegen/check_wrappers.py [--old-package PATH] [--package PATH] [
 Each wrapper call self.<controller>.<method>(...) is resolved in the old generated
 API (the one the wrappers were written for) to its HTTP method + path, and then
 matched by HTTP method + path in the new client, because method names change
-between spec versions. Findings:
+between spec versions. When the path is gone, or now belongs to another variant,
+the new op implemented by the same Java controller method (the name the summary
+ends with) is used, if the HTTP method and response type agree. Findings:
   ERROR  the wrapper will not work even after renaming (endpoint or param gone,
          new required param not passed, call already broken in the old client)
   RENAME mechanical changes: new method, controller or param name
@@ -148,21 +150,50 @@ for op in new_ops:
     new_by_name[base_name(op['name'])].append(op)
 
 
+new_by_java = collections.defaultdict(list)
+for op in new_ops:
+    if op['java']:
+        new_by_java[op['java']].append(op)
+
+
+def path_similarity(a, b):
+    def segments(path):
+        return set(re.sub(r'\{[^}]*\}', '{}', path).split('/')) - {'', 'api'}
+
+    return len(segments(a) & segments(b)) / len(segments(a) | segments(b))
+
+
+def find_by_java(old, old_cls):
+    """The new op implemented by the same controller method as the old one, if unambiguous.
+    The HTTP method must match (PUT update vs POST save differ even with one summary).
+    Several controllers have methods with the same name (findByQuery), so the same class
+    is preferred, then the most similar path."""
+    candidates = [op for op in new_by_java.get(old['java'], []) if op['http_method'] == old['http_method']]
+    if any(op['class'] == old_cls for op in candidates):
+        candidates = [op for op in candidates if op['class'] == old_cls]
+    if len(candidates) > 1:
+        candidates.sort(key=lambda op: -path_similarity(old['path'], op['path']))
+        if path_similarity(old['path'], candidates[0]['path']) == path_similarity(old['path'], candidates[1]['path']):
+            return None
+    return candidates[0] if candidates else None
+
+
+def compatible_response(old, new):
+    """Same response type, or one of them too loose to tell (object, str, DeferredResult...)."""
+    weak = re.compile(r'^(None|object|str|JsonNode|ObjectNode|Deferred\w*)$')
+    a, b = old['response_type'] or 'None', new['response_type'] or 'None'
+    return a == b or bool(weak.match(a)) or bool(weak.match(b))
+
+
 def moved_candidate(old):
     """A new op that probably replaced an old op whose path is gone: same method name,
     otherwise the same HTTP method with the most similar path."""
     same_name = [op for op in new_by_name.get(base_name(old['name']), []) if op['http_method'] == old['http_method']]
     if same_name:
         return 'same name', same_name[0]
-    def segments(path):
-        return set(re.sub(r'\{[^}]*\}', '{}', path).split('/')) - {'', 'api'}
-
-    def similarity(op):
-        return len(segments(old['path']) & segments(op['path'])) / len(segments(old['path']) | segments(op['path']))
-
     candidates = [op for op in new_ops if op['http_method'] == old['http_method']]
-    best = max(candidates, key=similarity, default=None)
-    if best and similarity(best) >= 0.5:
+    best = max(candidates, key=lambda op: path_similarity(old['path'], op['path']), default=None)
+    if best and path_similarity(old['path'], best['path']) >= 0.5:
         return 'similar path', best
     return None, None
 
@@ -212,7 +243,17 @@ for call in calls:
         continue
     entry['http'] = '%s %s' % (old['http_method'], old['path'])
     new = new_by_key.get(path_key(old))
-    if new is None:
+    collapsed = new is not None and new['java'] != old['java'] and not is_kept_variant(old)
+    # The controller method behind an operation survives path and operationId changes. Summaries
+    # are sometimes copy-pasted from another operation, so the path wins when it still exists, and
+    # a move is only trusted when the response type agrees.
+    same_java = find_by_java(old, old_cls) if old['java'] and (new is None or collapsed) else None
+    if same_java is not None and not compatible_response(old, same_java):
+        same_java = None
+    if same_java is not None:
+        new = same_java
+        issue('RENAME', 'endpoint moved (same Java method)', entry['http'], '%s %s' % (new['http_method'], new['path']))
+    elif new is None:
         how, candidate = moved_candidate(old)
         if how == 'same name':
             issue('ERROR', 'endpoint moved (same name, other path)', entry['http'], entry['old'],
@@ -222,7 +263,7 @@ for call in calls:
                   'similar: %s %s %s.%s' % (candidate['http_method'], candidate['path'], candidate['class'],
                                             candidate['name']) if candidate else 'no similar endpoint')
         continue
-    if not is_kept_variant(old):
+    elif collapsed:
         issue('ERROR', 'variant not in spec (same path, other query)',
               '%s?%s' % (entry['http'], '&'.join(sorted(query_wires(old)))), entry['old'],
               'spec has only %s.%s' % (new['class'], new['name']))
@@ -236,7 +277,9 @@ for call in calls:
 
     # old python param -> (location, wire name) -> new python param
     old_wire = {py: key for key, py in old['params'].items()}
-    path_rename = dict(zip(placeholders(old['path']), placeholders(new['path'])))
+    # path params keep their position on the same path; on a moved endpoint they are matched by name
+    path_rename = dict(zip(placeholders(old['path']), placeholders(new['path']))) \
+        if path_key(old) == path_key(new) else {}
     passed_new = set()
     for kw in call['kwargs']:
         if kw in ('async_req', '_return_http_data_only', '_preload_content', '_request_timeout'):
