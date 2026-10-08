@@ -183,7 +183,7 @@ class RestClientCE(RestClientBase):
         return self.edge_controller.set_edge_root_rule_chain(edge_id=edge_id, rule_chain_id=rule_chain_id)
 
     def get_edges_by_ids(self, edge_ids: list) -> List[Edge]:
-        return self.edge_controller.get_edges_by_ids_using_get(edge_ids=edge_ids)
+        return self.edge_controller.get_edge_list(edge_ids=edge_ids)
 
     # Rule Chain Controller
     def export_rule_chains(self, limit: int) -> RuleChainData:
@@ -769,7 +769,7 @@ class RestClientCE(RestClientBase):
                                                                                   sort_order=sort_order)
 
     def get_tenant_entity_view(self, entity_view_name: str) -> EntityView:
-        return self.entity_view_controller.get_tenant_entity_view_using_get(entity_view_name=entity_view_name)
+        return self.entity_view_controller.get_tenant_entity_view_by_name(entity_view_name=entity_view_name)
 
     def get_edge_entity_views(self, edge_id: EdgeId, page: int, page_size: int, type: Optional[str] = None,
                               text_search: Optional[str] = None,

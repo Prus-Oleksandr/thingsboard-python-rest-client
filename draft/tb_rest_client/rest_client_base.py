@@ -216,7 +216,7 @@ class RestClientBase(Thread):
                                                          sort_property=sort_property, sort_order=sort_order)
 
     def get_tenant_asset(self, asset_name: str) -> Asset:
-        return self.asset_controller.get_tenant_asset_using_get(asset_name=asset_name)
+        return self.asset_controller.get_tenant_asset_by_name(asset_name=asset_name)
 
     def delete_asset(self, asset_id: AssetId) -> None:
         asset_id = self.get_id(asset_id)
@@ -726,7 +726,7 @@ class RestClientBase(Thread):
                                                        sort_property=sort_property, sort_order=sort_order)
 
     def get_edges_by_ids(self, edge_ids: list) -> List[Edge]:
-        return self.edge_controller.get_edges_by_ids_using_get(edge_ids=str(edge_ids))
+        return self.edge_controller.get_edge_list(edge_ids=str(edge_ids))
 
     def process_edges_bulk_import(self, body: Optional[BulkImportRequest] = None) -> BulkImportResultEdge:
         return self.edge_controller.process_edges_bulk_import(body=body)
@@ -1034,7 +1034,7 @@ class RestClientBase(Thread):
 
     # Entity View Controller
     def get_tenant_entity_view(self, entity_view_name: str) -> EntityView:
-        return self.entity_view_controller.get_tenant_entity_view_using_get(entity_view_name=entity_view_name)
+        return self.entity_view_controller.get_tenant_entity_view_by_name(entity_view_name=entity_view_name)
 
     def get_tenant_entity_views(self, page_size: int, page: int, type: Optional[str] = None, text_search: Optional[str] = None,
                                 sort_property: Optional[str] = None,
@@ -1336,7 +1336,7 @@ class RestClientBase(Thread):
 
     def get_widgets_bundles_by_ids(self, widget_bundle_ids: List[str]) -> List[WidgetsBundle]:
         widget_bundle_ids = ','.join(widget_bundle_ids)
-        return self.widgets_bundle_controller.get_widgets_bundles_by_ids(widgets_bundle_ids=widget_bundle_ids)
+        return self.widgets_bundle_controller.get_widgets_bundles_list(widgets_bundle_ids=widget_bundle_ids)
 
     # Device Profile Controller
     def get_device_profile_infos(self, page_size: int, page: int, text_search: Optional[str] = None,

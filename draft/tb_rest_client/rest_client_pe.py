@@ -224,7 +224,7 @@ class RestClientPE(RestClientBase):
         return self.edge_controller.set_edge_root_rule_chain(edge_id=edge_id, rule_chain_id=rule_chain_id)
 
     def get_edges_by_ids(self, edge_ids: list) -> List[Edge]:
-        return self.edge_controller.get_edges_by_ids_using_get(edge_ids=str(edge_ids))
+        return self.edge_controller.get_edge_list(edge_ids=str(edge_ids))
 
     def get_allowed_permissions(self, ) -> AllowedPermissionsInfo:
         return self.user_permissions_controller.get_allowed_permissions()
@@ -284,7 +284,7 @@ class RestClientPE(RestClientBase):
                                                                   sort_order=sort_order)
 
     def get_customers_by_ids(self, customer_ids: str) -> List[Customer]:
-        return self.customer_controller.get_customers_by_ids_using_get(customer_ids=customer_ids)
+        return self.customer_controller.get_customers_by_ids(customer_ids=customer_ids)
 
     def get_edge_events(self, edge_id: EdgeId, page_size: int, page: int,text_search: Optional[str] = None, sort_property: Optional[str] = None,
                         sort_order: Optional[str] = None, start_time: Optional[int] = None, end_time: Optional[int] = None) -> PageDataEdgeEvent:
@@ -631,7 +631,7 @@ class RestClientPE(RestClientBase):
         return self.entity_view_controller.get_entity_view_by_id(entity_view_id=entity_view_id)
 
     def get_tenant_entity_view(self, entity_view_name: str) -> EntityView:
-        return self.entity_view_controller.get_tenant_entity_view_using_get(entity_view_name=entity_view_name)
+        return self.entity_view_controller.get_tenant_entity_view_by_name(entity_view_name=entity_view_name)
 
     def get_user_entity_views(self, page_size: int, page: int, type: Optional[str] = None,
                               text_search: Optional[str] = None, sort_property: Optional[str] = None,
@@ -1233,13 +1233,13 @@ class RestClientPE(RestClientBase):
     def get_entity_groups_by_owner_and_type(self, owner_type: str, owner_id: UserId,
                                             group_type: str) -> List[EntityGroupInfo]:
         owner_id = self.get_id(owner_id)
-        return self.entity_group_controller.get_entity_groups_by_owner_and_type_using_get(owner_type=owner_type,
-                                                                                          owner_id=owner_id,
-                                                                                          group_type=group_type)
+        return self.entity_group_controller.get_all_entity_groups_by_owner_and_type(owner_type=owner_type,
+                                                                                    owner_id=owner_id,
+                                                                                    group_type=group_type)
 
     def get_entity_groups_by_type(self, group_type: str,
                                   include_shared: Optional[bool] = None) -> List[EntityGroupInfo]:
-        return self.entity_group_controller.get_entity_groups_by_type_using_get(group_type=group_type, include_shared=include_shared)
+        return self.entity_group_controller.get_all_entity_groups_by_type(group_type=group_type, include_shared=include_shared)
 
     def get_entity_groups_for_entity(self, entity_id: EntityId) -> List[EntityGroupId]:
         entity_type = self.get_type(entity_id)
@@ -1517,7 +1517,7 @@ class RestClientPE(RestClientBase):
             text_search=text_search, sort_property=sort_property, sort_order=sort_order)
 
     def get_shared_entity_groups_by_type(self, group_type: str) -> List[EntityGroupInfo]:
-        return self.entity_group_controller.get_shared_entity_groups_by_type_using_get(group_type=group_type)
+        return self.entity_group_controller.get_all_shared_entity_groups(group_type=group_type)
 
     def get_all_entity_view_infos(self, page_size: int,
                                   page: int,
