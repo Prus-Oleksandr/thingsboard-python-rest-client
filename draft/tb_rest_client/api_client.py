@@ -65,7 +65,8 @@ class ApiClient(object):
             configuration = Configuration()
         self.configuration = configuration
 
-        self.pool = ThreadPool()
+        # Use the pool property to lazily initialize the ThreadPool.
+        self._pool = None
         self.rest_client = rest.RESTClientObject(configuration)
         self.default_headers = {}
         if header_name is not None:
@@ -75,8 +76,15 @@ class ApiClient(object):
         self.user_agent = 'Swagger-Codegen/4.4.0/python'
 
     def __del__(self):
-        self.pool.close()
-        self.pool.join()
+        if self._pool is not None:
+            self._pool.close()
+            self._pool.join()
+
+    @property
+    def pool(self):
+        if self._pool is None:
+            self._pool = ThreadPool()
+        return self._pool
 
     @property
     def user_agent(self):
@@ -106,6 +114,8 @@ class ApiClient(object):
             header_params['Cookie'] = self.cookie
         if header_params:
             header_params = self.sanitize_for_serialization(header_params)
+            # optional params passed explicitly as None are not sent
+            header_params = {k: v for k, v in header_params.items() if v is not None}
             header_params = dict(self.parameters_to_tuples(header_params,
                                                            collection_formats))
 
@@ -115,6 +125,9 @@ class ApiClient(object):
             path_params = self.parameters_to_tuples(path_params,
                                                     collection_formats)
             for k, v in path_params:
+                # entity ids (DeviceId, AssetId, ...) are put into the path as their uuid
+                if isinstance(v, dict) and v.get('entityType') is not None and v.get('id') is not None:
+                    v = v['id']
                 # specified safe chars, encode everything
                 resource_path = resource_path.replace(
                     '{%s}' % k,
@@ -124,12 +137,14 @@ class ApiClient(object):
         # query parameters
         if query_params:
             query_params = self.sanitize_for_serialization(query_params)
+            query_params = [(k, v) for k, v in query_params if v is not None]
             query_params = self.parameters_to_tuples(query_params,
                                                      collection_formats)
 
         # post parameters
         if post_params or files:
             post_params = self.prepare_post_parameters(post_params, files)
+            post_params = [(k, v) for k, v in post_params if v is not None]
             post_params = self.sanitize_for_serialization(post_params)
             post_params = self.parameters_to_tuples(post_params,
                                                     collection_formats)
