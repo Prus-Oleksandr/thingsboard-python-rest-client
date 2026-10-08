@@ -31,7 +31,7 @@ class RestClientCE(RestClientBase):
             client_registration_template_id=client_registration_template_id)
 
     def get_client_registration_templates(self) -> List[OAuth2ClientRegistrationTemplate]:
-        return self.o_auth2_config_template_controller.get_client_registration_templates_using_get()
+        return self.o_auth2_config_template_controller.get_o_auth2_client_registration_templates()
 
     def save_client_registration_template(self, body: Optional[
             OAuth2ClientRegistrationTemplate] = None) -> OAuth2ClientRegistrationTemplate:
@@ -92,9 +92,9 @@ class RestClientCE(RestClientBase):
     def get_tenant_edge_infos(self, page_size: int, page: int, type: Optional[str] = None, text_search: Optional[str] = None,
                               sort_property: Optional[str] = None,
                               sort_order: Optional[str] = None) -> PageDataEdgeInfo:
-        return self.edge_controller.get_tenant_edge_infos_using_get(page_size=page_size, page=page, type=type,
-                                                                    text_search=text_search,
-                                                                    sort_property=sort_property, sort_order=sort_order)
+        return self.edge_controller.get_all_edge_infos(page_size=page_size, page=page, type=type,
+                                                       text_search=text_search,
+                                                       sort_property=sort_property, sort_order=sort_order)
 
     def get_edge_info_by_id(self, edge_id: EdgeId) -> EdgeInfo:
         edge_id = self.get_id(edge_id)
@@ -141,11 +141,10 @@ class RestClientCE(RestClientBase):
 
     def activate_instance(self, license_secret: str, release_date: str) -> Union[
             dict, str, list, bytes, None, RESTResponse, tuple, Any]:
-        return self.edge_controller.activate_instance_using_post(license_secret=license_secret,
-                                                                 release_date=release_date)
+        return self.edge_controller.activate_instance(license_secret=license_secret, release_date=release_date)
 
     def get_tenant_edge(self, edge_name: str) -> Edge:
-        return self.edge_controller.get_tenant_edge_using_get(edge_name=edge_name)
+        return self.edge_controller.get_tenant_edge_by_name(edge_name=edge_name)
 
     def get_edge_by_id(self, edge_id: EdgeId) -> Edge:
         edge_id = self.get_id(edge_id)
@@ -425,7 +424,7 @@ class RestClientCE(RestClientBase):
 
     def delete_resource(self, rpc_id: RpcId) -> None:
         rpc_id = self.get_id(rpc_id)
-        return self.rpc_v2_controller.delete_resource_using_delete(rpc_id=rpc_id)
+        return self.rpc_v2_controller.delete_rpc(rpc_id=rpc_id)
 
     # Edge Event Controller
     def get_edge_events(self, edge_id: EdgeId, page_size: int, page: int, text_search: Optional[str] = None,
@@ -658,14 +657,14 @@ class RestClientCE(RestClientBase):
     # Entity View Controller
     def find_by_to_v1(self, to_id: EntityId, to_type: str, relation_type_group: Optional[str] = None) -> List[EntityRelation]:
         to_id = self.get_id(to_id)
-        return self.entity_relation_controller.find_by_to_using_get1(to_id=to_id, to_type=to_type,
-                                                                     relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relations_by_to(to_id=to_id, to_type=to_type,
+                                                                           relation_type_group=relation_type_group)
 
     def find_info_by_to(self, to_id: EntityId, to_type: str, relation_type_group: Optional[str] = None) -> List[
         EntityRelationInfo]:
         to_id = self.get_id(to_id)
-        return self.entity_relation_controller.find_info_by_to_using_get(to_id=to_id, to_type=to_type,
-                                                                         relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relation_infos_by_to(to_id=to_id, to_type=to_type,
+                                                                                relation_type_group=relation_type_group)
 
     def delete_relations(self, entity_id: EntityId) -> None:
         entity_type = self.get_type(entity_id)
@@ -688,8 +687,8 @@ class RestClientCE(RestClientBase):
     def find_by_from_v1(self, from_id: EntityId, from_type: str,
                         relation_type_group: Optional[str] = None) -> List[EntityRelation]:
         from_id = self.get_id(from_id)
-        return self.entity_relation_controller.find_by_from_using_get1(from_id=from_id, from_type=from_type,
-                                                                       relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relations_by_from(from_id=from_id, from_type=from_type,
+                                                                             relation_type_group=relation_type_group)
 
     def save_relation(self, body: Optional[EntityRelation] = None) -> None:
         return self.entity_relation_controller.save_relation(body=body)
@@ -698,16 +697,15 @@ class RestClientCE(RestClientBase):
                    relation_type_group: Optional[str] = None) -> List[EntityRelation]:
         to_type = self.get_type(to_id)
         to_id = self.get_id(to_id)
-        return self.entity_relation_controller.find_by_to_using_get(to_id=to_id, to_type=to_type,
-                                                                    relation_type=relation_type,
-                                                                    relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relations_by_to_and_relation_type(
+            to_id=to_id, to_type=to_type, relation_type=relation_type, relation_type_group=relation_type_group)
 
     def find_info_by_from(self, from_id: EntityId,
                           relation_type_group: Optional[str] = None) -> List[EntityRelationInfo]:
         from_type = self.get_type(from_id)
         from_id = self.get_id(from_id)
-        return self.entity_relation_controller.find_info_by_from_using_get(from_id=from_id, from_type=from_type,
-                                                                           relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relation_infos_by_from(from_id=from_id, from_type=from_type,
+                                                                                  relation_type_group=relation_type_group)
 
     def get_relation(self, from_id: EntityId, relation_type: str, to_id: EntityId,
                      relation_type_group: Optional[str] = None) -> EntityRelation:
@@ -724,9 +722,8 @@ class RestClientCE(RestClientBase):
                      relation_type_group: Optional[str] = None) -> List[EntityRelation]:
         from_type = self.get_type(from_id)
         from_id = self.get_id(from_id)
-        return self.entity_relation_controller.find_by_from_using_get(from_id=from_id, from_type=from_type,
-                                                                      relation_type=relation_type,
-                                                                      relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relations_by_from_and_relation_type(
+            from_id=from_id, from_type=from_type, relation_type=relation_type, relation_type_group=relation_type_group)
 
     def assign_entity_view_to_edge(self, edge_id: EdgeId, entity_view_id: EntityViewId) -> EntityView:
         edge_id = self.get_id(edge_id)
@@ -763,10 +760,10 @@ class RestClientCE(RestClientBase):
 
     def get_tenant_entity_view_infos(self, page_size: int, page: int, type: Optional[str] = None, text_search: Optional[str] = None,
                                      sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataEntityViewInfo:
-        return self.entity_view_controller.get_tenant_entity_view_infos_using_get(page_size=page_size, page=page,
-                                                                                  type=type, text_search=text_search,
-                                                                                  sort_property=sort_property,
-                                                                                  sort_order=sort_order)
+        return self.entity_view_controller.get_all_entity_view_infos(page_size=page_size, page=page,
+                                                                     type=type, text_search=text_search,
+                                                                     sort_property=sort_property,
+                                                                     sort_order=sort_order)
 
     def get_tenant_entity_view(self, entity_view_name: str) -> EntityView:
         return self.entity_view_controller.get_tenant_entity_view_by_name(entity_view_name=entity_view_name)
@@ -829,13 +826,13 @@ class RestClientCE(RestClientBase):
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.get_resource_info_by_id(resource_id=resource_id)
 
-    def delete_resource_v1(self, resource_id: EntityId) -> None:
+    def delete_resource_v1(self, resource_id: EntityId) -> TbResourceDeleteResult:
         resource_id = self.get_id(resource_id)
-        return self.tb_resource_controller.delete_resource_using_delete1(resource_id=resource_id)
+        return self.tb_resource_controller.delete_resource(resource_id=resource_id)
 
     def get_resource_by_id(self, resource_id: EntityId) -> TbResource:
         resource_id = self.get_id(resource_id)
-        return self.tb_resource_controller.get_resource_by_id_using_get(resource_id=resource_id)
+        return self.tb_resource_controller.get_resource_by_id(resource_id=resource_id)
 
     def save_resource(self, body=None):
         return self.tb_resource_controller.save_resource(body=body)
@@ -1270,21 +1267,20 @@ class RestClientCE(RestClientBase):
     def handle_rule_engine_request(self, body, entity_id: EntityId):
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
-        return self.rule_engine_controller.handle_rule_engine_request_using_post(body=body, entity_type=entity_type,
+        return self.rule_engine_controller.handle_rule_engine_request_for_entity(body=body, entity_type=entity_type,
                                                                                  entity_id=entity_id)
 
     def handle_rule_engine_request1(self, body, entity_id: EntityId, timeout: int):
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
-        return self.rule_engine_controller.handle_rule_engine_request_using_post1(body=body, entity_type=entity_type,
-                                                                                  entity_id=entity_id, timeout=timeout)
+        return self.rule_engine_controller.handle_rule_engine_request_for_entity_with_timeout(
+            body=body, entity_type=entity_type, entity_id=entity_id, timeout=timeout)
 
     def handle_rule_engine_request2(self, body, entity_id: EntityId, timeout: int, queue_name: str):
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
-        return self.rule_engine_controller.handle_rule_engine_request_using_post2(body=body, entity_type=entity_type,
-                                                                                  entity_id=entity_id, timeout=timeout,
-                                                                                  queue_name=queue_name)
+        return self.rule_engine_controller.handle_rule_engine_request_for_entity_with_queue_and_timeout(
+            body=body, entity_type=entity_type, entity_id=entity_id, timeout=timeout, queue_name=queue_name)
 
     def handle_rule_engine_request3(self, body):
-        return self.rule_engine_controller.handle_rule_engine_request_using_post3(body=body)
+        return self.rule_engine_controller.handle_rule_engine_request_for_user(body=body)

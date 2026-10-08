@@ -413,11 +413,11 @@ class RestClientBase(Thread):
                        order_by: Optional[str] = None, use_strict_data_types: Optional[bool] = None):
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
-        return self.telemetry_controller.get_timeseries_using_get(entity_type=entity_type, entity_id=entity_id,
-                                                                  keys=keys, start_ts=start_ts, end_ts=end_ts,
-                                                                  interval=interval, limit=limit, agg=agg,
-                                                                  order_by=order_by, interval_type=interval_type,
-                                                                  use_strict_data_types=use_strict_data_types, time_zone=time_zone)
+        return self.telemetry_controller.get_timeseries_history(entity_type=entity_type, entity_id=entity_id,
+                                                                keys=keys, start_ts=start_ts, end_ts=end_ts,
+                                                                interval=interval, limit=limit, agg=agg,
+                                                                order_by=order_by, interval_type=interval_type,
+                                                                use_strict_data_types=use_strict_data_types, time_zone=time_zone)
 
     def delete_device_attributes(self, device_id: DeviceId, scope: str, keys: str):
         device_id = self.get_id(device_id)
@@ -579,7 +579,7 @@ class RestClientBase(Thread):
                                                                            sort_order=sort_order)
 
     def get_user_settings(self) -> JsonNode:
-        return self.user_controller.get_user_settings_using_get()
+        return self.user_controller.get_general_user_settings()
 
     def get_tenant_usage_info(self) -> UsageInfo:
         return self.usage_info_controller.get_tenant_usage_info()
@@ -588,7 +588,7 @@ class RestClientBase(Thread):
         return self.user_controller.save_user_settings(body=body)
 
     def put_user_settings(self, body: JsonNode):
-        return self.user_controller.put_user_settings_using_put(body=body)
+        return self.user_controller.put_general_user_settings(body=body)
 
     def report_user_dashboard_action(self, dashboard_id: DashboardId, action: str) -> UserDashboardsInfo:
         dashboard_id = self.get_id(dashboard_id)
@@ -629,7 +629,7 @@ class RestClientBase(Thread):
 
     def get_tenant_profiles_by_ids(self, ids: List[str]) -> List[TenantProfile]:
         ids = ','.join(ids)
-        return self.tenant_profile_controller.get_tenant_profiles_by_ids_using_get(ids=ids)
+        return self.tenant_profile_controller.get_tenant_profile_list(ids=ids)
 
     def get_entity_view_info_by_id(self, entity_view_id: EntityViewId) -> EntityViewInfo:
         entity_view_id = self.get_id(entity_view_id)
@@ -673,7 +673,7 @@ class RestClientBase(Thread):
 
     # Edge Controller #
     def get_tenant_edge(self, edge_name: str) -> Edge:
-        return self.edge_controller.get_tenant_edge_using_get(edge_name=edge_name)
+        return self.edge_controller.get_tenant_edge_by_name(edge_name=edge_name)
 
     def delete_edge(self, edge_id: EdgeId) -> None:
         edge_id = self.get_id(edge_id)
@@ -955,14 +955,14 @@ class RestClientBase(Thread):
     # Entity Relation Controller
     def find_by_to_v1(self, to_id: EntityId, to_type: str, relation_type_group: Optional[str] = None) -> List[EntityRelation]:
         to_id = self.get_id(to_id)
-        return self.entity_relation_controller.find_by_to_using_get1(to_id=to_id, to_type=to_type,
-                                                                     relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relations_by_to(to_id=to_id, to_type=to_type,
+                                                                           relation_type_group=relation_type_group)
 
     def find_info_by_to(self, to_id: EntityId, to_type: str, relation_type_group: Optional[str] = None) -> List[
         EntityRelationInfo]:
         to_id = self.get_id(to_id)
-        return self.entity_relation_controller.find_info_by_to_using_get(to_id=to_id, to_type=to_type,
-                                                                         relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relation_infos_by_to(to_id=to_id, to_type=to_type,
+                                                                                relation_type_group=relation_type_group)
 
     def delete_relations(self, entity_id: EntityId) -> None:
         entity_type = self.get_type(entity_id)
@@ -995,16 +995,15 @@ class RestClientBase(Thread):
         EntityRelation]:
         to_type = self.get_type(to_id)
         to_id = self.get_id(to_id)
-        return self.entity_relation_controller.find_by_to_using_get(to_id=to_id, to_type=to_type,
-                                                                    relation_type=relation_type,
-                                                                    relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relations_by_to_and_relation_type(
+            to_id=to_id, to_type=to_type, relation_type=relation_type, relation_type_group=relation_type_group)
 
     def find_info_by_from(self, from_id: EntityId,
                           relation_type_group: Optional[str] = None) -> List[EntityRelationInfo]:
         from_type = self.get_type(from_id)
         from_id = self.get_id(from_id)
-        return self.entity_relation_controller.find_info_by_from_using_get(from_id=from_id, from_type=from_type,
-                                                                           relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relation_infos_by_from(from_id=from_id, from_type=from_type,
+                                                                                  relation_type_group=relation_type_group)
 
     def get_relation(self, from_id: EntityId, relation_type: str, to_id: EntityId,
                      relation_type_group: Optional[str] = None) -> EntityRelation:
@@ -1021,16 +1020,15 @@ class RestClientBase(Thread):
     def find_by_from_v1(self, from_id: EntityId, from_type: str, relation_type_group: Optional[str] = None) -> List[
         EntityRelation]:
         from_id = self.get_id(from_id)
-        return self.entity_relation_controller.find_by_from_using_get1(from_id=from_id, from_type=from_type,
-                                                                       relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relations_by_from(from_id=from_id, from_type=from_type,
+                                                                             relation_type_group=relation_type_group)
 
     def find_by_from(self, from_id: EntityId, relation_type: str,
                      relation_type_group: Optional[str] = None) -> List[EntityRelation]:
         from_type = self.get_type(from_id)
         from_id = self.get_id(from_id)
-        return self.entity_relation_controller.find_by_from_using_get(from_id=from_id, from_type=from_type,
-                                                                      relation_type=relation_type,
-                                                                      relation_type_group=relation_type_group)
+        return self.entity_relation_controller.find_entity_relations_by_from_and_relation_type(
+            from_id=from_id, from_type=from_type, relation_type=relation_type, relation_type_group=relation_type_group)
 
     # Entity View Controller
     def get_tenant_entity_view(self, entity_view_name: str) -> EntityView:
@@ -1920,11 +1918,11 @@ class RestClientBase(Thread):
     def get_notifications(self, page_size: int, page: int, text_search: Optional[str] = None,
                           sort_property: Optional[str] = None,
                           sort_order: Optional[str] = None, delivery_method: Optional[str] = None) -> PageDataNotification:
-        return self.notification_controller.get_notifications_using_get(page_size=page_size, page=page,
-                                                                        text_search=text_search,
-                                                                        sort_property=sort_property,
-                                                                        sort_order=sort_order,
-                                                                        delivery_method=delivery_method)
+        return self.notification_controller.get_notifications(page_size=page_size, page=page,
+                                                              text_search=text_search,
+                                                              sort_property=sort_property,
+                                                              sort_order=sort_order,
+                                                              delivery_method=delivery_method)
 
     def get_unread_notifications_count(self, delivery_method: Optional[str] = None) -> int:
         return self.notification_controller.get_unread_notifications_count(delivery_method=delivery_method)
@@ -2154,17 +2152,17 @@ class RestClientBase(Thread):
         mobile_app_id = self.get_id(mobile_app_id)
         return self.mobile_app_controller.delete_mobile_app(id=mobile_app_id)
 
-    def get_mobile_app_info_by_id(self, mobile_app_id: MobileAppId) -> MobileAppInfo:
+    def get_mobile_app_info_by_id(self, mobile_app_id: MobileAppId) -> MobileApp:
         mobile_app_id = self.get_id(mobile_app_id)
-        return self.mobile_app_controller.get_mobile_app_info_by_id(id=mobile_app_id)
+        return self.mobile_app_controller.get_mobile_app_by_id(id=mobile_app_id)
 
     def get_tenant_mobile_app_infos(self, page_size: int, page: int, text_search: Optional[str] = None,
                                     sort_property: Optional[str] = None,
-                                    sort_order: Optional[str] = None) -> PageDataMobileAppInfo:
-        return self.mobile_app_controller.get_tenant_mobile_app_infos(page_size=page_size, page=page,
-                                                                      text_search=text_search,
-                                                                      sort_property=sort_property,
-                                                                      sort_order=sort_order)
+                                    sort_order: Optional[str] = None) -> PageDataMobileApp:
+        return self.mobile_app_controller.get_tenant_mobile_apps(page_size=page_size, page=page,
+                                                                 text_search=text_search,
+                                                                 sort_property=sort_property,
+                                                                 sort_order=sort_order)
 
     def save_mobile_app(self, body: MobileApp, oauth2_client_ids: Optional[str] = None) -> MobileApp:
         if oauth2_client_ids is not None:

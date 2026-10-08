@@ -74,7 +74,7 @@ class RestClientPE(RestClientBase):
             client_registration_template_id=client_registration_template_id)
 
     def get_client_registration_templates(self, ) -> List[OAuth2ClientRegistrationTemplate]:
-        return self.o_auth2_config_template_controller.get_client_registration_templates_using_get()
+        return self.o_auth2_config_template_controller.get_o_auth2_client_registration_templates()
 
     def save_client_registration_template(self, body: Optional[OAuth2ClientRegistrationTemplate] = None) -> OAuth2ClientRegistrationTemplate:
         return self.o_auth2_config_template_controller.save_client_registration_template(body=body)
@@ -189,7 +189,7 @@ class RestClientPE(RestClientBase):
                                                       release_date=release_date)
 
     def get_tenant_edge(self, edge_name: str) -> Edge:
-        return self.edge_controller.get_tenant_edge_using_get(edge_name=edge_name)
+        return self.edge_controller.get_tenant_edge_by_name(edge_name=edge_name)
 
     def get_edge_by_id(self, edge_id: EdgeId) -> Edge:
         edge_id = self.get_id(edge_id)
@@ -733,7 +733,7 @@ class RestClientPE(RestClientBase):
 
     def get_device_profiles_by_ids(self, device_profile_ids: list) -> List[DeviceProfileInfo]:
         device_profile_ids = ','.join(device_profile_ids)
-        return self.device_profile_controller.get_device_profiles_by_ids_using_get(
+        return self.device_profile_controller.get_device_profile_infos_by_ids(
             device_profile_ids=device_profile_ids)
 
     def assign_scheduler_event_to_edge(self, edge_id: EdgeId, scheduler_event_id: SchedulerEventId) -> SchedulerEventInfo:
@@ -938,8 +938,8 @@ class RestClientPE(RestClientBase):
     def save_integration(self, body: Optional[Integration] = None) -> Integration:
         return self.integration_controller.save_integration(body=body)
 
-    def get_custom_menu(self, ) -> CustomMenu:
-        return self.custom_menu_controller.get_custom_menu_using_get()
+    def get_custom_menu(self, ) -> CustomMenuConfig:
+        return self.custom_menu_controller.get_custom_menu()
 
     def create_custom_menu(self, body: Optional[CustomMenuInfo] = None, assign_to_list: Optional[List[str]] = None, force: Optional[bool] = None) -> CustomMenu:
         if assign_to_list is not None:
