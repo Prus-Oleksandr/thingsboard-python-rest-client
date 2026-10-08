@@ -15,14 +15,16 @@ between spec versions. Findings:
 """
 import argparse
 import ast
+import builtins
 import collections
 import json
 import os
 import re
 import sys
+import typing
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from client_parser import parse_api_dir  # noqa: E402
+from client_parser import parse_api_dir, parse_models_dir  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WRAPPER_FILES = ('rest_client_base.py', 'rest_client_ce.py', 'rest_client_pe.py')
@@ -51,12 +53,18 @@ def placeholders(path):
     return re.findall(r'\{([^}]*)\}', path)
 
 
-# ---------- old generated API, per edition ----------
+def edition_of(module):
+    """tb_rest_client.api.api_ce[.x_api] -> api_ce; tb_rest_client.api[.x_api] -> api (single edition)"""
+    parts = module.split('.')
+    return parts[2] if len(parts) > 2 and parts[2].startswith('api_') else 'api'
+
+
+# ---------- old generated API, per edition (api_ce/api_pe, or a single api) ----------
 old_api = {}  # (edition, class) -> {method name: op}
 api_root = os.path.join(args.old_package, 'api')
-editions = sorted(d for d in os.listdir(api_root) if os.path.isdir(os.path.join(api_root, d)) and d.startswith('api'))
-for edition in editions:
-    for op in parse_api_dir(os.path.join(api_root, edition)):
+editions = sorted(d for d in os.listdir(api_root) if os.path.isdir(os.path.join(api_root, d)) and d.startswith('api_'))
+for edition in editions or ['api']:
+    for op in parse_api_dir(os.path.join(api_root, edition) if editions else api_root):
         old_api.setdefault((edition, op['class']), {})[op['name']] = op
 
 # ---------- new generated API ----------
@@ -71,8 +79,9 @@ def parse_wrappers(path):
     imported = {}  # class -> edition
     star_edition = None  # from tb_rest_client.api.api_pe import *
     for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith('tb_rest_client.api.'):
-            edition = node.module.split('.')[2]
+        if isinstance(node, ast.ImportFrom) and node.module \
+                and (node.module == 'tb_rest_client.api' or node.module.startswith('tb_rest_client.api.')):
+            edition = edition_of(node.module)
             for alias in node.names:
                 if alias.name == '*':
                     star_edition = edition
@@ -195,7 +204,7 @@ for call in calls:
     mapping.append(entry)
 
     def issue(severity, kind, *details):
-        entry['issues'].append(kind)
+        entry['issues'].append({'severity': severity, 'kind': kind, 'details': details})
         report(severity, kind, where, *details)
 
     if old is None:
@@ -261,20 +270,32 @@ for op in new_ops:
         report('INFO', 'new operation without wrapper', '%s.%s' % (op['class'], op['name']),
                '%s %s' % (op['http_method'], op['path']))
 
+# ---------- annotations naming models the new client does not have ----------
+new_models = set(parse_models_dir(os.path.join(args.package, 'models')))
+trees = {f: ast.parse(open(os.path.join(args.old_package, f)).read()) for f in controllers_by_file}
+known = new_models | set(dir(builtins)) | set(dir(typing)) | {
+    n.name for tree in trees.values() for n in ast.walk(tree) if isinstance(n, ast.ClassDef)} | {
+    a.asname or a.name for tree in trees.values() for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)
+    for a in n.names if a.name != '*'}
+for f, tree in trees.items():
+    for cls in (n for n in tree.body if isinstance(n, ast.ClassDef)):
+        for fn in (n for n in cls.body if isinstance(n, ast.FunctionDef)):
+            annotations = [a.annotation for a in fn.args.args + fn.args.kwonlyargs if a.annotation] + [fn.returns]
+            unknown = sorted({n.id for a in annotations if a for n in ast.walk(a)
+                              if isinstance(n, ast.Name) and n.id not in known})
+            if unknown:
+                report('WARN', 'annotation names a model missing in new client',
+                       '%s:%d %s.%s' % (f, fn.lineno, cls.name, fn.name), ', '.join(unknown))
+
 # ---------- report ----------
 print('Wrappers: %s (%d controller calls)' % (os.path.join(args.old_package, 'rest_client_*.py'), len(mapping)))
-print('Old API:  %d operations in %s' % (sum(len(v) for v in old_api.values()), ', '.join(editions)))
+print('Old API:  %d operations in %s' % (sum(len(v) for v in old_api.values()), ', '.join(editions or ['api'])))
 print('New API:  %d operations in %s\n' % (len(new_ops), os.path.join(args.package, 'api')))
-calls_with = collections.Counter()
-for entry in mapping:
-    severities = {s for s, k in findings for _ in [0] if k in entry['issues']}
-    for s in ('ERROR', 'RENAME', 'WARN'):
-        if s in severities:
-            calls_with[s] += 1
-print('Calls: %d OK as is, %d need only renames, %d have errors\n'
-      % (sum(1 for e in mapping if not e['issues']),
-         sum(1 for e in mapping if e['issues'] and all(k[0] != 'ERROR' for k in findings if k[1] in e['issues'])),
-         sum(1 for e in mapping if any(k[0] == 'ERROR' for k in findings if k[1] in e['issues']))))
+severities = [{i['severity'] for i in e['issues']} for e in mapping]
+print('Calls: %d work as is, %d need only renames, %d have errors\n'
+      % (sum(not s & {'ERROR', 'RENAME'} for s in severities),
+         sum('RENAME' in s and 'ERROR' not in s for s in severities),
+         sum('ERROR' in s for s in severities)))
 for severity in ('ERROR', 'RENAME', 'WARN', 'INFO'):
     keys = sorted((k for k in findings if k[0] == severity), key=lambda k: -len(findings[k]))
     if not keys:

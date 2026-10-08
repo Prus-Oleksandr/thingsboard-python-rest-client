@@ -9,7 +9,8 @@
 | `codegen/postprocess.py` | Idempotent fixes for known generator bugs, applied after every generation. |
 | `codegen/check_spec.py` | Compares a generated client with the spec and reports what is lost or wrong. |
 | `codegen/check_wrappers.py` | Maps every `rest_client_*.py` wrapper call to the new client and reports what breaks. |
-| `codegen/client_parser.py` | Shared parser of generated api and model code used by both checks. |
+| `codegen/apply_wrapper_renames.py` | Applies the renames from `check_wrappers.py --json` to copies of the wrappers. |
+| `codegen/client_parser.py` | Shared parser of generated api and model code used by the scripts above. |
 | `draft/` | Generated draft that is reviewed and edited by hand. |
 
 Generate the draft (requires Java and curl):
@@ -44,3 +45,13 @@ Each wrapper call is resolved to the old generated method, its HTTP method + pat
 method with the same HTTP method + path. `ERROR` means the wrapper breaks even after renaming
 (endpoint or param gone, new required param, or the call was already broken); `RENAME` lists
 mechanical renames; `INFO` lists new operations without a wrapper.
+
+Migrate the wrappers to the draft: copy them unmodified, apply the renames, then check the result
+against the draft itself (no renames should be left, only the errors kept for manual review):
+
+```bash
+cp tb_rest_client/rest_client_{base,ce,pe}.py draft/tb_rest_client/
+python3 codegen/check_wrappers.py --json calls.json
+python3 codegen/apply_wrapper_renames.py calls.json draft/tb_rest_client
+python3 codegen/check_wrappers.py --old-package draft/tb_rest_client
+```
