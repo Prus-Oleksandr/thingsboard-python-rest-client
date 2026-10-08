@@ -612,7 +612,7 @@ class RestClientBase(Thread):
                                                         sort_order=sort_order)
 
     def get_user_dashboards_info(self) -> UserDashboardsInfo:
-        return self.user_controller.get_user_dashboards_info_using_get()
+        return self.user_controller.get_last_visited_dashboards()
 
     def delete_user_settings(self, paths: List[str], type: str):
         paths = ','.join(paths)
@@ -946,7 +946,7 @@ class RestClientBase(Thread):
                                                          sort_order=sort_order)
 
     def get_tenant_device(self, device_name: str) -> Device:
-        return self.device_controller.get_tenant_device_using_get(device_name=device_name)
+        return self.device_controller.get_tenant_device_by_name(device_name=device_name)
 
     def get_device_credentials_by_device_id(self, device_id: DeviceId) -> DeviceCredentials:
         device_id = self.get_id(device_id)
@@ -977,10 +977,10 @@ class RestClientBase(Thread):
 
         to_type = self.get_type(to_id)
         to_id = self.get_id(to_id)
-        return self.entity_relation_controller.delete_relation_using_delete(from_id=from_id, from_type=from_type,
-                                                                            relation_type=relation_type, to_id=to_id,
-                                                                            to_type=to_type,
-                                                                            relation_type_group=relation_type_group)
+        return self.entity_relation_controller.delete_relation(from_id=from_id, from_type=from_type,
+                                                               relation_type=relation_type, to_id=to_id,
+                                                               to_type=to_type,
+                                                               relation_type_group=relation_type_group)
 
     def find_info_by_query(self, body: EntityRelationsQuery) -> List[EntityRelationInfo]:
         return self.entity_relation_controller.find_entity_relation_infos_by_query(body=body)
@@ -989,7 +989,7 @@ class RestClientBase(Thread):
         return self.entity_relation_controller.find_entity_relations_by_query(body=body)
 
     def save_relation(self, body: Optional[EntityRelation] = None) -> None:
-        return self.entity_relation_controller.save_relation_using_post(body=body)
+        return self.entity_relation_controller.save_relation(body=body)
 
     def find_by_to(self, to_id: EntityId, relation_type: str, relation_type_group: Optional[str] = None) -> List[
         EntityRelation]:
@@ -1119,10 +1119,10 @@ class RestClientBase(Thread):
         return self.admin_controller.get_auto_commit_settings()
 
     def get_jwt_setting(self) -> JwtSettings:
-        return self.admin_controller.get_jwt_settings_using_get()
+        return self.admin_controller.get_jwt_settings()
 
     def save_jwt_settings(self, body: Optional[JwtSettings] = None) -> JwtPair:
-        return self.admin_controller.save_jwt_settings_using_post(body=body)
+        return self.admin_controller.save_jwt_settings(body=body)
 
     # TB Resource Controller
     def get_resource_info_by_id(self, resource_id: EntityId) -> TbResourceInfo:
@@ -1557,7 +1557,7 @@ class RestClientBase(Thread):
 
     def get_bundle_widget_types(self, widgets_bundle_id: WidgetsBundleId) -> List[WidgetType]:
         widgets_bundle_id = self.get_id(widgets_bundle_id)
-        return self.widget_type_controller.get_bundle_widget_types_using_get(widgets_bundle_id=widgets_bundle_id)
+        return self.widget_type_controller.get_bundle_widget_types(widgets_bundle_id=widgets_bundle_id)
 
     def get_widget_type_by_id(self, widget_type_id: WidgetTypeId, inline_images: Optional[bool] = None) -> WidgetType:
         widget_type_id = self.get_id(widget_type_id)
@@ -1972,14 +1972,14 @@ class RestClientBase(Thread):
 
     def get_notification_targets_by_ids(self, ids: list) -> List[NotificationTarget]:
         ids = ','.join(ids)
-        return self.notification_target_controller.get_notification_targets_by_ids_using_get(ids=ids)
+        return self.notification_target_controller.get_notification_targets_by_ids(ids=ids)
 
     def get_notification_targets_by_supported_notification_type(self, notification_type: str, page_size: int, page: int,
                                                                 text_search: Optional[str] = None,
                                                                 sort_property: Optional[str] = None,
                                                                 sort_order: Optional[
                                                                     str] = None) -> PageDataNotificationTarget:
-        return self.notification_target_controller.get_notification_targets_by_supported_notification_type_using_get(
+        return self.notification_target_controller.get_notification_targets_by_supported_notification_type(
             notification_type=notification_type, page_size=page_size, page=page, text_search=text_search,
             sort_property=sort_property, sort_order=sort_order)
 

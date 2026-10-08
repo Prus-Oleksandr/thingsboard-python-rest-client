@@ -86,7 +86,7 @@ class RestClientCE(RestClientBase):
         return self.asset_controller.assign_asset_to_public_customer_using_post(asset_id=asset_id)
 
     def save_asset(self, body: Optional[Asset] = None) -> Asset:
-        return self.asset_controller.save_asset_using_post(body=body)
+        return self.asset_controller.save_asset(body=body)
 
     # Edge Controller
     def get_tenant_edge_infos(self, page_size: int, page: int, type: Optional[str] = None, text_search: Optional[str] = None,
@@ -156,7 +156,7 @@ class RestClientCE(RestClientBase):
         return self.edge_controller.delete_edge(edge_id=edge_id)
 
     def save_edge(self, body: Optional[Edge] = None) -> Edge:
-        return self.edge_controller.save_edge_using_post(body=body)
+        return self.edge_controller.save_edge(body=body)
 
     def is_edges_support_enabled(self, ) -> bool:
         return self.edge_controller.is_edges_support_enabled()
@@ -458,7 +458,7 @@ class RestClientCE(RestClientBase):
         return self.customer_controller.get_short_customer_info_by_id(customer_id=customer_id)
 
     def save_customer(self, body: Optional[Customer] = None) -> Customer:
-        return self.customer_controller.save_customer_using_post(body=body)
+        return self.customer_controller.save_customer(body=body)
 
     def get_tenant_customer(self, customer_title: str) -> Customer:
         return self.customer_controller.get_tenant_customer(customer_title=customer_title)
@@ -482,8 +482,8 @@ class RestClientCE(RestClientBase):
 
     def get_users(self, page_size: int, page: int, text_search: Optional[str] = None, sort_property: Optional[str] = None,
                   sort_order: Optional[str] = None) -> PageDataUser:
-        return self.user_controller.get_users_using_get(page_size=page_size, page=page, text_search=text_search,
-                                                        sort_property=sort_property, sort_order=sort_order)
+        return self.user_controller.get_user_users(page_size=page_size, page=page, text_search=text_search,
+                                                   sort_property=sort_property, sort_order=sort_order)
 
     def set_user_credentials_enabled(self, user_id: UserId, user_credentials_enabled: Optional[bool] = None) -> None:
         user_id = self.get_id(user_id)
@@ -513,7 +513,7 @@ class RestClientCE(RestClientBase):
         return self.user_controller.is_user_token_access_enabled()
 
     def save_user(self, body: Optional[User] = None, send_activation_mail: Optional[bool] = None) -> User:
-        return self.user_controller.save_user_using_post(body=body, send_activation_mail=send_activation_mail)
+        return self.user_controller.save_user(body=body, send_activation_mail=send_activation_mail)
 
     def send_activation_email(self, email: str) -> None:
         return self.user_controller.send_activation_email(email=email)
@@ -547,13 +547,13 @@ class RestClientCE(RestClientBase):
         return self.device_controller.get_devices_by_ids(device_ids=device_ids)
 
     def save_device_with_credentials(self, body: Optional[SaveDeviceWithCredentialsRequest] = None) -> Device:
-        return self.device_controller.save_device_with_credentials_using_post(body=body)
+        return self.device_controller.save_device_with_credentials(body=body)
 
     def update_device_credentials(self, body: Optional[DeviceCredentials] = None) -> DeviceCredentials:
         return self.device_controller.update_device_credentials(body=body)
 
     def save_device(self, body: Optional[Device] = None, access_token: Optional[str] = None) -> Device:
-        return self.device_controller.save_device_using_post(body=body, access_token=access_token)
+        return self.device_controller.save_device(body=body, access_token=access_token)
 
     def assign_device_to_public_customer(self, device_id: DeviceId) -> Device:
         device_id = self.get_id(device_id)
@@ -649,7 +649,7 @@ class RestClientCE(RestClientBase):
                                                                  start_time=start_time, end_time=end_time, device_profile_id=device_profile_id, active=active)
 
     def get_tenant_device(self, device_name: str) -> Device:
-        return self.device_controller.get_tenant_device_using_get(device_name=device_name)
+        return self.device_controller.get_tenant_device_by_name(device_name=device_name)
 
     def get_device_credentials_by_device_id(self, device_id: DeviceId) -> DeviceCredentials:
         device_id = self.get_id(device_id)
@@ -680,10 +680,10 @@ class RestClientCE(RestClientBase):
 
         to_type = self.get_type(to_id)
         to_id = self.get_id(to_id)
-        return self.entity_relation_controller.delete_relation_using_delete(from_id=from_id, from_type=from_type,
-                                                                            relation_type=relation_type, to_id=to_id,
-                                                                            to_type=to_type,
-                                                                            relation_type_group=relation_type_group)
+        return self.entity_relation_controller.delete_relation(from_id=from_id, from_type=from_type,
+                                                               relation_type=relation_type, to_id=to_id,
+                                                               to_type=to_type,
+                                                               relation_type_group=relation_type_group)
 
     def find_by_from_v1(self, from_id: EntityId, from_type: str,
                         relation_type_group: Optional[str] = None) -> List[EntityRelation]:
@@ -692,7 +692,7 @@ class RestClientCE(RestClientBase):
                                                                        relation_type_group=relation_type_group)
 
     def save_relation(self, body: Optional[EntityRelation] = None) -> None:
-        return self.entity_relation_controller.save_relation_using_post(body=body)
+        return self.entity_relation_controller.save_relation(body=body)
 
     def find_by_to(self, to_id: EntityId, relation_type: str,
                    relation_type_group: Optional[str] = None) -> List[EntityRelation]:
@@ -755,11 +755,11 @@ class RestClientCE(RestClientBase):
                                        text_search: Optional[str] = None, sort_property: Optional[str] = None,
                                        sort_order: Optional[str] = None) -> PageDataEntityViewInfo:
         customer_id = self.get_id(customer_id)
-        return self.entity_view_controller.get_customer_entity_view_infos_using_get(customer_id=customer_id,
-                                                                                    page_size=page_size, page=page,
-                                                                                    type=type, text_search=text_search,
-                                                                                    sort_property=sort_property,
-                                                                                    sort_order=sort_order)
+        return self.entity_view_controller.get_customer_entity_view_infos(customer_id=customer_id,
+                                                                          page_size=page_size, page=page,
+                                                                          type=type, text_search=text_search,
+                                                                          sort_property=sort_property,
+                                                                          sort_order=sort_order)
 
     def get_tenant_entity_view_infos(self, page_size: int, page: int, type: Optional[str] = None, text_search: Optional[str] = None,
                                      sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataEntityViewInfo:
@@ -789,7 +789,7 @@ class RestClientCE(RestClientBase):
             entity_view_id=entity_view_id)
 
     def save_entity_view(self, body: Optional[EntityView] = None) -> EntityView:
-        return self.entity_view_controller.save_entity_view_using_post(body=body)
+        return self.entity_view_controller.save_entity_view(body=body)
 
     def unassign_entity_view_from_edge(self, edge_id: EdgeId, entity_view_id: EntityViewId) -> EntityView:
         edge_id = self.get_id(edge_id)
@@ -822,7 +822,7 @@ class RestClientCE(RestClientBase):
 
     # Admin Controller
     def get_admin_settings(self, key: str) -> AdminSettings:
-        return self.admin_controller.get_admin_settings_using_get(key=key)
+        return self.admin_controller.get_admin_settings(key=key)
 
     # TB Resource Controller
     def get_resource_info_by_id(self, resource_id: EntityId) -> TbResourceInfo:
@@ -1014,7 +1014,7 @@ class RestClientCE(RestClientBase):
         return self.dashboard_controller.unassign_dashboard_from_public_customer_using_delete(dashboard_id=dashboard_id)
 
     def save_dashboard(self, body: Optional[Dashboard] = None) -> Dashboard:
-        return self.dashboard_controller.save_dashboard_using_post(body=body)
+        return self.dashboard_controller.save_dashboard(body=body)
 
     def get_home_dashboard_info(self, ) -> HomeDashboardInfo:
         return self.dashboard_controller.get_home_dashboard_info()

@@ -523,7 +523,7 @@ class RestClientPE(RestClientBase):
         return self.device_controller.re_claim_device(device_name=device_name)
 
     def get_tenant_device(self, device_name: str) -> Device:
-        return self.device_controller.get_tenant_device_using_get(device_name=device_name)
+        return self.device_controller.get_tenant_device_by_name(device_name=device_name)
 
     def get_device_credentials_by_device_id(self, device_id: DeviceId) -> DeviceCredentials:
         device_id = self.get_id(device_id)
@@ -539,7 +539,7 @@ class RestClientPE(RestClientBase):
 
     def get_converters_by_ids(self, converter_ids: list) -> List[Converter]:
         converter_ids = ','.join(converter_ids)
-        return self.converter_controller.get_converters_by_ids_using_get(converter_ids=converter_ids)
+        return self.converter_controller.get_converters_by_ids(converter_ids=converter_ids)
 
     def get_converters(self, page_size: int, page: int, is_edge_template: Optional[bool] = None,
                        text_search: Optional[str] = None, sort_property: Optional[str] = None,
@@ -651,7 +651,7 @@ class RestClientPE(RestClientBase):
 
     def get_entity_views_by_ids(self, entity_view_ids: list) -> List[EntityView]:
         entity_view_ids = ','.join(entity_view_ids)
-        return self.entity_view_controller.get_entity_views_by_ids_using_get(entity_view_ids=entity_view_ids)
+        return self.entity_view_controller.get_entity_views_by_ids(entity_view_ids=entity_view_ids)
 
     def save_entity_view(self, body: Optional[EntityView] = None, entity_group_id: Optional[EntityGroupId] = None,
                          entity_group_ids: Optional[List[str]] = None) -> EntityView:
@@ -770,7 +770,7 @@ class RestClientPE(RestClientBase):
             scheduler_event_id=scheduler_event_id)
 
     def get_scheduler_events_by_ids(self, scheduler_event_ids: list) -> List[SchedulerEventInfo]:
-        return self.scheduler_event_controller.get_scheduler_events_by_ids_using_get(
+        return self.scheduler_event_controller.get_scheduler_events_by_ids(
             scheduler_event_ids=str(scheduler_event_ids))
 
     def get_scheduler_events(self, type: Optional[str] = None) -> List[SchedulerEventWithCustomerInfo]:
@@ -915,7 +915,7 @@ class RestClientPE(RestClientBase):
 
     def get_integrations_by_ids(self, integration_ids: list) -> List[Integration]:
         integration_ids = ','.join(integration_ids)
-        return self.integration_controller.get_integrations_by_ids_using_get(integration_ids=integration_ids)
+        return self.integration_controller.get_integrations_by_ids(integration_ids=integration_ids)
 
     def get_integration_infos(self, page_size: int, page: int, is_edge_template: Optional[bool],
                               text_search: Optional[str] = None,
@@ -983,10 +983,10 @@ class RestClientPE(RestClientBase):
             is_bootstrap_server=is_bootstrap_server)
 
     def get_custom_translation(self, locale_code: str) -> CustomTranslation:
-        return self.custom_translation_controller.get_custom_translation_using_get(locale_code=locale_code)
+        return self.custom_translation_controller.get_custom_translation(locale_code=locale_code)
 
     def save_custom_translation(self, locale_code: str, body: CustomTranslation) -> CustomTranslation:
-        return self.custom_translation_controller.save_custom_translation_using_post(body=body, locale_code=locale_code)
+        return self.custom_translation_controller.save_custom_translation(body=body, locale_code=locale_code)
 
     def delete_custom_translation(self, locale_code: str) -> None:
         return self.custom_translation_controller.delete_custom_translation(locale_code=locale_code)
@@ -1014,7 +1014,7 @@ class RestClientPE(RestClientBase):
 
     def get_roles_by_ids(self, role_ids: list) -> List[Role]:
         role_ids = ','.join(role_ids)
-        return self.role_controller.get_roles_by_ids_using_get(role_ids=role_ids)
+        return self.role_controller.get_roles_by_ids(role_ids=role_ids)
 
     def get_roles(self, page_size: int, page: int, type: Optional[str] = None, text_search: Optional[str] = None,
                   sort_property: Optional[str] = None, sort_order: Optional[str] = None, ) -> PageDataRole:
@@ -1034,7 +1034,7 @@ class RestClientPE(RestClientBase):
         return self.blob_entity_controller.download_blob_entity(blob_entity_id=blob_entity_id)
 
     def get_blob_entities_by_ids(self, blob_entity_ids: list) -> List[BlobEntityInfo]:
-        return self.blob_entity_controller.get_blob_entities_by_ids_using_get(blob_entity_ids=str(blob_entity_ids))
+        return self.blob_entity_controller.get_blob_entities_by_ids(blob_entity_ids=str(blob_entity_ids))
 
     def get_blob_entities(self, page_size: int, page: int, type: Optional[str] = None,text_search: Optional[str] = None, sort_property: Optional[str] = None,
                           sort_order: Optional[str] = None, start_time: Optional[int] = None, end_time: Optional[int] = None) -> PageDataBlobEntityWithCustomerInfo:
@@ -1228,7 +1228,7 @@ class RestClientPE(RestClientBase):
 
     def get_entity_groups_by_ids(self, entity_group_ids: List[str]) -> List[EntityGroupInfo]:
         entity_group_ids = ','.join(entity_group_ids)
-        return self.entity_group_controller.get_entity_groups_by_ids_using_get(entity_group_ids=entity_group_ids)
+        return self.entity_group_controller.get_entity_groups_by_ids(entity_group_ids=entity_group_ids)
 
     def get_entity_groups_by_owner_and_type(self, owner_type: str, owner_id: UserId,
                                             group_type: str) -> List[EntityGroupInfo]:
@@ -1335,7 +1335,7 @@ class RestClientPE(RestClientBase):
 
     def get_asset_profiles_by_ids(self, asset_profile_ids: List[str]) -> List[AssetProfileInfo]:
         asset_profile_ids = ','.join(asset_profile_ids)
-        return self.asset_profile_controller.get_asset_profiles_by_ids_using_get(asset_profile_ids=asset_profile_ids)
+        return self.asset_profile_controller.get_asset_profiles_by_ids(asset_profile_ids=asset_profile_ids)
 
     def get_asset_profiles(self, page_size: int, page: int, text_search: Optional[str] = None,
                            sort_property: Optional[str] = None,
