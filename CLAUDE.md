@@ -65,6 +65,10 @@ matching it as closely as possible, with the 4.3 hand-written wrappers migrated 
 - `handle_rule_engine_request*` (CE and PE had clashing names) are named after the 4.4 operations:
   `handle_rule_engine_request_for_entity[_with_timeout|_with_queue_and_timeout]`, `_for_user`.
 - Commit author stays as is.
+- Wrapper signatures follow the spec even when positional calls break (Q6), as upstream did:
+  PR #5 (2020, page_size/page moved before type), `867f168a` (body made optional moved to the end),
+  `65e38a77` (save_customer), `24fcd2a1` (get_timeseries got interval_type in the middle). No
+  keyword-only tricks or shims; every reorder goes to "Positional order changes" below.
 
 ## Done
 
@@ -123,8 +127,17 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
 
 - `check_spec.py`: 824/824 operations, 0 errors, 23 warnings (Q8).
 - `check_wrappers.py --old-package draft/tb_rest_client`: 690 controller calls, all work; WARN wrapper vs spec: 6 deprecated ops (Q2, kept), 91 spec-required params
-  optional in the wrapper (88 `body`), 24 the other way round (Q6 steps 3, 2); 154 new operations without a wrapper (Q5).
+  optional in the wrapper (88 `body`, Q6 step 3); 154 new operations without a wrapper (Q5).
 - `codegen/tests/run_all.py`: all 7 test files pass.
+
+## Positional order changes (for the release notes)
+
+Calls by keyword keep working; positional calls of these wrappers must be updated.
+- `get_timeseries(entity_id, keys, start_ts, end_ts, ...)` -> `(entity_id, start_ts, end_ts, keys, ...)`:
+  `keys` is optional in 4.4 (alternative: repeatable `key`).
+- `upload_image(title, file, ...)` -> `(file, title, ...)`: only `file` is required.
+- `upload_resource(title, resource_type, descriptor, resource_sub_type, file)` ->
+  `(resource_type, file, title, descriptor, resource_sub_type)`.
 
 ## Open questions (need the user's decision)
 

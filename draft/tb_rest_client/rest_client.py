@@ -366,7 +366,7 @@ class RestClient(Thread):
     def reset_password(self, body: Optional[ResetPasswordRequest] = None) -> JwtPair:
         return self.auth_controller.reset_password(body=body)
 
-    def activate_user(self, body: Optional[ActivateUserRequest], send_activation_mail: bool) -> JwtPair:
+    def activate_user(self, body: Optional[ActivateUserRequest], send_activation_mail: Optional[bool] = None) -> JwtPair:
         return self.auth_controller.activate_user(body=body, send_activation_mail=send_activation_mail)
 
     def get_user_password_policy(self, ) -> UserPasswordPolicy:
@@ -419,7 +419,7 @@ class RestClient(Thread):
         return self.telemetry_controller.get_attribute_keys_by_scope(entity_type=entity_type,
                                                                      entity_id=entity_id, scope=scope)
 
-    def get_timeseries(self, entity_id: EntityId, keys: str, start_ts: int, end_ts: int,
+    def get_timeseries(self, entity_id: EntityId, start_ts: int, end_ts: int, keys: Optional[str] = None,
                        interval_type: Optional[str] = None, interval: Optional[int] = None,
                        time_zone: Optional[str] = None, limit: Optional[int] = None, agg: Optional[str] = None,
                        order_by: Optional[str] = None, use_strict_data_types: Optional[bool] = None,
@@ -433,7 +433,7 @@ class RestClient(Thread):
                                                                 use_strict_data_types=use_strict_data_types, time_zone=time_zone,
                                                                 key=key)
 
-    def delete_device_attributes(self, device_id: DeviceId, scope: str, keys: str,
+    def delete_device_attributes(self, device_id: DeviceId, scope: str, keys: Optional[str] = None,
                                  key: Optional[List[str]] = None) -> None:
         device_id = self.get_id(device_id)
         return self.telemetry_controller.delete_device_attributes(device_id=device_id, scope=scope,
@@ -448,11 +448,10 @@ class RestClient(Thread):
                                                                    entity_id=entity_id, scope=scope,
                                                                    body=body)
 
-    def delete_entity_timeseries(self, entity_id: EntityId, keys: str, delete_all_data_for_keys: Optional[bool] = None,
-                                 start_ts: Optional[int] = None, end_ts: Optional[int] = None,
-                                 delete_latest: Optional[bool] = None,
-                                 rewrite_latest_if_deleted: Optional[bool] = None,
-                                 key: Optional[List[str]] = None) -> None:
+    def delete_entity_timeseries(self, entity_id: EntityId, keys: Optional[str] = None,
+                                 delete_all_data_for_keys: Optional[bool] = None, start_ts: Optional[int] = None,
+                                 end_ts: Optional[int] = None, delete_latest: Optional[bool] = None,
+                                 rewrite_latest_if_deleted: Optional[bool] = None, key: Optional[List[str]] = None) -> None:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.delete_entity_timeseries(entity_type=entity_type,
@@ -529,7 +528,7 @@ class RestClient(Thread):
                                                         keys=keys,
                                                         key=key)
 
-    def delete_entity_attributes(self, entity_id: EntityId, scope: str, keys: str,
+    def delete_entity_attributes(self, entity_id: EntityId, scope: str, keys: Optional[str] = None,
                                  key: Optional[List[str]] = None) -> None:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
@@ -778,8 +777,9 @@ class RestClient(Thread):
         device_id = self.get_id(device_id)
         return self.rpc_v2_controller.handle_two_way_device_rpc_request_v2(device_id=device_id, body=body)
 
-    def get_persisted_rpc_by_device(self, device_id: DeviceId, page_size: int, page: int, rpc_status: str,
-                                   text_search: Optional[str] = None, sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> Dict:
+    def get_persisted_rpc_by_device(self, device_id: DeviceId, page_size: int, page: int,
+                                    rpc_status: Optional[str] = None, text_search: Optional[str] = None,
+                                    sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> Dict:
         device_id = self.get_id(device_id)
         return self.rpc_v2_controller.get_persisted_rpc_by_device(device_id=device_id, page_size=page_size,
                                                                   page=page, rpc_status=rpc_status,
@@ -1221,7 +1221,7 @@ class RestClient(Thread):
                                                                         key=key,
                                                                         if_none_match=if_none_match)
 
-    def upload_resource(self, title, resource_type, descriptor, resource_sub_type, file) -> TbResourceInfo:
+    def upload_resource(self, resource_type, file, title=None, descriptor=None, resource_sub_type=None) -> TbResourceInfo:
         return self.tb_resource_controller.upload_resource(title=title, resource_type=resource_type,
                                                            descriptor=descriptor, resource_sub_type=resource_sub_type,
                                                            file=file)
@@ -1654,9 +1654,9 @@ class RestClient(Thread):
     def subscribe_to_commands(self, device_token: str, timeout: Optional[int] = None) -> Dict:
         return self.device_api_controller.subscribe_to_commands(device_token=device_token, timeout=timeout)
 
-    def get_device_attributes(self, device_token: str, client_keys: str,
-                              shared_keys: str,
-                              all_client_keys: Optional[bool] = None, all_shared_keys: Optional[bool] = None) -> Dict:
+    def get_device_attributes(self, device_token: str, client_keys: Optional[str] = None,
+                              shared_keys: Optional[str] = None, all_client_keys: Optional[bool] = None,
+                              all_shared_keys: Optional[bool] = None) -> Dict:
         return self.device_api_controller.get_device_attributes(device_token=device_token,
                                                                 client_keys=client_keys,
                                                                 shared_keys=shared_keys,
@@ -1886,8 +1886,7 @@ class RestClient(Thread):
         return self.two_factor_auth_config_controller.update_two_fa_account_config(
             provider_type=provider_type, body=body)
 
-    def verify_and_save_two_fa_account_config(self, body: TwoFaAccountConfig,
-                                              verification_code: str) -> AccountTwoFaSettings:
+    def verify_and_save_two_fa_account_config(self, body: TwoFaAccountConfig, verification_code: Optional[str] = None) -> AccountTwoFaSettings:
         return self.two_factor_auth_config_controller.verify_and_save_two_fa_account_config(body=body,
                                                                                             verification_code=verification_code)
 
@@ -2095,8 +2094,7 @@ class RestClient(Thread):
     def update_image(self, _type: str, key: str, file: str) -> TbResourceInfo:
         return self.image_controller.update_image(type=_type, key=key, file=file)
 
-    def upload_image(self, title: str, file: str,
-                     image_sub_type: Optional[str] = None) -> TbResourceInfo:
+    def upload_image(self, file: str, title: Optional[str] = None, image_sub_type: Optional[str] = None) -> TbResourceInfo:
         return self.image_controller.upload_image(title=title, file=file,
                                                   image_sub_type=image_sub_type)
 
@@ -2104,7 +2102,7 @@ class RestClient(Thread):
         return self.asset_profile_controller.get_asset_profile_by_id(asset_profile_id=asset_profile_id,
                                                                      inline_images=inline_images)
 
-    def get_asset_profile_by_names(self, active_only: Optional[bool]) -> List[EntityInfo]:
+    def get_asset_profile_by_names(self, active_only: Optional[bool] = None) -> List[EntityInfo]:
         return self.asset_profile_controller.get_asset_profile_names(active_only=active_only)
 
     def get_asset_profiles_by_ids(self, asset_profile_ids: List[str]) -> List[AssetProfileInfo]:
@@ -2115,7 +2113,7 @@ class RestClient(Thread):
         device_id = self.get_id(device_id)
         return self.device_connectivity_controller.download_gateway_docker_compose(device_id=device_id)
 
-    def get_device_profile_names(self, active_only: Optional[bool]) -> List[EntityInfo]:
+    def get_device_profile_names(self, active_only: Optional[bool] = None) -> List[EntityInfo]:
         return self.device_profile_controller.get_device_profile_names(active_only=active_only)
 
     def get_edge_install_instructions(self, edge_id: EdgeId, method: str) -> EdgeInstructions:
@@ -3116,9 +3114,8 @@ class RestClient(Thread):
         integration_ids = ','.join(integration_ids)
         return self.integration_controller.get_integrations_by_ids(integration_ids=integration_ids)
 
-    def get_integration_infos(self, page_size: int, page: int, is_edge_template: Optional[bool],
-                              text_search: Optional[str] = None,
-                              sort_property: Optional[str] = None,
+    def get_integration_infos(self, page_size: int, page: int, is_edge_template: Optional[bool] = None,
+                              text_search: Optional[str] = None, sort_property: Optional[str] = None,
                               sort_order: Optional[str] = None) -> PageDataIntegrationInfo:
         return self.integration_controller.get_integration_infos(page_size=page_size, page=page,
                                                                  is_edge_template=is_edge_template,
@@ -3126,8 +3123,9 @@ class RestClient(Thread):
                                                                  sort_property=sort_property,
                                                                  sort_order=sort_order)
 
-    def get_integrations(self, page_size: int, page: int, is_edge_template: Optional[bool], text_search: Optional[str] = None,
-                             sort_property: Optional[str] = None, sort_order: Optional[str] = None,) -> PageDataIntegration:
+    def get_integrations(self, page_size: int, page: int, is_edge_template: Optional[bool] = None,
+                         text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                         sort_order: Optional[str] = None) -> PageDataIntegration:
         return self.integration_controller.get_integrations(page_size=page_size, page=page,
                                                             is_edge_template=is_edge_template,
                                                             text_search=text_search,
@@ -3165,7 +3163,8 @@ class RestClient(Thread):
     def get_custom_menu_infos(self, page_size: int, page: int, scope: Optional[str] = None, assignee_type: Optional[str] = None, text_search: Optional[str] = None, sort_property: Optional[str] = None, sort_order: Optional[str] = None):
         return self.custom_menu_controller.get_custom_menu_infos(page_size=page_size, page=page, scope=scope, assignee_type=assignee_type, text_search=text_search, sort_property=sort_property, sort_order=sort_order)
 
-    def update_custom_menu_assignee_list(self, id: CustomMenuId, assignee_type: str, body: List[str], force: Optional[bool] = None):
+    def update_custom_menu_assignee_list(self, id: CustomMenuId, assignee_type: str, body: Optional[List[str]] = None,
+                                         force: Optional[bool] = None):
         id = self.get_id(id)
         return self.custom_menu_controller.update_custom_menu_assignee_list(id=id, assignee_type=assignee_type, body=body, force=force)
 
@@ -3274,11 +3273,11 @@ class RestClient(Thread):
         return self.white_labeling_controller.save_white_label_params(body=body,
                                                                       customer_id=customer_id)
 
-    def delete_current_login_white_label_params(self, customer_id: CustomerId) -> None:
+    def delete_current_login_white_label_params(self, customer_id: Optional[CustomerId] = None) -> None:
         customer_id = self.get_id(customer_id)
         return self.white_labeling_controller.delete_current_login_white_label_params(customer_id=customer_id)
 
-    def delete_current_white_label_params(self, customer_id: CustomerId):
+    def delete_current_white_label_params(self, customer_id: Optional[CustomerId] = None):
         customer_id = self.get_id(customer_id)
         return self.white_labeling_controller.delete_current_white_label_params(customer_id=customer_id)
 
@@ -3686,12 +3685,12 @@ class RestClient(Thread):
         user_id = self.get_id(user_id)
         return self.user_controller.get_user_info_by_id(user_id=user_id)
 
-    def download_login_favicon(self, type: str, key: str, if_none_match: str,
+    def download_login_favicon(self, type: str, key: str, if_none_match: Optional[str] = None,
                                accept_encoding: Optional[str] = None) -> bytes:
         return self.image_controller.download_login_favicon(type=type, key=key, if_none_match=if_none_match,
                                                             accept_encoding=accept_encoding)
 
-    def download_login_logo(self, type: str, key: str, if_none_match: str,
+    def download_login_logo(self, type: str, key: str, if_none_match: Optional[str] = None,
                             accept_encoding: Optional[str] = None) -> bytes:
         return self.image_controller.download_login_logo(type=type, key=key, if_none_match=if_none_match,
                                                          accept_encoding=accept_encoding)
@@ -3751,8 +3750,9 @@ class RestClient(Thread):
         return self.converter_library_controller.get_uplink_payload(integration_type=integration_type,
                                                                     vendor_name=vendor_name, model=model)
 
-    def get_vendor_models(self, integration_type: str, vendor_name: str, converter_type: str,
-                          page: Optional[int] = None, page_size: Optional[int] = None, load_images: Optional[bool] = None) -> List[Model]:
+    def get_vendor_models(self, integration_type: str, vendor_name: str, converter_type: Optional[str] = None,
+                          page: Optional[int] = None, page_size: Optional[int] = None,
+                          load_images: Optional[bool] = None) -> List[Model]:
         return self.converter_library_controller.get_vendor_models(integration_type=integration_type,
                                                                    vendor_name=vendor_name,
                                                                    converter_type=converter_type,
@@ -3787,7 +3787,7 @@ class RestClient(Thread):
     def save_secret(self, body: Secret) -> SecretInfo:
         return self.secret_controller.save_secret(body=body)
 
-    def update_secret_description(self, id: SecretId, description: str) -> SecretInfo:
+    def update_secret_description(self, id: SecretId, description: Optional[str] = None) -> SecretInfo:
         id = self.get_id(id)
         return self.secret_controller.update_secret_description(id=id, body=description)
 

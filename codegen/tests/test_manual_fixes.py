@@ -50,7 +50,7 @@ cases = [
     (lambda: ce.find_by_from_v1(DEVICE, 'DEVICE', 'COMMON'), ('GET', '/api/relations/from/DEVICE/%s' % UUID, {'relationTypeGroup': 'COMMON'})),
     (lambda: ce.find_info_by_to(DEVICE, 'DEVICE'), ('GET', '/api/relations/info/to/DEVICE/%s' % UUID, {})),
     (lambda: ce.find_by_to(DEVICE, 'Contains'), ('GET', '/api/relations/to/DEVICE/%s/Contains' % UUID, {})),
-    (lambda: ce.get_timeseries(DEVICE, 'temp', 1, 2), ('GET', '/api/plugins/telemetry/DEVICE/%s/values/timeseries/history' % UUID,
+    (lambda: ce.get_timeseries(DEVICE, 1, 2, 'temp'), ('GET', '/api/plugins/telemetry/DEVICE/%s/values/timeseries/history' % UUID,
                                                        {'keys': 'temp', 'startTs': 1, 'endTs': 2})),
     (lambda: ce.get_user_settings(), ('GET', '/api/user/settings/general', {})),
     (lambda: ce.put_user_settings({'a': 1}), ('PUT', '/api/user/settings/general', {})),

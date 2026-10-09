@@ -1,5 +1,5 @@
-"""Calls wrappers with the spec params added to them in 4.4 (Q6) with the HTTP layer faked and checks
-that the params reach the request.
+"""Calls wrappers with the spec params added to them in 4.4 (Q6), or left out where the spec makes
+them optional, with the HTTP layer faked and checks the request.
 
 Usage: python3 codegen/tests/test_spec_params.py [package_parent_dir]   (default: draft)
 """
@@ -55,6 +55,15 @@ cases = [
      ('GET', '/api/noauth/selfRegistration/privacyPolicy', [('pkgName', 'app'), ('platform', 'ANDROID')], {})),
     (lambda: c.get_home_dashboard(accept_encoding='gzip'),
      ('GET', '/api/dashboard/home', [], {'Accept-Encoding': 'gzip'})),
+    # params optional in the spec can be left out
+    (lambda: c.get_persisted_rpc_by_device(device, 10, 0),
+     ('GET', '/api/rpc/persistent/device/%s' % U, [('pageSize', 10), ('page', 0)], {})),
+    (lambda: c.get_device_attributes('token'),
+     ('GET', '/api/v1/token/attributes', [], {})),
+    (lambda: c.get_timeseries(device, 1, 2, key=['t']),
+     ('GET', '/api/plugins/telemetry/DEVICE/%s/values/timeseries/history' % U, [('startTs', 1), ('endTs', 2), ('key', 't')], {})),
+    (lambda: c.delete_entity_attributes(device, 'SERVER_SCOPE', key=['a']),
+     ('DELETE', '/api/plugins/telemetry/DEVICE/%s/SERVER_SCOPE' % U, [('key', 'a')], {})),
 ]
 passed = 0
 for call, expected in cases:
