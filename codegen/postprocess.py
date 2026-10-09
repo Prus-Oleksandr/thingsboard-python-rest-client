@@ -187,6 +187,7 @@ def fix_response_types(pkg_dir):
 # setter raises ValueError on None, so the whole response failed to deserialize.
 NULLABLE_REQUIRED_FIELDS = {
     ('RuleChainMetaData', 'ruleChainConnections'),  # null in the metadata of the Root Rule Chain
+    ('AgentApplication', 'agentId'),  # null in mergeAgentApplicationForPreview of a new application
 }
 
 
