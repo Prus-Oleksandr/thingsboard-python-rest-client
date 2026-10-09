@@ -22,24 +22,24 @@ class ThingsboardErrorCode(object):
     """
 
     """
-    allowed enum values
+    allowed enum values (the server sends errorCode as a number)
     """
-    _2 = "2"
-    _10 = "10"
-    _11 = "11"
-    _15 = "15"
-    _20 = "20"
-    _30 = "30"
-    _31 = "31"
-    _32 = "32"
-    _33 = "33"
-    _34 = "34"
-    _35 = "35"
-    _40 = "40"
-    _41 = "41"
-    _45 = "45"
-    _46 = "46"
-    _47 = "47"
+    _2 = 2
+    _10 = 10
+    _11 = 11
+    _15 = 15
+    _20 = 20
+    _30 = 30
+    _31 = 31
+    _32 = 32
+    _33 = 33
+    _34 = 34
+    _35 = 35
+    _40 = 40
+    _41 = 41
+    _45 = 45
+    _46 = 46
+    _47 = 47
     """
     Attributes:
       swagger_types (dict): The key is attribute name
