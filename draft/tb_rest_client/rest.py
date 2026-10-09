@@ -155,7 +155,9 @@ class RESTClientObject(object):
                 if query_params:
                     url += '?' + urlencode(query_params)
                 if re.search('json', headers['Content-Type'], re.IGNORECASE):
-                    request_body = '{}'
+                    # no body when none is given: '{}' changed the meaning of optional bodies
+                    # (e.g. mergeAgentApplicationForPreview merged into an empty application)
+                    request_body = None
                     if body is not None:
                         request_body = json.dumps(body)
                     r = self.pool_manager.request(

@@ -96,5 +96,22 @@ try:
 except ValueError as e:
     check('null in a nullable required field', False, e)
 
+# rest.py: a JSON request without a body sends none (the generator sent '{}')
+from tb_rest_client.rest import RESTClientObject
+
+
+class FakePool:
+    def request(self, method, url, **kwargs):
+        self.body = kwargs.get('body')
+        return type('R', (), {'status': 200, 'reason': 'OK', 'data': b'{}', 'headers': {}})()
+
+
+rest = RESTClientObject(Configuration())
+rest.pool_manager = FakePool()
+rest.request('POST', 'http://tb:8080/api/x', headers={'Content-Type': 'application/json'})
+check('no body sent when none given', rest.pool_manager.body is None, repr(rest.pool_manager.body))
+rest.request('POST', 'http://tb:8080/api/x', headers={'Content-Type': 'application/json'}, body={'a': 1})
+check('JSON body sent', rest.pool_manager.body == '{"a": 1}', repr(rest.pool_manager.body))
+
 del client
 sys.exit(1 if check.failed else 0)
