@@ -138,6 +138,23 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
 - `rest.py` sent `'{}'` for a JSON request without a body (also in 4.3); now it sends none (an
   optional body has a meaning, e.g. mergeAgentApplicationForPreview creates from the template).
 - `AgentApplication.agentId` in `NULLABLE_REQUIRED_FIELDS` (null in a merge preview).
+- Q8 (generator limitations, fixed by hand in the draft and checked on a 4.4 server; the generator
+  is treated as a draft, the client result is what counts):
+  - Discriminators without a mapping in the spec (`AgentAppConfig`, `AgentAppStep`,
+    `AgentAppStepState`): the generator keyed the map by class name, the server sends the enum
+    value (`COMPOSE`, `RUN_JOB`, `DOCKER_COMPOSE`, ...), so nothing resolved. Maps set by hand from
+    the AgentAppConfigType/AgentAppStepType enums, matched by fields against 67 server templates.
+  - oneOf fields typed as the discriminator base instead of empty `OneOf*` classes (deleted, they
+    returned raw dicts) or `object`: config -> `AgentAppConfig`, steps -> `list[AgentAppStep]`,
+    step states/inputs -> `dict(str, AgentAppStepState)`, getManagedRelatedEntityIds ->
+    `list[EntityId]`.
+  - `DeviceExportData`, `EntityGroupExportData`, `RuleChainExportData`, `WidgetsBundleExportData`
+    inherit `EntityExportData` (the generator flattened them; constructor order kept).
+  - `output` required in the geofencing / entity aggregation / related entities aggregation CF
+    configurations (declared in the parent, required in the subclass).
+  - `ThingsboardErrorCode` constants are numbers (the server sends errorCode as a number).
+  - `check_spec.py` now also checks discriminator keys (lowercase, enum values, every subclass),
+    oneOf typed as a common discriminator base, and enum constant types. `test_models.py` covers it.
 - Q1: 5 wrappers of hidden endpoints deleted (`get_events_get`,
   `get_bundle_widget_types[_details|_infos]_by_bundle_alias`,
   `get_widget_type_by_bundle_alias_and_type_alias`). Replacements: `get_events_v1_get1` with
@@ -149,10 +166,10 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
 
 ## Current state
 
-- `check_spec.py`: 824/824 operations, 0 errors, 23 warnings (Q8).
+- `check_spec.py`: 824/824 operations, 0 errors, 0 warnings.
 - `check_wrappers.py --old-package draft/tb_rest_client`: 826 controller calls, all work; WARN 6
   deprecated ops (Q2, kept on purpose); INFO 17 operations not wrapped on purpose (Q5).
-- `codegen/tests/run_all.py`: all 7 test files pass.
+- `codegen/tests/run_all.py`: all 8 test files pass.
 
 ## Positional order changes (for the release notes)
 
@@ -190,10 +207,12 @@ the same for `is_public` in `update_image_public_status`. All of them:
     `claimDevice`/`reClaimDevice`: decide from the ThingsBoard controller code.
   Done, see Done above. The 9 ops typed from the spec descriptions can be confirmed on a server
   with an edge, an agent, claiming or a connected device.
-- **Q8. Generator limitations** (check_spec WARN): `oneOf` fields typed as empty `OneOf*` classes or
-  `object` (15, mostly AgentApp*; single-ref oneOf could be fixed in postprocess), 4 `*ExportData`
-  models do not inherit `EntityExportData`, 3 required `output` fields not enforced,
-  `ThingsboardErrorCode` int enum constants are strings.
+- **Q10. Fields the server sends that the models drop** (`probe_deserialization.py`; 4.3 dropped them
+  too): `externalId` (hidden in the spec; 17 models seen, null on the test server but set for entities
+  imported by version control, and lost on get -> save), `NotificationInfo` subtypes (the spec has
+  only the base; 12 fields such as entityId, entityName, userEmail are lost), `ContactBasedObject`
+  (owners are Tenant/Customer: region, title, ...), `DeviceProfileData.alarms` (gone from the spec,
+  the server sends null). Proposal: keep unknown fields on the model and send them back.
 - **Q9. License header.** 4.3 files had the Apache header; generated files do not.
 
 ## Remaining work to the final result

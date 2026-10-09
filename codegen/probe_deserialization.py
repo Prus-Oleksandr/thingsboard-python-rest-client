@@ -1,5 +1,7 @@
 """Deserializes real responses of a ThingsBoard server with the generated client to find models that
-do not accept what the server sends (e.g. null in a field the spec marks required).
+do not accept what the server sends (e.g. null in a field the spec marks required), fields the server
+sends that a model drops (not in the spec), and polymorphic objects left as their base class because
+the discriminator value is not in the map.
 
 Usage: python3 codegen/probe_deserialization.py [package_parent_dir]   (default: draft)
 
@@ -8,6 +10,7 @@ operations with one '<entity>_id' param for up to 3 ids of that entity type seen
 Server and credentials as in probe_endpoints.py: TB_URL, and TB_TENANT_TOKEN (a JWT) or
 TB_TENANT_USERNAME + TB_TENANT_PASSWORD.
 """
+import collections
 import glob
 import importlib
 import json
@@ -52,6 +55,23 @@ for f in sorted(glob.glob(os.path.join(package_dir, 'api', '*_api.py'))):
 calls = ok = http_errors = models = 0
 errors = []
 ids = {}  # entity type -> ids seen in the answers
+dropped = collections.defaultdict(collections.Counter)  # model -> JSON field the model does not have -> count
+unresolved = collections.Counter()  # (base model, discriminator value) -> count
+deserialize_model = ApiClient._ApiClient__deserialize_model
+
+
+def watched_deserialize_model(self, data, klass):
+    result = deserialize_model(self, data, klass)
+    cls = type(result)
+    if isinstance(data, dict) and hasattr(cls, 'attribute_map'):
+        for field in set(data) - set(cls.attribute_map.values()):
+            dropped[cls.__name__][field] += 1
+        if cls.__dict__.get('discriminator_value_class_map') is not None and getattr(result, 'discriminator', None):
+            unresolved[(cls.__name__, data.get(result.discriminator))] += 1
+    return result
+
+
+ApiClient._ApiClient__deserialize_model = watched_deserialize_model
 
 
 def collect(obj, depth=0):
@@ -104,4 +124,10 @@ print('%d calls: %d deserialized (%d models), %d HTTP errors (403/404/... not ch
 print('entity types seen: %s' % ', '.join('%s %d' % (k, len(v)) for k, v in sorted(ids.items())))
 for e in errors:
     print('  ' + e)
-sys.exit(1 if errors else 0)
+print('%d models drop fields the server sends:' % len(dropped))
+for name, fields in sorted(dropped.items()):
+    print('  %-44s %s' % (name, ', '.join('%s (%d)' % kv for kv in sorted(fields.items()))))
+print('%d polymorphic objects left as their base class:' % sum(unresolved.values()))
+for (name, value), n in sorted(unresolved.items(), key=str):
+    print('  %-44s discriminator %r (%d)' % (name, value, n))
+sys.exit(1 if errors or dropped or unresolved else 0)
