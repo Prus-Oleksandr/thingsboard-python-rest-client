@@ -80,5 +80,23 @@ for call, expected in cases:
     ok = got == expected
     passed += ok
     print('%-4s %s' % ('OK' if ok else 'FAIL', got if ok else 'expected %s\n     got      %s' % (expected, got)))
+
+# create_report: the server takes multipart (file + info as JSON), not the JSON body of the spec
+import tempfile
+posted = []
+c.api_client.request = lambda method, url, query_params=None, headers=None, post_params=None, body=None, \
+    _preload_content=True, _request_timeout=None: posted.append((method, url, headers.get('Content-Type'),
+                                                                 post_params, body)) or FakeResponse()
+with tempfile.NamedTemporaryFile(suffix='.pdf') as f:
+    f.write(b'%PDF'); f.flush()
+    c.create_report(f.name, {'name': 'r'})
+    method, url, content_type, post, body = posted[-1]
+    fields = {k: (v if isinstance(v, str) else v[1]) for k, v in post}
+    ok = (method, url, content_type, body) == ('POST', 'http://tb:8080/api/v2/report', 'multipart/form-data', None) \
+        and fields == {'info': '{"name": "r"}', 'file': b'%PDF'}
+    passed += ok
+    cases.append(None)
+    print('%-4s create_report multipart: %s %s' % ('OK' if ok else 'FAIL', content_type, fields))
+
 print('%d/%d OK' % (passed, len(cases)))
 sys.exit(0 if passed == len(cases) else 1)

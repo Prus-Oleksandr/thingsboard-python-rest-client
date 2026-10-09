@@ -124,6 +124,20 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
   63 calls got the spec params they lacked (optional, at the end), 24 params optional in the spec
   got `= None`, 91 params required in the spec (88 `body`) lost their default. Enum query params
   are typed `str`. Tested in `test_spec_params.py`.
+- Q5: 136 wrappers added for 4.4 operations (generated in the style of the existing ones: required
+  params first, ids as *Id objects via get_id, entity_type + entity_id as one EntityId, enum params
+  as `str`) and 13 controllers loaded. Names taken where the operation name was already used:
+  `claim_device_by_name`, `get_scheduler_events_all`, `get_user_settings_by_type`,
+  `put_user_settings_by_type`. Not wrapped on purpose (17): login/refresh_token (RestClient does it),
+  4 QR/mobile (upstream removed them in 4.3), `save_lwm2m_device_with_credentials` ("Deprecated."),
+  `send_chat_message` (text/event-stream), 9 system-setup (setup wizard). Checked against the spec
+  and on a live server (every route exists). `get_activation_link_info` called getActivationLink.
+- `create_report`: the spec says application/json, the server takes only multipart/form-data
+  (`file`, `info` as JSON); fixed by hand in `report_controller_api.py`, the wrapper accepts `info`
+  as a dict too. `check_spec.py` knows it (`SERVER_CONTENT_TYPES`).
+- `rest.py` sent `'{}'` for a JSON request without a body (also in 4.3); now it sends none (an
+  optional body has a meaning, e.g. mergeAgentApplicationForPreview creates from the template).
+- `AgentApplication.agentId` in `NULLABLE_REQUIRED_FIELDS` (null in a merge preview).
 - Q1: 5 wrappers of hidden endpoints deleted (`get_events_get`,
   `get_bundle_widget_types[_details|_infos]_by_bundle_alias`,
   `get_widget_type_by_bundle_alias_and_type_alias`). Replacements: `get_events_v1_get1` with
@@ -136,7 +150,8 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
 ## Current state
 
 - `check_spec.py`: 824/824 operations, 0 errors, 23 warnings (Q8).
-- `check_wrappers.py --old-package draft/tb_rest_client`: 690 controller calls, all work; WARN 6 deprecated ops (Q2, kept on purpose); 154 new operations without a wrapper (Q5).
+- `check_wrappers.py --old-package draft/tb_rest_client`: 826 controller calls, all work; WARN 6
+  deprecated ops (Q2, kept on purpose); INFO 17 operations not wrapped on purpose (Q5).
 - `codegen/tests/run_all.py`: all 7 test files pass.
 
 ## Positional order changes (for the release notes)
@@ -175,8 +190,6 @@ the same for `is_public` in `update_image_public_status`. All of them:
     `claimDevice`/`reClaimDevice`: decide from the ThingsBoard controller code.
   Done, see Done above. The 9 ops typed from the spec descriptions can be confirmed on a server
   with an edge, an agent, claiming or a connected device.
-- **Q5. 154 new 4.4 operations without wrappers** (`check_wrappers.py --full`, INFO): which to add
-  (e.g. `update_mobile_app_bundle_oauth2_clients`, AI, agents, trendz views).
 - **Q8. Generator limitations** (check_spec WARN): `oneOf` fields typed as empty `OneOf*` classes or
   `object` (15, mostly AgentApp*; single-ref oneOf could be fixed in postprocess), 4 `*ExportData`
   models do not inherit `EntityExportData`, 3 required `output` fields not enforced,
@@ -231,8 +244,10 @@ python3 codegen/probe_deserialization.py   # real GET answers through the draft 
 Reading answers: 404 "No static resource" = no such route; 404 "... is not found" = route exists,
 entity does not; 405 = path exists for another HTTP method; 400 "Parameter conditions ... not met" =
 path exists and the message lists the accepted param variants; 200 = works. Write requests
-(POST/PUT/DELETE) must only use `{randomId}` or a malformed JSON body, so nothing on the server
-changes. Placeholders: `{tenantId}`, `{deviceId}` (first tenant device), `{deviceToken}` (its
+(POST/PUT/DELETE) must only use `{randomId}` in an id path param or a malformed body for a typed
+model, so nothing on the server changes. A string is a valid JsonNode/object body, and enum or name
+path params are not ids: save_mail_templates, sendAddonAccessRequest and sendPlanUpgradeRequest were
+executed this way by mistake during the Q5 check. Placeholders: `{tenantId}`, `{deviceId}` (first tenant device), `{deviceToken}` (its
 access token), `{randomId}`. `"user": "none"` sends no JWT (noauth and device API). Each line shows
 status, Content-Type and the start of the body.
 

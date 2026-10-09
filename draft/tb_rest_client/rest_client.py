@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+import json
 import jwt
 from time import time, sleep
 
@@ -107,6 +108,19 @@ from tb_rest_client.api.user_permissions_controller_api import UserPermissionsCo
 from tb_rest_client.api.white_labeling_controller_api import WhiteLabelingControllerApi
 from tb_rest_client.api.widget_type_controller_api import WidgetTypeControllerApi
 from tb_rest_client.api.widgets_bundle_controller_api import WidgetsBundleControllerApi
+from tb_rest_client.api.agent_app_profile_controller_api import AgentAppProfileControllerApi
+from tb_rest_client.api.agent_app_template_controller_api import AgentAppTemplateControllerApi
+from tb_rest_client.api.agent_application_controller_api import AgentApplicationControllerApi
+from tb_rest_client.api.agent_bulk_action_controller_api import AgentBulkActionControllerApi
+from tb_rest_client.api.agent_controller_api import AgentControllerApi
+from tb_rest_client.api.agent_profile_controller_api import AgentProfileControllerApi
+from tb_rest_client.api.ai_chat_controller_api import AiChatControllerApi
+from tb_rest_client.api.ai_device_dashboard_controller_api import AiDeviceDashboardControllerApi
+from tb_rest_client.api.ai_solution_controller_api import AiSolutionControllerApi
+from tb_rest_client.api.ai_tool_controller_api import AiToolControllerApi
+from tb_rest_client.api.alarm_rule_controller_api import AlarmRuleControllerApi
+from tb_rest_client.api.api_key_controller_api import ApiKeyControllerApi
+from tb_rest_client.api.solution_export_import_controller_api import SolutionExportImportControllerApi
 
 
 logger = getLogger(__name__)
@@ -878,7 +892,7 @@ class RestClient(Thread):
 
     def get_activation_link_info(self, user_id: UserId) -> UserActivationLink:
         user_id = self.get_id(user_id)
-        return self.user_controller.get_activation_link(user_id=user_id)
+        return self.user_controller.get_activation_link_info(user_id=user_id)
 
     def get_users_by_ids(self, user_ids: list) -> List[User]:
         return self.user_controller.get_users_by_ids(user_ids=str(user_ids))
@@ -2397,6 +2411,19 @@ class RestClient(Thread):
         self.dashboard_report_controller = DashboardReportControllerApi(self.api_client)
         self.report_template_controller = ReportTemplateControllerApi(self.api_client)
         self.trendz_api_controller = TrendzApiControllerApi(self.api_client)
+        self.agent_app_profile_controller = AgentAppProfileControllerApi(self.api_client)
+        self.agent_app_template_controller = AgentAppTemplateControllerApi(self.api_client)
+        self.agent_application_controller = AgentApplicationControllerApi(self.api_client)
+        self.agent_bulk_action_controller = AgentBulkActionControllerApi(self.api_client)
+        self.agent_controller = AgentControllerApi(self.api_client)
+        self.agent_profile_controller = AgentProfileControllerApi(self.api_client)
+        self.ai_chat_controller = AiChatControllerApi(self.api_client)
+        self.ai_device_dashboard_controller = AiDeviceDashboardControllerApi(self.api_client)
+        self.ai_solution_controller = AiSolutionControllerApi(self.api_client)
+        self.ai_tool_controller = AiToolControllerApi(self.api_client)
+        self.alarm_rule_controller = AlarmRuleControllerApi(self.api_client)
+        self.api_key_controller = ApiKeyControllerApi(self.api_client)
+        self.solution_export_import_controller = SolutionExportImportControllerApi(self.api_client)
 
     @staticmethod
     def get_type(type):
@@ -3906,3 +3933,704 @@ class RestClient(Thread):
 
     def handle_rule_engine_request_for_user(self, body: Any) -> Any:
         return self.rule_engine_controller.handle_rule_engine_request_for_user(body=body)
+
+    # Admin Controller
+    def get_subscription_info(self) -> SubscriptionInfo:
+        return self.admin_controller.get_subscription_info()
+
+    def refresh_license(self) -> SubscriptionInfo:
+        return self.admin_controller.refresh_license()
+
+    # Agent App Profile Controller
+    def delete_agent_app_profile(self, profile_id: AgentAppProfileId) -> None:
+        profile_id = self.get_id(profile_id)
+        return self.agent_app_profile_controller.delete_agent_app_profile(profile_id=profile_id)
+
+    def get_agent_app_profile_by_id(self, profile_id: AgentAppProfileId) -> AgentAppProfile:
+        profile_id = self.get_id(profile_id)
+        return self.agent_app_profile_controller.get_agent_app_profile_by_id(profile_id=profile_id)
+
+    def get_agent_app_profile_info_by_id(self, profile_id: AgentAppProfileId) -> AgentAppProfileInfo:
+        profile_id = self.get_id(profile_id)
+        return self.agent_app_profile_controller.get_agent_app_profile_info_by_id(profile_id=profile_id)
+
+    def get_agent_app_profiles_by_app_type(self, app_type: str) -> List[AgentAppProfileInfo]:
+        return self.agent_app_profile_controller.get_agent_app_profiles_by_app_type(app_type=app_type)
+
+    def get_agent_app_profiles_by_ids(self, agent_app_profile_ids: List[str]) -> List[AgentAppProfile]:
+        return self.agent_app_profile_controller.get_agent_app_profiles_by_ids(agent_app_profile_ids=agent_app_profile_ids)
+
+    def get_tenant_agent_app_profiles(self, page_size: int, page: int, text_search: Optional[str] = None,
+                                      sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataAgentAppProfile:
+        return self.agent_app_profile_controller.get_tenant_agent_app_profiles(page_size=page_size, page=page,
+                                                                               text_search=text_search,
+                                                                               sort_property=sort_property,
+                                                                               sort_order=sort_order)
+
+    def materialize_agent_app_profile(self, app_type: str, template_version: str, compose_type: Optional[str] = None) -> AgentAppProfile:
+        return self.agent_app_profile_controller.materialize_agent_app_profile(app_type=app_type,
+                                                                               template_version=template_version,
+                                                                               compose_type=compose_type)
+
+    def merge_agent_app_profile_for_preview(self, body: AgentAppProfile, template_version: str,
+                                            compose_type: Optional[str] = None, action_type: Optional[str] = None,
+                                            set_host_values: Optional[bool] = None) -> AgentAppProfile:
+        return self.agent_app_profile_controller.merge_agent_app_profile_for_preview(body=body,
+                                                                                     template_version=template_version,
+                                                                                     compose_type=compose_type,
+                                                                                     action_type=action_type,
+                                                                                     set_host_values=set_host_values)
+
+    def save_agent_app_profile(self, body: AgentAppProfile) -> AgentAppProfile:
+        return self.agent_app_profile_controller.save_agent_app_profile(body=body)
+
+    # Agent App Template Controller
+    def get_agent_app_template_by_current_version(self, app_type: str, config_type: str, current_version: str) -> AgentAppTemplate:
+        return self.agent_app_template_controller.get_agent_app_template_by_current_version(app_type=app_type,
+                                                                                            config_type=config_type,
+                                                                                            current_version=current_version)
+
+    def get_agent_app_templates(self) -> List[AgentAppTemplate]:
+        return self.agent_app_template_controller.get_agent_app_templates()
+
+    def get_agent_app_templates_by_app_type(self, app_type: str, config_type: str) -> List[AgentAppTemplate]:
+        return self.agent_app_template_controller.get_agent_app_templates_by_app_type(app_type=app_type,
+                                                                                      config_type=config_type)
+
+    def get_latest_agent_app_template_by_app_type_and_config_type(self, app_type: str, config_type: str) -> AgentAppTemplate:
+        return self.agent_app_template_controller.get_latest_agent_app_template_by_app_type_and_config_type(app_type=app_type,
+                                                                                                            config_type=config_type)
+
+    # Agent Application Controller
+    def assign_related_entity_to_agent_app(self, agent_application_id: AgentApplicationId, entity_id: EntityId) -> AgentApplication:
+        agent_application_id = self.get_id(agent_application_id)
+        entity_type = self.get_type(entity_id)
+        entity_id = self.get_id(entity_id)
+        return self.agent_application_controller.assign_related_entity_to_agent_app(agent_application_id=agent_application_id,
+                                                                                    entity_type=entity_type,
+                                                                                    entity_id=entity_id)
+
+    def attach_to_profile(self, agent_application_id: AgentApplicationId, profile_id: str) -> AgentApplication:
+        agent_application_id = self.get_id(agent_application_id)
+        return self.agent_application_controller.attach_to_profile(agent_application_id=agent_application_id,
+                                                                   profile_id=profile_id)
+
+    def cancel_agent_app_event(self, agent_application_id: AgentApplicationId, agent_app_event_id: AgentAppEventId) -> None:
+        agent_application_id = self.get_id(agent_application_id)
+        agent_app_event_id = self.get_id(agent_app_event_id)
+        return self.agent_application_controller.cancel_agent_app_event(agent_application_id=agent_application_id,
+                                                                        agent_app_event_id=agent_app_event_id)
+
+    def create_agent_app_event(self, body: AgentAppEventRequest, agent_application_id: AgentApplicationId) -> AgentAppEvent:
+        agent_application_id = self.get_id(agent_application_id)
+        return self.agent_application_controller.create_agent_app_event(body=body,
+                                                                        agent_application_id=agent_application_id)
+
+    def detach_from_profile(self, agent_application_id: AgentApplicationId) -> AgentApplication:
+        agent_application_id = self.get_id(agent_application_id)
+        return self.agent_application_controller.detach_from_profile(agent_application_id=agent_application_id)
+
+    def get_agent_app_event_by_id(self, agent_app_event_id: AgentAppEventId) -> AgentAppEvent:
+        agent_app_event_id = self.get_id(agent_app_event_id)
+        return self.agent_application_controller.get_agent_app_event_by_id(agent_app_event_id=agent_app_event_id)
+
+    def get_agent_app_events(self, agent_application_id: AgentApplicationId, page_size: int, page: int,
+                             text_search: Optional[str] = None, action_type: Optional[str] = None,
+                             processing_status: Optional[str] = None, sort_property: Optional[str] = None,
+                             sort_order: Optional[str] = None) -> PageDataAgentAppEvent:
+        agent_application_id = self.get_id(agent_application_id)
+        return self.agent_application_controller.get_agent_app_events(agent_application_id=agent_application_id,
+                                                                      page_size=page_size, page=page,
+                                                                      text_search=text_search, action_type=action_type,
+                                                                      processing_status=processing_status,
+                                                                      sort_property=sort_property,
+                                                                      sort_order=sort_order)
+
+    def get_agent_app_units(self, agent_application_id: AgentApplicationId, page_size: int, page: int,
+                            text_search: Optional[str] = None, type: Optional[str] = None,
+                            sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataAgentAppUnit:
+        agent_application_id = self.get_id(agent_application_id)
+        return self.agent_application_controller.get_agent_app_units(agent_application_id=agent_application_id,
+                                                                     page_size=page_size, page=page,
+                                                                     text_search=text_search, type=type,
+                                                                     sort_property=sort_property,
+                                                                     sort_order=sort_order)
+
+    def get_agent_application_by_id(self, agent_application_id: AgentApplicationId) -> AgentApplicationInfo:
+        agent_application_id = self.get_id(agent_application_id)
+        return self.agent_application_controller.get_agent_application_by_id(agent_application_id=agent_application_id)
+
+    def get_agent_application_by_related_entity(self, entity_id: EntityId) -> AgentApplication:
+        entity_type = self.get_type(entity_id)
+        entity_id = self.get_id(entity_id)
+        return self.agent_application_controller.get_agent_application_by_related_entity(entity_type=entity_type,
+                                                                                         entity_id=entity_id)
+
+    def get_agent_applications_by_agent_id(self, agent_id: AgentId, page_size: int, page: int,
+                                           text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                                           sort_order: Optional[str] = None) -> PageDataAgentApplicationInfo:
+        agent_id = self.get_id(agent_id)
+        return self.agent_application_controller.get_agent_applications_by_agent_id(agent_id=agent_id,
+                                                                                    page_size=page_size, page=page,
+                                                                                    text_search=text_search,
+                                                                                    sort_property=sort_property,
+                                                                                    sort_order=sort_order)
+
+    def get_managed_related_entity_ids(self, entity_type: str) -> List[Any]:
+        return self.agent_application_controller.get_managed_related_entity_ids(entity_type=entity_type)
+
+    def get_related_entity_candidates(self, entity_type: str, page_size: int, page: int,
+                                      text_search: Optional[str] = None, current_entity_id: Optional[str] = None) -> PageDataEntityInfo:
+        return self.agent_application_controller.get_related_entity_candidates(entity_type=entity_type,
+                                                                               page_size=page_size, page=page,
+                                                                               text_search=text_search,
+                                                                               current_entity_id=current_entity_id)
+
+    def install_agent_app(self, body: AgentAppEventRequest) -> AgentAppInstallResponse:
+        return self.agent_application_controller.install_agent_app(body=body)
+
+    def merge_agent_application_for_preview(self, template_version: str, body: Optional[AgentApplication] = None,
+                                            app_type: Optional[str] = None, compose_type: Optional[str] = None,
+                                            action_type: Optional[str] = None, set_host_values: Optional[bool] = None,
+                                            related_entity_type: Optional[str] = None,
+                                            related_entity_id: Optional[str] = None) -> AgentApplication:
+        return self.agent_application_controller.merge_agent_application_for_preview(template_version=template_version,
+                                                                                     body=body, app_type=app_type,
+                                                                                     compose_type=compose_type,
+                                                                                     action_type=action_type,
+                                                                                     set_host_values=set_host_values,
+                                                                                     related_entity_type=related_entity_type,
+                                                                                     related_entity_id=related_entity_id)
+
+    def unassign_related_entity_from_agent_app(self, agent_application_id: AgentApplicationId) -> AgentApplication:
+        agent_application_id = self.get_id(agent_application_id)
+        return self.agent_application_controller.unassign_related_entity_from_agent_app(agent_application_id=agent_application_id)
+
+    def update_agent_application(self, body: AgentApplication) -> AgentApplication:
+        return self.agent_application_controller.update_agent_application(body=body)
+
+    # Agent Bulk Action Controller
+    def get_agent_bulk_action(self, bulk_action_id: AgentBulkActionId) -> AgentBulkAction:
+        bulk_action_id = self.get_id(bulk_action_id)
+        return self.agent_bulk_action_controller.get_agent_bulk_action(bulk_action_id=bulk_action_id)
+
+    def get_agent_bulk_action_event_stats(self, bulk_action_id: AgentBulkActionId) -> AgentBulkActionEventStats:
+        bulk_action_id = self.get_id(bulk_action_id)
+        return self.agent_bulk_action_controller.get_agent_bulk_action_event_stats(bulk_action_id=bulk_action_id)
+
+    def get_agent_bulk_action_events(self, bulk_action_id: AgentBulkActionId, page_size: int, page: int,
+                                     text_search: Optional[str] = None, action_type: Optional[str] = None,
+                                     processing_status: Optional[str] = None, sort_property: Optional[str] = None,
+                                     sort_order: Optional[str] = None) -> PageDataAgentAppEventInfo:
+        bulk_action_id = self.get_id(bulk_action_id)
+        return self.agent_bulk_action_controller.get_agent_bulk_action_events(bulk_action_id=bulk_action_id,
+                                                                              page_size=page_size, page=page,
+                                                                              text_search=text_search,
+                                                                              action_type=action_type,
+                                                                              processing_status=processing_status,
+                                                                              sort_property=sort_property,
+                                                                              sort_order=sort_order)
+
+    # Agent Controller
+    def delete_agent(self, agent_id: AgentId) -> None:
+        agent_id = self.get_id(agent_id)
+        return self.agent_controller.delete_agent(agent_id=agent_id)
+
+    def get_agent_app_event_infos_by_agent_id(self, agent_id: AgentId, page_size: int, page: int,
+                                              text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                                              sort_order: Optional[str] = None, action_type: Optional[str] = None,
+                                              processing_status: Optional[str] = None) -> PageDataAgentAppEventInfo:
+        agent_id = self.get_id(agent_id)
+        return self.agent_controller.get_agent_app_event_infos_by_agent_id(agent_id=agent_id, page_size=page_size,
+                                                                           page=page, text_search=text_search,
+                                                                           sort_property=sort_property,
+                                                                           sort_order=sort_order,
+                                                                           action_type=action_type,
+                                                                           processing_status=processing_status)
+
+    def get_agent_app_events_by_agent_id(self, agent_id: AgentId, page_size: int, page: int,
+                                         text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                                         sort_order: Optional[str] = None) -> PageDataAgentAppEvent:
+        agent_id = self.get_id(agent_id)
+        return self.agent_controller.get_agent_app_events_by_agent_id(agent_id=agent_id, page_size=page_size,
+                                                                      page=page, text_search=text_search,
+                                                                      sort_property=sort_property,
+                                                                      sort_order=sort_order)
+
+    def get_agent_by_id(self, agent_id: AgentId) -> Agent:
+        agent_id = self.get_id(agent_id)
+        return self.agent_controller.get_agent_by_id(agent_id=agent_id)
+
+    def get_agent_info_by_id(self, agent_id: AgentId) -> AgentInfo:
+        agent_id = self.get_id(agent_id)
+        return self.agent_controller.get_agent_info_by_id(agent_id=agent_id)
+
+    def get_agent_infos_by_ids(self, agent_ids: List[str]) -> List[AgentInfo]:
+        return self.agent_controller.get_agent_infos_by_ids(agent_ids=agent_ids)
+
+    def get_agent_install_instructions(self, agent_id: AgentId, method: str) -> AgentInstructions:
+        agent_id = self.get_id(agent_id)
+        return self.agent_controller.get_agent_install_instructions(agent_id=agent_id, method=method)
+
+    def get_agent_upgrade_target(self, agent_id: AgentId) -> str:
+        agent_id = self.get_id(agent_id)
+        return self.agent_controller.get_agent_upgrade_target(agent_id=agent_id)
+
+    def get_customer_agent_infos(self, customer_id: CustomerId, page_size: int, page: int,
+                                 text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                                 sort_order: Optional[str] = None) -> PageDataAgentInfo:
+        customer_id = self.get_id(customer_id)
+        return self.agent_controller.get_customer_agent_infos(customer_id=customer_id, page_size=page_size, page=page,
+                                                              text_search=text_search, sort_property=sort_property,
+                                                              sort_order=sort_order)
+
+    def get_customer_agents(self, customer_id: CustomerId, page_size: int, page: int,
+                            text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                            sort_order: Optional[str] = None) -> PageDataAgent:
+        customer_id = self.get_id(customer_id)
+        return self.agent_controller.get_customer_agents(customer_id=customer_id, page_size=page_size, page=page,
+                                                         text_search=text_search, sort_property=sort_property,
+                                                         sort_order=sort_order)
+
+    def get_latest_agent_image_ref(self) -> str:
+        return self.agent_controller.get_latest_agent_image_ref()
+
+    def get_tenant_agent_infos(self, page_size: int, page: int, text_search: Optional[str] = None,
+                               sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataAgentInfo:
+        return self.agent_controller.get_tenant_agent_infos(page_size=page_size, page=page, text_search=text_search,
+                                                            sort_property=sort_property, sort_order=sort_order)
+
+    def get_tenant_agents(self, page_size: int, page: int, text_search: Optional[str] = None,
+                          sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataAgent:
+        return self.agent_controller.get_tenant_agents(page_size=page_size, page=page, text_search=text_search,
+                                                       sort_property=sort_property, sort_order=sort_order)
+
+    def is_agent_upgrade_available(self, agent_id: AgentId) -> bool:
+        agent_id = self.get_id(agent_id)
+        return self.agent_controller.is_agent_upgrade_available(agent_id=agent_id)
+
+    def save_agent(self, body: Agent, entity_group_id: Optional[EntityGroupId] = None,
+                   entity_group_ids: Optional[List[str]] = None) -> Agent:
+        entity_group_id = self.get_id(entity_group_id)
+        return self.agent_controller.save_agent(body=body, entity_group_id=entity_group_id,
+                                                entity_group_ids=entity_group_ids)
+
+    def upgrade_agent(self, body: AgentUpgradeRequest, agent_id: AgentId) -> AgentAppEvent:
+        agent_id = self.get_id(agent_id)
+        return self.agent_controller.upgrade_agent(body=body, agent_id=agent_id)
+
+    # Agent Profile Controller
+    def assign_app_profile_to_agent_profile(self, agent_profile_id: AgentProfileId, application_profile_id: str) -> None:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.assign_app_profile_to_agent_profile(agent_profile_id=agent_profile_id,
+                                                                                 application_profile_id=application_profile_id)
+
+    def assign_app_profiles_to_agent_profile(self, agent_profile_id: AgentProfileId,
+                                             app_profile_ids: Optional[List[str]] = None) -> None:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.assign_app_profiles_to_agent_profile(agent_profile_id=agent_profile_id,
+                                                                                  app_profile_ids=app_profile_ids)
+
+    def bulk_operation(self, body: BulkOperationRequest, agent_profile_id: AgentProfileId, application_profile_id: str) -> AgentBulkAction:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.bulk_operation(body=body, agent_profile_id=agent_profile_id,
+                                                            application_profile_id=application_profile_id)
+
+    def delete_agent_profile(self, agent_profile_id: AgentProfileId) -> None:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.delete_agent_profile(agent_profile_id=agent_profile_id)
+
+    def get_agent_profile_app_profile_bulk_actions(self, agent_profile_id: AgentProfileId, application_profile_id: str,
+                                                   page_size: int, page: int, sort_property: Optional[str] = None,
+                                                   sort_order: Optional[str] = None) -> PageDataAgentBulkAction:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.get_agent_profile_app_profile_bulk_actions(agent_profile_id=agent_profile_id,
+                                                                                        application_profile_id=application_profile_id,
+                                                                                        page_size=page_size, page=page,
+                                                                                        sort_property=sort_property,
+                                                                                        sort_order=sort_order)
+
+    def get_agent_profile_app_profile_infos(self, agent_profile_id: AgentProfileId) -> List[AgentAppProfileRelationInfo]:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.get_agent_profile_app_profile_infos(agent_profile_id=agent_profile_id)
+
+    def get_agent_profile_bulk_actions(self, agent_profile_id: AgentProfileId, page_size: int, page: int,
+                                       sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataAgentBulkAction:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.get_agent_profile_bulk_actions(agent_profile_id=agent_profile_id,
+                                                                            page_size=page_size, page=page,
+                                                                            sort_property=sort_property,
+                                                                            sort_order=sort_order)
+
+    def get_agent_profile_by_id(self, agent_profile_id: AgentProfileId) -> AgentProfile:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.get_agent_profile_by_id(agent_profile_id=agent_profile_id)
+
+    def get_agent_profile_info_by_id(self, agent_profile_id: AgentProfileId) -> AgentProfileInfo:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.get_agent_profile_info_by_id(agent_profile_id=agent_profile_id)
+
+    def get_agent_provision_instructions(self, agent_profile_id: AgentProfileId, method: str) -> AgentInstructions:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.get_agent_provision_instructions(agent_profile_id=agent_profile_id,
+                                                                              method=method)
+
+    def get_default_agent_profile_info(self) -> AgentProfileInfo:
+        return self.agent_profile_controller.get_default_agent_profile_info()
+
+    def get_tenant_agent_profile_infos(self, page_size: int, page: int, text_search: Optional[str] = None,
+                                       sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataAgentProfileInfo:
+        return self.agent_profile_controller.get_tenant_agent_profile_infos(page_size=page_size, page=page,
+                                                                            text_search=text_search,
+                                                                            sort_property=sort_property,
+                                                                            sort_order=sort_order)
+
+    def get_tenant_agent_profiles(self, page_size: int, page: int, text_search: Optional[str] = None,
+                                  sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataAgentProfile:
+        return self.agent_profile_controller.get_tenant_agent_profiles(page_size=page_size, page=page,
+                                                                       text_search=text_search,
+                                                                       sort_property=sort_property,
+                                                                       sort_order=sort_order)
+
+    def preview_bulk_operation(self, body: BulkOperationRequest, agent_profile_id: AgentProfileId,
+                               application_profile_id: str) -> BulkOperationPreview:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.preview_bulk_operation(body=body, agent_profile_id=agent_profile_id,
+                                                                    application_profile_id=application_profile_id)
+
+    def save_agent_profile(self, body: AgentProfile, app_profile_ids: Optional[List[str]] = None) -> AgentProfile:
+        return self.agent_profile_controller.save_agent_profile(body=body, app_profile_ids=app_profile_ids)
+
+    def set_app_profile_relates_on_auto_discovery(self, agent_profile_id: AgentProfileId, application_profile_id: str,
+                                                  relate: bool) -> None:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.set_app_profile_relates_on_auto_discovery(agent_profile_id=agent_profile_id,
+                                                                                       application_profile_id=application_profile_id,
+                                                                                       relate=relate)
+
+    def set_default_agent_profile(self, agent_profile_id: AgentProfileId) -> AgentProfile:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.set_default_agent_profile(agent_profile_id=agent_profile_id)
+
+    def unassign_app_profile_from_agent_profile(self, agent_profile_id: AgentProfileId, application_profile_id: str) -> None:
+        agent_profile_id = self.get_id(agent_profile_id)
+        return self.agent_profile_controller.unassign_app_profile_from_agent_profile(agent_profile_id=agent_profile_id,
+                                                                                     application_profile_id=application_profile_id)
+
+    # Ai Chat Controller
+    def create_chat(self, body: Any) -> JsonNode:
+        return self.ai_chat_controller.create_chat(body=body)
+
+    def delete_chat(self, chat_id: str) -> None:
+        return self.ai_chat_controller.delete_chat(chat_id=chat_id)
+
+    def get_chat_messages(self, chat_id: str) -> JsonNode:
+        return self.ai_chat_controller.get_chat_messages(chat_id=chat_id)
+
+    def list_chats(self) -> JsonNode:
+        return self.ai_chat_controller.list_chats()
+
+    def update_chat(self, body: Any, chat_id: str) -> None:
+        return self.ai_chat_controller.update_chat(body=body, chat_id=chat_id)
+
+    # Ai Device Dashboard Controller
+    def generate_dashboard(self, body: Any, device_id: DeviceId) -> JsonNode:
+        device_id = self.get_id(device_id)
+        return self.ai_device_dashboard_controller.generate_dashboard(body=body,
+                                                                      x_authorization=self.configuration.get_api_key_with_prefix('X-Authorization'),
+                                                                      device_id=device_id)
+
+    # Ai Solution Controller
+    def chat(self, body: str, solution_id: str, step: str) -> JsonNode:
+        return self.ai_solution_controller.chat(body=body, solution_id=solution_id, step=step)
+
+    def clear_step(self, solution_id: str, step: str) -> None:
+        return self.ai_solution_controller.clear_step(solution_id=solution_id, step=step)
+
+    def create_solution(self, solution_id: str) -> JsonNode:
+        return self.ai_solution_controller.create_solution(solution_id=solution_id)
+
+    def delete_solution(self, solution_id: str) -> None:
+        return self.ai_solution_controller.delete_solution(solution_id=solution_id)
+
+    def get_solution(self, solution_id: str) -> JsonNode:
+        return self.ai_solution_controller.get_solution(solution_id=solution_id)
+
+    def get_solutions(self) -> JsonNode:
+        return self.ai_solution_controller.get_solutions()
+
+    def install_solution(self, solution_id: str) -> JsonNode:
+        return self.ai_solution_controller.install_solution(solution_id=solution_id,
+                                                            x_authorization=self.configuration.get_api_key_with_prefix('X-Authorization'))
+
+    def start_new(self) -> JsonNode:
+        return self.ai_solution_controller.start_new()
+
+    def uninstall_solution(self, solution_id: str) -> JsonNode:
+        return self.ai_solution_controller.uninstall_solution(solution_id=solution_id,
+                                                              x_authorization=self.configuration.get_api_key_with_prefix('X-Authorization'))
+
+    def update_data(self, body: Any, solution_id: str, data_key: str) -> JsonNode:
+        return self.ai_solution_controller.update_data(body=body, solution_id=solution_id, data_key=data_key)
+
+    # Ai Tool Controller
+    def resolve_tool_approval(self, body: Any) -> JsonNode:
+        return self.ai_tool_controller.resolve_tool_approval(body=body)
+
+    # Alarm Controller
+    def get_alarms_v2(self, entity_id: EntityId, page_size: int, page: int, status_list: Optional[List[str]] = None,
+                      severity_list: Optional[List[str]] = None, type_list: Optional[List[str]] = None,
+                      assignee_id: Optional[str] = None, text_search: Optional[str] = None,
+                      sort_property: Optional[str] = None, sort_order: Optional[str] = None,
+                      start_time: Optional[int] = None, end_time: Optional[int] = None) -> PageDataAlarmInfo:
+        entity_type = self.get_type(entity_id)
+        entity_id = self.get_id(entity_id)
+        return self.alarm_controller.get_alarms_v2(entity_type=entity_type, entity_id=entity_id, page_size=page_size,
+                                                   page=page, status_list=status_list, severity_list=severity_list,
+                                                   type_list=type_list, assignee_id=assignee_id,
+                                                   text_search=text_search, sort_property=sort_property,
+                                                   sort_order=sort_order, start_time=start_time, end_time=end_time)
+
+    def get_all_alarms_v2(self, page_size: int, page: int, status_list: Optional[List[str]] = None,
+                          severity_list: Optional[List[str]] = None, type_list: Optional[List[str]] = None,
+                          assignee_id: Optional[str] = None, text_search: Optional[str] = None,
+                          sort_property: Optional[str] = None, sort_order: Optional[str] = None,
+                          start_time: Optional[int] = None, end_time: Optional[int] = None) -> PageDataAlarmInfo:
+        return self.alarm_controller.get_all_alarms_v2(page_size=page_size, page=page, status_list=status_list,
+                                                       severity_list=severity_list, type_list=type_list,
+                                                       assignee_id=assignee_id, text_search=text_search,
+                                                       sort_property=sort_property, sort_order=sort_order,
+                                                       start_time=start_time, end_time=end_time)
+
+    # Alarm Rule Controller
+    def delete_alarm_rule(self, alarm_rule_id: str) -> None:
+        return self.alarm_rule_controller.delete_alarm_rule(alarm_rule_id=alarm_rule_id)
+
+    def get_alarm_rule_by_id(self, alarm_rule_id: str) -> AlarmRuleDefinition:
+        return self.alarm_rule_controller.get_alarm_rule_by_id(alarm_rule_id=alarm_rule_id)
+
+    def get_alarm_rule_names(self, page_size: int, page: int, text_search: Optional[str] = None,
+                             sort_order: Optional[str] = None) -> PageDataString:
+        return self.alarm_rule_controller.get_alarm_rule_names(page_size=page_size, page=page, text_search=text_search,
+                                                               sort_order=sort_order)
+
+    def get_alarm_rules(self, page_size: int, page: int, entity_type: Optional[str] = None,
+                        entities: Optional[List[str]] = None, text_search: Optional[str] = None,
+                        sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataAlarmRuleDefinitionInfo:
+        return self.alarm_rule_controller.get_alarm_rules(page_size=page_size, page=page, entity_type=entity_type,
+                                                          entities=entities, text_search=text_search,
+                                                          sort_property=sort_property, sort_order=sort_order)
+
+    def get_alarm_rules_by_entity_id(self, entity_id: EntityId, page_size: int, page: int,
+                                     text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                                     sort_order: Optional[str] = None) -> PageDataAlarmRuleDefinition:
+        entity_type = self.get_type(entity_id)
+        entity_id = self.get_id(entity_id)
+        return self.alarm_rule_controller.get_alarm_rules_by_entity_id(entity_type=entity_type, entity_id=entity_id,
+                                                                       page_size=page_size, page=page,
+                                                                       text_search=text_search,
+                                                                       sort_property=sort_property,
+                                                                       sort_order=sort_order)
+
+    def get_latest_alarm_rule_debug_event(self, alarm_rule_id: str) -> JsonNode:
+        return self.alarm_rule_controller.get_latest_alarm_rule_debug_event(alarm_rule_id=alarm_rule_id)
+
+    def save_alarm_rule(self, body: AlarmRuleDefinition) -> AlarmRuleDefinition:
+        return self.alarm_rule_controller.save_alarm_rule(body=body)
+
+    def test_alarm_rule_script(self, body: Any) -> JsonNode:
+        return self.alarm_rule_controller.test_alarm_rule_script(body=body)
+
+    # Api Key Controller
+    def delete_api_key(self, id: ApiKeyId) -> None:
+        id = self.get_id(id)
+        return self.api_key_controller.delete_api_key(id=id)
+
+    def enable_api_key(self, id: ApiKeyId, enabled_value: bool) -> ApiKeyInfo:
+        id = self.get_id(id)
+        return self.api_key_controller.enable_api_key(id=id, enabled_value=enabled_value)
+
+    def get_user_api_keys(self, user_id: UserId, page_size: int, page: int, text_search: Optional[str] = None,
+                          sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataApiKeyInfo:
+        user_id = self.get_id(user_id)
+        return self.api_key_controller.get_user_api_keys(user_id=user_id, page_size=page_size, page=page,
+                                                         text_search=text_search, sort_property=sort_property,
+                                                         sort_order=sort_order)
+
+    def save_api_key(self, body: ApiKeyInfo) -> ApiKey:
+        return self.api_key_controller.save_api_key(body=body)
+
+    def update_api_key_description(self, id: ApiKeyId, body: Optional[str] = None) -> ApiKeyInfo:
+        id = self.get_id(id)
+        return self.api_key_controller.update_api_key_description(id=id, body=body)
+
+    # Calculated Field Controller
+    def get_calculated_fields(self, page_size: int, page: int, types: Optional[List[str]] = None,
+                              entity_type: Optional[str] = None, entities: Optional[List[str]] = None,
+                              text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                              sort_order: Optional[str] = None, name: Optional[List[str]] = None) -> PageDataCalculatedFieldInfo:
+        return self.calculated_field_controller.get_calculated_fields(page_size=page_size, page=page, types=types,
+                                                                      entity_type=entity_type, entities=entities,
+                                                                      text_search=text_search,
+                                                                      sort_property=sort_property,
+                                                                      sort_order=sort_order, name=name)
+
+    def reprocess_calculated_field_and_wait(self, calculated_field_id: CalculatedFieldId, start_ts: int, end_ts: int) -> None:
+        calculated_field_id = self.get_id(calculated_field_id)
+        return self.calculated_field_controller.reprocess_calculated_field_and_wait(calculated_field_id=calculated_field_id,
+                                                                                    start_ts=start_ts, end_ts=end_ts)
+
+    def test_calculated_field_script(self, body: Any) -> JsonNode:
+        return self.calculated_field_controller.test_calculated_field_script(body=body)
+
+    # Converter Controller
+    def unwrap_raw_payload(self, body: Any, integration_type: str) -> JsonNode:
+        return self.converter_controller.unwrap_raw_payload(body=body, integration_type=integration_type)
+
+    # Device Controller
+    def claim_device_by_name(self, device_name: str, body: Optional[ClaimRequest] = None,
+                             sub_customer_id: Optional[str] = None) -> Any:
+        return self.device_controller.claim_device(device_name=device_name, body=body, sub_customer_id=sub_customer_id)
+
+    # Edge Controller
+    def get_edges_by_entity_group_id(self, entity_group_id: EntityGroupId, page_size: str, page: str,
+                                     text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                                     sort_order: Optional[str] = None) -> PageDataEdge:
+        entity_group_id = self.get_id(entity_group_id)
+        return self.edge_controller.get_edges_by_entity_group_id(entity_group_id=entity_group_id, page_size=page_size,
+                                                                 page=page, text_search=text_search,
+                                                                 sort_property=sort_property, sort_order=sort_order)
+
+    # Entity Group Controller
+    def share_entity_group_to_child_owner_user_group_v2(self, body: ShareGroupRequest, entity_group_id: EntityGroupId) -> None:
+        entity_group_id = self.get_id(entity_group_id)
+        return self.entity_group_controller.share_entity_group_to_child_owner_user_group_v2(body=body,
+                                                                                            entity_group_id=entity_group_id)
+
+    # Entity Query Controller
+    def find_available_entity_keys_by_query_v2(self, body: EntityDataQuery, include_timeseries: Optional[bool] = None,
+                                               include_attributes: Optional[bool] = None, scopes: Optional[str] = None,
+                                               include_samples: Optional[bool] = None) -> AvailableEntityKeysV2:
+        return self.entity_query_controller.find_available_entity_keys_by_query_v2(body=body,
+                                                                                   include_timeseries=include_timeseries,
+                                                                                   include_attributes=include_attributes,
+                                                                                   scopes=scopes,
+                                                                                   include_samples=include_samples)
+
+    # Integration Controller
+    def export_integration_package(self, integration_id: IntegrationId) -> str:
+        integration_id = self.get_id(integration_id)
+        return self.integration_controller.export_integration_package(integration_id=integration_id)
+
+    # Mobile App Bundle Controller
+    def update_mobile_app_bundle_oauth2_clients(self, body: List[str], id: MobileAppBundleId) -> None:
+        id = self.get_id(id)
+        return self.mobile_app_bundle_controller.update_mobile_app_bundle_oauth2_clients(body=body, id=id)
+
+    # Notification Controller
+    def send_addon_access_request(self, addon_type: str) -> None:
+        return self.notification_controller.send_addon_access_request(addon_type=addon_type)
+
+    def send_plan_upgrade_request(self, plan_name: str) -> None:
+        return self.notification_controller.send_plan_upgrade_request(plan_name=plan_name)
+
+    # Report Controller
+    def create_report(self, file: str, info: Union[str, Dict]) -> Report:
+        # multipart: the report file and its info as JSON (the spec says application/json, the server
+        # accepts only multipart/form-data)
+        if not isinstance(info, str):
+            info = json.dumps(self.api_client.sanitize_for_serialization(info))
+        return self.report_controller.create_report(file=file, info=info)
+
+    def delete_report(self, report_id: ReportId) -> None:
+        report_id = self.get_id(report_id)
+        return self.report_controller.delete_report(report_id=report_id)
+
+    def download_report(self, report_id: ReportId) -> bytes:
+        report_id = self.get_id(report_id)
+        return self.report_controller.download_report(report_id=report_id)
+
+    def download_report_by_public_key(self, public_key: str) -> bytes:
+        return self.report_controller.download_report_by_public_key(public_key=public_key)
+
+    def get_report_by_id(self, report_id: ReportId) -> Report:
+        report_id = self.get_id(report_id)
+        return self.report_controller.get_report_by_id(report_id=report_id)
+
+    def get_report_infos(self, page_size: int, page: int, report_template_id: Optional[ReportTemplateId] = None,
+                         user_id: Optional[UserId] = None, include_customers: Optional[bool] = None,
+                         text_search: Optional[str] = None, sort_property: Optional[str] = None,
+                         sort_order: Optional[str] = None) -> PageDataReportInfo:
+        report_template_id = self.get_id(report_template_id)
+        user_id = self.get_id(user_id)
+        return self.report_controller.get_report_infos(page_size=page_size, page=page,
+                                                       report_template_id=report_template_id, user_id=user_id,
+                                                       include_customers=include_customers, text_search=text_search,
+                                                       sort_property=sort_property, sort_order=sort_order)
+
+    def get_report_infos_by_ids(self, str_report_ids: List[str]) -> List[ReportInfo]:
+        return self.report_controller.get_report_infos_by_ids(str_report_ids=str_report_ids)
+
+    def get_reports(self, page_size: int, page: int, text_search: Optional[str] = None,
+                    sort_property: Optional[str] = None, sort_order: Optional[str] = None,
+                    include_customers: Optional[bool] = None) -> PageDataReport:
+        return self.report_controller.get_reports(page_size=page_size, page=page, text_search=text_search,
+                                                  sort_property=sort_property, sort_order=sort_order,
+                                                  include_customers=include_customers)
+
+    def request_report(self, body: ReportRequest) -> Job:
+        return self.report_controller.request_report(body=body)
+
+    def update_report_public_status(self, report_id: ReportId, is_public: bool) -> Report:
+        report_id = self.get_id(report_id)
+        return self.report_controller.update_report_public_status(report_id=report_id, is_public=is_public)
+
+    # Scheduler Event Controller
+    def get_scheduler_events_all(self, type: Optional[str] = None) -> List[SchedulerEventWithCustomerInfo]:
+        return self.scheduler_event_controller.get_all_scheduler_events(type=type)
+
+    def get_scheduler_events_by_range(self, start_time: int, end_time: int, type: Optional[str] = None,
+                                      edge_id: Optional[EdgeId] = None, text_search: Optional[str] = None) -> List[SchedulerEventWithCustomerInfo]:
+        edge_id = self.get_id(edge_id)
+        return self.scheduler_event_controller.get_scheduler_events_by_range(start_time=start_time, end_time=end_time,
+                                                                             type=type, edge_id=edge_id,
+                                                                             text_search=text_search)
+
+    # Sign Up Controller
+    def accept_privacy_policy(self) -> JsonNode:
+        return self.sign_up_controller.accept_privacy_policy()
+
+    # Solution Export Import Controller
+    def export_solution(self, body: SolutionExportRequest) -> SolutionExportResponse:
+        return self.solution_export_import_controller.export_solution(body=body)
+
+    def import_solution(self, body: SolutionData) -> SolutionImportResult:
+        return self.solution_export_import_controller.import_solution(body=body)
+
+    def validate_solution(self, body: SolutionData) -> SolutionValidationResult:
+        return self.solution_export_import_controller.validate_solution(body=body)
+
+    # Tb Resource Controller
+    def get_resource_info(self, resource_type: str, scope: str, key: str) -> TbResourceInfo:
+        return self.tb_resource_controller.get_resource_info(resource_type=resource_type, scope=scope, key=key)
+
+    # User Controller
+    def delete_general_user_settings(self, paths: str) -> None:
+        return self.user_controller.delete_general_user_settings(paths=paths)
+
+    def get_user_settings_by_type(self, type: str) -> JsonNode:
+        return self.user_controller.get_user_settings(type=type)
+
+    def put_user_settings_by_type(self, body: Any, type: str) -> None:
+        return self.user_controller.put_user_settings(body=body, type=type)
+
+    # White Labeling Controller
+    def get_mail_templates(self, system_by_default: Optional[bool] = None) -> JsonNode:
+        return self.white_labeling_controller.get_mail_templates(system_by_default=system_by_default)
+
+    def save_mail_templates(self, body: Any) -> JsonNode:
+        return self.white_labeling_controller.save_mail_templates(body=body)
+
+    # Widgets Bundle Controller
+    def get_all_widgets_bundles(self) -> List[WidgetsBundle]:
+        return self.widgets_bundle_controller.get_all_widgets_bundles()
