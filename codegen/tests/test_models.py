@@ -120,6 +120,13 @@ simple = deserialize({'type': 'SIMPLE', 'arguments': {}}, 'CalculatedFieldConfig
 check('SimpleCalculatedFieldConfiguration still accepts no output',
       type(simple).__name__ == 'SimpleCalculatedFieldConfiguration', type(simple).__name__)
 
+# owners: the spec leaves ContactBasedObject.id untyped, the server sends an entity id
+owners = deserialize({'data': [{'id': {'entityType': 'TENANT', 'id': U}, 'name': 't', 'title': 't'}], 'totalPages': 1,
+                      'totalElements': 1, 'hasNext': False}, 'PageDataContactBasedObject')
+owner_id = getattr(owners, 'data', [None])[0]
+check('owner id is a TenantId', type(getattr(owner_id, 'id', None)).__name__ == 'TenantId',
+      type(getattr(owner_id, 'id', owners)).__name__)
+
 # the server sends errorCode as a number
 error = deserialize(b'{"status":404,"message":"Requested item wasn\'t found!","errorCode":32}', 'ThingsboardErrorResponse')
 check('error code compares with ThingsboardErrorCode', error.error_code == models.ThingsboardErrorCode._32, repr(error.error_code))

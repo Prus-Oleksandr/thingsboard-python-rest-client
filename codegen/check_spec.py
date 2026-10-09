@@ -167,7 +167,11 @@ def check_model(name, s):
         if py is None:
             report('ERROR', 'field missing', name, wire)
             continue
-        compare_types((name, wire), expected_type(p), types[py])
+        if (name, wire) in SERVER_TYPES:
+            if types[py] != SERVER_TYPES[(name, wire)]:
+                report('ERROR', 'field not typed as the server answers', name, wire, SERVER_TYPES[(name, wire)], types[py])
+        else:
+            compare_types((name, wire), expected_type(p), types[py])
         # enums on $ref fields are enforced by the referenced enum class,
         # generator ignores enums on non-string types
         if 'enum' in p and '$ref' not in p and p.get('type') == 'string' \
@@ -222,6 +226,12 @@ for op in parse_api_dir(os.path.join(args.package, 'api')):
         report('ERROR', 'operation generated twice', key, gen_ops[key]['name'], op['name'])
     gen_ops[key] = op
 
+
+# Fields the spec leaves untyped ({}, a Java generic) whose type the server answers show (checked on a
+# 4.4 server); the client is fixed by hand and must keep this type.
+SERVER_TYPES = {
+    ('ContactBasedObject', 'id'): 'EntityId',  # owners of get_owners: {"entityType": "TENANT", "id": ...}
+}
 
 # Request bodies the server accepts in another content type than the spec says (checked on a 4.4
 # server); the client is fixed by hand and must send the spec's fields in this content type.

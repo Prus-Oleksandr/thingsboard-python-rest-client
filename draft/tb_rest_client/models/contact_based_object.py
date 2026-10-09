@@ -28,7 +28,7 @@ class ContactBasedObject(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'id': 'object',
+        'id': 'EntityId',
         'created_time': 'int',
         'additional_info': 'JsonNode',
         'country': 'str',
@@ -103,7 +103,7 @@ class ContactBasedObject(object):
 
 
         :return: The id of this ContactBasedObject.  # noqa: E501
-        :rtype: object
+        :rtype: EntityId
         """
         return self._id
 
@@ -113,7 +113,7 @@ class ContactBasedObject(object):
 
 
         :param id: The id of this ContactBasedObject.  # noqa: E501
-        :type: object
+        :type: EntityId
         """
 
         self._id = id
