@@ -119,6 +119,13 @@ step = client.deserialize(Body(b'{"type": "COMPOSE", "title": "t", "futureField"
 check('unknown fields kept on a resolved subclass', type(step).__name__ == 'ComposeStep'
       and getattr(step, 'additional_properties', None) == {'futureField': 1}, getattr(step, 'additional_properties', None))
 
+# Accept: a file endpoint lists its media type and application/json (errors); sending only
+# application/json made the server answer 406
+check('Accept keeps the file media type', client.select_header_accept(['image/*', 'application/json'])
+      == 'image/*, application/json', client.select_header_accept(['image/*', 'application/json']))
+check('Accept of a JSON endpoint unchanged', client.select_header_accept(['application/json']) == 'application/json',
+      client.select_header_accept(['application/json']))
+
 # rest.py: a JSON request without a body sends none (the generator sent '{}')
 from tb_rest_client.rest import RESTClientObject
 

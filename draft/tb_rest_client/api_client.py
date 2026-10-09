@@ -491,10 +491,10 @@ class ApiClient(object):
 
         accepts = [x.lower() for x in accepts]
 
-        if 'application/json' in accepts:
-            return 'application/json'
-        else:
-            return ', '.join(accepts)
+        # every listed type: the 4.4 spec adds application/json (the error body) to the media type of
+        # file and text answers (image/*, application/pdf, text/plain, ...), and asking for
+        # application/json only made the server answer 406 Not Acceptable (4.3 listed the file type only)
+        return ', '.join(accepts)
 
     def select_header_content_type(self, content_types):
         """Returns `Content-Type` based on an array of content_types provided.
