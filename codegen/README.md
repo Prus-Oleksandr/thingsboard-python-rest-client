@@ -13,6 +13,7 @@
 | `codegen/client_parser.py` | Shared parser of generated api and model code used by the scripts above. |
 | `codegen/tests/` | Tests of the draft with the HTTP layer faked; `python3 codegen/tests/run_all.py` runs them all. |
 | `codegen/probe_endpoints.py`, `codegen/probes/` | Raw requests to a live server to find hidden or removed endpoints (see the script docstring). |
+| `codegen/probe_deserialization.py` | Deserializes real GET answers of a live server with the generated client to find models that reject them. |
 
 See the root `CLAUDE.md` of the `codegen/4.4` branch for the state of the migration and open questions.
 | `draft/` | Generated draft that is reviewed and edited by hand. |

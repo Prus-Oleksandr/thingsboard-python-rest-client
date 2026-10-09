@@ -28,6 +28,7 @@ matching it as closely as possible, with the 4.3 hand-written wrappers migrated 
 | `codegen/client_parser.py` | Shared ast parser of generated api/model code. |
 | `codegen/tests/` | Tests with the HTTP layer faked (no server needed). |
 | `codegen/probe_endpoints.py`, `codegen/probes/` | Raw requests to a live server to find hidden or removed endpoints. |
+| `codegen/probe_deserialization.py` | Real GET answers of a live server through the draft models. |
 | `codegen/README.md` | Short description of the codegen tools. |
 
 ## How the draft was produced
@@ -198,6 +199,7 @@ python3 codegen/probe_endpoints.py codegen/probes/calibration.json        # how 
 python3 codegen/probe_endpoints.py codegen/probes/hidden_endpoints.json   # Q1
 python3 codegen/probe_endpoints.py codegen/probes/removed_endpoints.json  # all 34 must say "No static resource"
 python3 codegen/probe_endpoints.py codegen/probes/string_responses.json   # Q3: GETs typed as string
+python3 codegen/probe_deserialization.py   # real GET answers through the draft models (read-only)
 ```
 
 Reading answers: 404 "No static resource" = no such route; 404 "... is not found" = route exists,
