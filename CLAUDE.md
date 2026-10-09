@@ -168,16 +168,20 @@ variables, never in files:
 export TB_URL=http://localhost:8080
 export TB_TENANT_USERNAME=... TB_TENANT_PASSWORD=...
 export TB_SYSADMIN_USERNAME=... TB_SYSADMIN_PASSWORD=...     # only for sysadmin requests
+# or TB_TENANT_TOKEN / TB_SYSADMIN_TOKEN: a JWT from Swagger UI instead of a password
 python3 codegen/probe_endpoints.py codegen/probes/calibration.json        # how this server answers
 python3 codegen/probe_endpoints.py codegen/probes/hidden_endpoints.json   # Q1
 python3 codegen/probe_endpoints.py codegen/probes/removed_endpoints.json  # all 34 must say "No static resource"
+python3 codegen/probe_endpoints.py codegen/probes/string_responses.json   # Q3: GETs typed as string
 ```
 
 Reading answers: 404 "No static resource" = no such route; 404 "... is not found" = route exists,
 entity does not; 405 = path exists for another HTTP method; 400 "Parameter conditions ... not met" =
 path exists and the message lists the accepted param variants; 200 = works. Write requests
 (POST/PUT/DELETE) must only use `{randomId}` or a malformed JSON body, so nothing on the server
-changes. Placeholders: `{tenantId}`, `{deviceId}` (first tenant device), `{randomId}`.
+changes. Placeholders: `{tenantId}`, `{deviceId}` (first tenant device), `{deviceToken}` (its
+access token), `{randomId}`. `"user": "none"` sends no JWT (noauth and device API). Each line shows
+status, Content-Type and the start of the body.
 
 ### Manual check in Swagger UI or curl
 

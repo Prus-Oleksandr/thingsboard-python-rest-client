@@ -1,0 +1,21 @@
+[
+ {"label": "getPersistedRpcByDevice", "method": "GET", "path": "/api/rpc/persistent/device/{deviceId}?pageSize=10&page=0"},
+ {"label": "getDeviceAttributes", "method": "GET", "path": "/api/v1/{deviceToken}/attributes?clientKeys=a&sharedKeys=b", "user": "none"},
+ {"label": "getDeviceAttributes (all keys)", "method": "GET", "path": "/api/v1/{deviceToken}/attributes?allClientKeys=true&allSharedKeys=true", "user": "none"},
+ {"label": "subscribeToAttributes (timeout)", "method": "GET", "path": "/api/v1/{deviceToken}/attributes/updates?timeout=3000", "user": "none"},
+ {"label": "subscribeToCommands (timeout)", "method": "GET", "path": "/api/v1/{deviceToken}/rpc?timeout=3000", "user": "none"},
+ {"label": "getFirmware (no such package)", "method": "GET", "path": "/api/v1/{deviceToken}/firmware?title=x&version=1", "user": "none"},
+ {"label": "getSoftware (no such package)", "method": "GET", "path": "/api/v1/{deviceToken}/software?title=x&version=1", "user": "none"},
+ {"label": "getHelpBaseUrl", "method": "GET", "path": "/api/uiSettings/helpBaseUrl"},
+ {"label": "getLoginProcessingUrl", "method": "GET", "path": "/api/oauth2/loginProcessingUrl", "user": "sysadmin"},
+ {"label": "getMailProcessingUrl", "method": "GET", "path": "/api/admin/mail/oauth2/loginProcessingUrl", "user": "sysadmin"},
+ {"label": "getPrivacyPolicy", "method": "GET", "path": "/api/noauth/selfRegistration/privacyPolicy", "user": "none"},
+ {"label": "getTermsOfUse", "method": "GET", "path": "/api/noauth/selfRegistration/termsOfUse", "user": "none"},
+ {"label": "findMissingToRelatedRuleChains", "method": "GET", "path": "/api/edge/missingToRelatedRuleChains/{randomId}"},
+ {"label": "findEdgeMissingAttributes", "method": "GET", "path": "/api/edge/integration/{randomId}/missingAttributes?integrationIds={randomId}"},
+ {"label": "findAllRelatedEdgesMissingAttributes", "method": "GET", "path": "/api/edge/integration/{randomId}/allMissingAttributes"},
+ {"label": "getLatestAgentImageRef", "method": "GET", "path": "/api/agent/upgrade/latest"},
+ {"label": "getAgentUpgradeTarget", "method": "GET", "path": "/api/agent/{randomId}/upgrade/target"},
+ {"label": "activateEmail (bad code)", "method": "GET", "path": "/api/noauth/activateEmail?emailCode=noSuchCode", "user": "none"},
+ {"label": "mobileLogin", "method": "GET", "path": "/api/noauth/login?pkgName=x&platform=ANDROID", "user": "none"}
+]
