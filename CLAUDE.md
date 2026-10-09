@@ -50,8 +50,11 @@ matching it as closely as possible, with the 4.3 hand-written wrappers migrated 
   order), required-ness, response type annotation. Wrapper names stay as in 4.3 unless they clash.
 - A wrapper whose endpoint is neither in the spec nor served by the server (404 "No static
   resource" from `probe_endpoints.py`) is deleted. No stubs, no "removed in 4.4" errors.
-- Hidden endpoints (served by the server but not in the spec) are considered relevant; how to keep
-  them is still open (Q1 below).
+- Hidden endpoints (served by the server but not in the spec) get no wrapper either: the 5 4.3
+  wrappers on them were deleted (Q1). Upstream precedent: wrappers of operations gone from the spec
+  were always deleted, legacy kept only while the spec still listed it, no raw `call_api` in wrappers.
+- Deviate from the spec only where the server behaves differently (upstream did: `str` body ->
+  `Dict` in `6d62481d`, hand-added `type` query param in `0569d384`).
 - `EntityId(id, entity_type)` argument order from 4.3 is restored by `postprocess.py` (4.4 spec
   order would silently swap the fields of code like `DeviceId(uuid, 'DEVICE')`).
 - 4.3 CE "assign/unassign X to/from customer" wrappers are kept on top of the owner API
@@ -91,27 +94,19 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
   `oauth2_client_ids`. All of them answer 404 "No static resource" on a 4.4 server.
 - Base/CE/PE merged: for duplicates the most specific 4.3 version wins (PE, then CE, then Base);
   `__init__` and login from Base; `__load_controllers` creates all 78 controllers.
+- Q1: 5 wrappers of hidden endpoints deleted (`get_events_get`,
+  `get_bundle_widget_types[_details|_infos]_by_bundle_alias`,
+  `get_widget_type_by_bundle_alias_and_type_alias`). Replacements: `get_events_v1_get1` with
+  `LC_EVENT`, the `widgets_bundle_id` variants, `get_widget_type(fqn=...)`.
 
 ## Current state
 
 - `check_spec.py`: 824/824 operations, 0 errors, 66 warnings (see Q3, Q8).
-- `check_wrappers.py --old-package draft/tb_rest_client`: 695 controller calls, 690 work, 5 errors
-  (the hidden endpoints of Q1), 36 annotation warnings (Q7), 154 new operations without a wrapper (Q5).
+- `check_wrappers.py --old-package draft/tb_rest_client`: 690 controller calls, all work, 36 annotation warnings (Q7), 154 new operations without a wrapper (Q5).
 - `codegen/tests/run_all.py`: all 5 test files pass.
 
 ## Open questions (need the user's decision)
 
-- **Q1. Hidden endpoints (5 wrappers).** Not in the spec, but the server serves them (checked with
-  `codegen/probes/hidden_endpoints.json`). The generator cannot produce them, and OpenAPI allows one
-  operation per path + method, so they cannot be added to the spec either.
-  - `get_events_get`: `GET /api/events/{entityType}/{entityId}` works (200). 4.3 docs: deprecated,
-    returns lifecycle events only. Documented equivalent: getEventsByType with `LC_EVENT`.
-  - `get_bundle_widget_types[_details|_infos]_by_bundle_alias`: `?isSystem&bundleAlias` works (200).
-    Deprecated in 4.3. Documented ops take `widgetsBundleId`.
-  - `get_widget_type_by_bundle_alias_and_type_alias`: route exists, finds nothing (404 "Requested
-    item wasn't found!"). Documented: `get_widget_type(fqn='system.<fqn>')`.
-  - Proposal made: keep the 4 working ones via `self.api_client.call_api(...)` with a comment that
-    the endpoint is hidden from the spec; delete the widget_type one. Not confirmed yet.
 - **Q2. Deprecated operations in the 4.4 spec** used by wrappers: `get_asset_types`
   (-> getAssetProfileNames), `get_device_types` (-> getDeviceProfileNames),
   `find_available_entity_keys_by_query` (-> `POST /api/v2/entitiesQuery/find/keys`),

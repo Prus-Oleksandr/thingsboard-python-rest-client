@@ -410,19 +410,6 @@ class RestClient(Thread):
         return self.event_controller.clear_events(entity_type=entity_type, entity_id=entity_id, body=body,
                                                   start_time=start_time, end_time=end_time)
 
-    def get_events_get(self, entity_id: EntityId, tenant_id: TenantId, page_size: int, page: int,
-                       text_search: Optional[str] = None, sort_property: Optional[str] = None, sort_order: Optional[str] = None,
-                       start_time: Optional[int] = None,
-                       end_time: Optional[int] = None) -> PageDataEventInfo:
-        entity_type = self.get_type(entity_id)
-        entity_id = self.get_id(entity_id)
-        tenant_id = self.get_id(tenant_id)
-        return self.event_controller.get_events_using_get(entity_type=entity_type, entity_id=entity_id,
-                                                          tenant_id=tenant_id, page_size=page_size, page=page,
-                                                          text_search=text_search, sort_property=sort_property,
-                                                          sort_order=sort_order, start_time=start_time,
-                                                          end_time=end_time)
-
     # Telemetry Controller #
     def get_attribute_keys_by_scope(self, entity_id: EntityId, scope: str):
         entity_type = self.get_type(entity_id)
@@ -1487,24 +1474,6 @@ class RestClient(Thread):
     def get_bundle_widget_type_fqns(self, widgets_bundle_id: WidgetsBundleId) -> List[str]:
         widgets_bundle_id = self.get_id(widgets_bundle_id)
         return self.widget_type_controller.get_bundle_widget_type_fqns(widgets_bundle_id=widgets_bundle_id)
-
-    def get_bundle_widget_types_by_bundle_alias(self, is_system: bool, bundle_alias: str) -> List[WidgetType]:
-        return self.widget_type_controller.get_bundle_widget_types_by_bundle_alias_using_get(is_system=is_system,
-                                                                                             bundle_alias=bundle_alias)
-
-    def get_bundle_widget_types_details_by_bundle_alias(self, is_system: bool, bundle_alias: str) -> List[
-        WidgetTypeDetails]:
-        return self.widget_type_controller.get_bundle_widget_types_details_by_bundle_alias_using_get(
-            is_system=is_system, bundle_alias=bundle_alias)
-
-    def get_bundle_widget_types_infos_by_bundle_alias(self, is_system: bool, bundle_alias: str) -> List[WidgetTypeInfo]:
-        return self.widget_type_controller.get_bundle_widget_types_infos_by_bundle_alias_using_get(is_system=is_system,
-                                                                                                   bundle_alias=bundle_alias)
-
-    def get_widget_type_by_bundle_alias_and_type_alias(self, is_system: bool, bundle_alias: str, alias: str):
-        return self.widget_type_controller.get_widget_type_by_bundle_alias_and_type_alias_using_get(is_system=is_system,
-                                                                                                    bundle_alias=bundle_alias,
-                                                                                                    alias=alias)
 
     def get_widget_types(self, page_size: int, page: int,
                          text_search: Optional[str] = None,
