@@ -122,7 +122,8 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
 ## Current state
 
 - `check_spec.py`: 824/824 operations, 0 errors, 23 warnings (Q8).
-- `check_wrappers.py --old-package draft/tb_rest_client`: 690 controller calls, all work, 0 warnings, 154 new operations without a wrapper (Q5).
+- `check_wrappers.py --old-package draft/tb_rest_client`: 690 controller calls, all work; WARN wrapper vs spec (Q2, Q6): 6 deprecated ops, 63 calls missing spec
+  params, 91 spec-required params optional in the wrapper (88 `body`), 24 the other way round; 154 new operations without a wrapper (Q5).
 - `codegen/tests/run_all.py`: all 6 test files pass.
 
 ## Open questions (need the user's decision)

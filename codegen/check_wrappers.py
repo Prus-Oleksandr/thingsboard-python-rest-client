@@ -12,7 +12,8 @@ if the HTTP method and response type agree. Findings:
   ERROR  the wrapper will not work even after renaming (endpoint or param gone,
          new required param not passed, call already broken in the old client)
   RENAME mechanical changes: new method, controller or param name
-  WARN   response type changed
+  WARN   response type changed; and the wrapper against the spec of the op it calls: deprecated
+         operation, spec param the wrapper does not accept, required-ness differs
   INFO   new operations no wrapper calls yet
 --json writes the full old -> new mapping of every call, to drive the rewrite.
 """
@@ -38,9 +39,12 @@ parser.add_argument('--old-package', default=os.path.join(ROOT, 'tb_rest_client'
 parser.add_argument('--package', default=os.path.join(ROOT, 'draft/tb_rest_client'), help='newly generated package')
 parser.add_argument('--full', action='store_true', help='print every finding, not just examples')
 parser.add_argument('--json', help='also write the call mapping and findings to this JSON file')
+parser.add_argument('--spec', default=os.path.join(ROOT, 'codegen/spec/thingsboard-swagger.json'),
+                    help='OpenAPI spec of the new client, for the wrapper vs spec warnings')
 args = parser.parse_args()
 
 findings = collections.defaultdict(list)
+spec = json.load(open(args.spec))
 
 
 def report(severity, kind, *details):
@@ -96,6 +100,10 @@ def parse_wrappers(path):
     controllers, calls = {}, []
     for cls in (n for n in tree.body if isinstance(n, ast.ClassDef)):
         for fn in (n for n in cls.body if isinstance(n, ast.FunctionDef)):
+            # wrapper param -> has a default value
+            fn_args = fn.args.args[1:]
+            optional = {a.arg for a in fn_args[len(fn_args) - len(fn.args.defaults):]} if fn.args.defaults else set()
+            wrapper_params = {a.arg: a.arg in optional for a in fn_args}
             for node in ast.walk(fn):
                 # self.<attr> = <Class>(self.api_client)
                 if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call) \
@@ -110,7 +118,12 @@ def parse_wrappers(path):
                     calls.append({'file': os.path.basename(path), 'line': node.lineno,
                                   'wrapper': '%s.%s' % (cls.name, fn.name),
                                   'controller': node.func.value.attr, 'method': node.func.attr,
-                                  'kwargs': [k.arg for k in node.keywords], 'n_positional': len(node.args)})
+                                  'kwargs': [k.arg for k in node.keywords], 'n_positional': len(node.args),
+                                  # call kwarg -> wrapper param passed to it (as is or via self.get_id(...))
+                                  'kw_params': {k.arg: next((n.id for n in ast.walk(k.value) if isinstance(n, ast.Name)
+                                                             and n.id in wrapper_params), None)
+                                                for k in node.keywords},
+                                  'wrapper_params': wrapper_params})
     return controllers, calls
 
 
@@ -314,6 +327,32 @@ for call in calls:
         issue('ERROR', 'new required param not passed', required, entry['new'])
     if (old['response_type'] or 'None') != (new['response_type'] or 'None'):
         issue('WARN', 'response type changed', old['response_type'], new['response_type'])
+
+    # ---------- the wrapper against the spec of the new op ----------
+    spec_op = spec['paths'].get(new['path'], {}).get(new['http_method'].lower(), {})
+    if spec_op.get('deprecated'):
+        issue('WARN', 'calls an operation deprecated in the spec', entry['new'], '%s %s' % (new['http_method'], new['path']))
+    internal = {'async_req', '_return_http_data_only', '_preload_content', '_request_timeout'}
+    not_exposed = [p for p in new['all_params'] if p not in passed_new and p not in internal]
+    if not_exposed:
+        issue('WARN', 'spec param not accepted by the wrapper', entry['new'], ', '.join(not_exposed))
+    # required-ness from the spec itself: the generator does not enforce required multipart fields
+    spec_required_params = {new['params'].get((p['in'], p['name'])) for p in spec_op.get('parameters', []) if p.get('required')}
+    request_body = spec_op.get('requestBody', {})
+    if request_body.get('required') and new['body']:
+        spec_required_params.add('body')
+    for media in request_body.get('content', {}).values():
+        spec_required_params |= {new['params'].get(('form', w)) for w in (media.get('schema') or {}).get('required', [])}
+    for kw, new_kw in entry['kwargs'].items():
+        param = call['kw_params'].get(kw)
+        if new_kw is None or param is None:
+            continue
+        spec_required = new_kw in spec_required_params
+        wrapper_optional = call['wrapper_params'][param]
+        if spec_required and wrapper_optional:
+            issue('WARN', 'spec-required param optional in the wrapper', entry['new'], param)
+        elif not spec_required and not wrapper_optional:
+            issue('WARN', 'spec-optional param required in the wrapper', entry['new'], param)
 
 for op in new_ops:
     if path_key(op) not in used_new:
