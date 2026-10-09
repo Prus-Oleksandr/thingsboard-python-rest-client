@@ -33,11 +33,11 @@ class AgentAppTemplate(object):
         'config_type': 'AgentAppConfigType',
         'current_version': 'str',
         'next_version': 'str',
-        'start_steps': 'list[OneOfAgentAppTemplateStartStepsItems]',
-        'upgrade_steps': 'list[OneOfAgentAppTemplateUpgradeStepsItems]',
-        'delete_steps': 'list[OneOfAgentAppTemplateDeleteStepsItems]',
-        'rollback_steps': 'list[OneOfAgentAppTemplateRollbackStepsItems]',
-        'restart_steps': 'list[OneOfAgentAppTemplateRestartStepsItems]'
+        'start_steps': 'list[AgentAppStep]',
+        'upgrade_steps': 'list[AgentAppStep]',
+        'delete_steps': 'list[AgentAppStep]',
+        'rollback_steps': 'list[AgentAppStep]',
+        'restart_steps': 'list[AgentAppStep]'
     }
 
     attribute_map = {
@@ -205,7 +205,7 @@ class AgentAppTemplate(object):
         Start steps  # noqa: E501
 
         :return: The start_steps of this AgentAppTemplate.  # noqa: E501
-        :rtype: list[OneOfAgentAppTemplateStartStepsItems]
+        :rtype: list[AgentAppStep]
         """
         return self._start_steps
 
@@ -216,7 +216,7 @@ class AgentAppTemplate(object):
         Start steps  # noqa: E501
 
         :param start_steps: The start_steps of this AgentAppTemplate.  # noqa: E501
-        :type: list[OneOfAgentAppTemplateStartStepsItems]
+        :type: list[AgentAppStep]
         """
 
         self._start_steps = start_steps
@@ -228,7 +228,7 @@ class AgentAppTemplate(object):
         Upgrade steps  # noqa: E501
 
         :return: The upgrade_steps of this AgentAppTemplate.  # noqa: E501
-        :rtype: list[OneOfAgentAppTemplateUpgradeStepsItems]
+        :rtype: list[AgentAppStep]
         """
         return self._upgrade_steps
 
@@ -239,7 +239,7 @@ class AgentAppTemplate(object):
         Upgrade steps  # noqa: E501
 
         :param upgrade_steps: The upgrade_steps of this AgentAppTemplate.  # noqa: E501
-        :type: list[OneOfAgentAppTemplateUpgradeStepsItems]
+        :type: list[AgentAppStep]
         """
 
         self._upgrade_steps = upgrade_steps
@@ -251,7 +251,7 @@ class AgentAppTemplate(object):
         Delete steps  # noqa: E501
 
         :return: The delete_steps of this AgentAppTemplate.  # noqa: E501
-        :rtype: list[OneOfAgentAppTemplateDeleteStepsItems]
+        :rtype: list[AgentAppStep]
         """
         return self._delete_steps
 
@@ -262,7 +262,7 @@ class AgentAppTemplate(object):
         Delete steps  # noqa: E501
 
         :param delete_steps: The delete_steps of this AgentAppTemplate.  # noqa: E501
-        :type: list[OneOfAgentAppTemplateDeleteStepsItems]
+        :type: list[AgentAppStep]
         """
 
         self._delete_steps = delete_steps
@@ -274,7 +274,7 @@ class AgentAppTemplate(object):
         Rollback steps  # noqa: E501
 
         :return: The rollback_steps of this AgentAppTemplate.  # noqa: E501
-        :rtype: list[OneOfAgentAppTemplateRollbackStepsItems]
+        :rtype: list[AgentAppStep]
         """
         return self._rollback_steps
 
@@ -285,7 +285,7 @@ class AgentAppTemplate(object):
         Rollback steps  # noqa: E501
 
         :param rollback_steps: The rollback_steps of this AgentAppTemplate.  # noqa: E501
-        :type: list[OneOfAgentAppTemplateRollbackStepsItems]
+        :type: list[AgentAppStep]
         """
 
         self._rollback_steps = rollback_steps
@@ -297,7 +297,7 @@ class AgentAppTemplate(object):
         Restart steps  # noqa: E501
 
         :return: The restart_steps of this AgentAppTemplate.  # noqa: E501
-        :rtype: list[OneOfAgentAppTemplateRestartStepsItems]
+        :rtype: list[AgentAppStep]
         """
         return self._restart_steps
 
@@ -308,7 +308,7 @@ class AgentAppTemplate(object):
         Restart steps  # noqa: E501
 
         :param restart_steps: The restart_steps of this AgentAppTemplate.  # noqa: E501
-        :type: list[OneOfAgentAppTemplateRestartStepsItems]
+        :type: list[AgentAppStep]
         """
 
         self._restart_steps = restart_steps

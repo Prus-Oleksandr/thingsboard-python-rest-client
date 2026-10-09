@@ -30,7 +30,7 @@ class AgentAppEventRequest(object):
     swagger_types = {
         'action_type': 'AgentAppEventActionType',
         'application': 'AgentApplication',
-        'step_inputs': 'dict(str, object)',
+        'step_inputs': 'dict(str, AgentAppStepState)',
         'related_entity_id': 'EntityId',
         'bulk_action_id': 'str',
         'skip_profile_refetch': 'bool'
@@ -116,7 +116,7 @@ class AgentAppEventRequest(object):
         Per-step input overrides keyed by step id (e.g. pullImages flag, backup volume selection).  # noqa: E501
 
         :return: The step_inputs of this AgentAppEventRequest.  # noqa: E501
-        :rtype: dict(str, object)
+        :rtype: dict(str, AgentAppStepState)
         """
         return self._step_inputs
 
@@ -127,7 +127,7 @@ class AgentAppEventRequest(object):
         Per-step input overrides keyed by step id (e.g. pullImages flag, backup volume selection).  # noqa: E501
 
         :param step_inputs: The step_inputs of this AgentAppEventRequest.  # noqa: E501
-        :type: dict(str, object)
+        :type: dict(str, AgentAppStepState)
         """
 
         self._step_inputs = step_inputs

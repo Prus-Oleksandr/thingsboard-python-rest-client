@@ -36,7 +36,7 @@ class AgentApplicationInfo(object):
         'template_version': 'str',
         'desired_template_version': 'str',
         'app_type': 'AgentApplicationType',
-        'config': 'OneOfAgentApplicationInfoConfig',
+        'config': 'AgentAppConfig',
         'version': 'int',
         'project_name': 'str',
         'pending_deletion': 'bool',
@@ -331,7 +331,7 @@ class AgentApplicationInfo(object):
         Config (with compose field and type = 'DOCKER_COMPOSE' for EDGE/GATEWAY)  # noqa: E501
 
         :return: The config of this AgentApplicationInfo.  # noqa: E501
-        :rtype: OneOfAgentApplicationInfoConfig
+        :rtype: AgentAppConfig
         """
         return self._config
 
@@ -342,7 +342,7 @@ class AgentApplicationInfo(object):
         Config (with compose field and type = 'DOCKER_COMPOSE' for EDGE/GATEWAY)  # noqa: E501
 
         :param config: The config of this AgentApplicationInfo.  # noqa: E501
-        :type: OneOfAgentApplicationInfoConfig
+        :type: AgentAppConfig
         """
 
         self._config = config

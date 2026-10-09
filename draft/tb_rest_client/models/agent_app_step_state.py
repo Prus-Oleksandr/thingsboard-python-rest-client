@@ -36,11 +36,12 @@ class AgentAppStepState(object):
     }
 
     discriminator_value_class_map = {
-          'ComposeDownStepState': 'ComposeDownStepState',
-'RunJobStepState': 'RunJobStepState',
-'RollBackStepState': 'RollBackStepState',
-'BackupVolumesStepState': 'BackupVolumesStepState',
-'ComposeStepState': 'ComposeStepState'    }
+            'COMPOSE'.lower(): 'ComposeStepState',
+            'COMPOSE_DOWN'.lower(): 'ComposeDownStepState',
+            'ROLLBACK'.lower(): 'RollBackStepState',
+            'BACKUP_VOLUME'.lower(): 'BackupVolumesStepState',
+            'RUN_JOB'.lower(): 'RunJobStepState',
+    }
 
     def __init__(self, type=None):  # noqa: E501
         """AgentAppStepState - a model defined in Swagger"""  # noqa: E501

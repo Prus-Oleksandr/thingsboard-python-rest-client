@@ -41,7 +41,7 @@ class AgentAppEventInfo(object):
         'current_activity': 'str',
         'error_message': 'str',
         'updated_time': 'int',
-        'step_states': 'dict(str, object)',
+        'step_states': 'dict(str, AgentAppStepState)',
         'bulk_action_id': 'str',
         'resolved_arguments': 'dict(str, str)',
         'winner_container_id': 'str',
@@ -418,7 +418,7 @@ class AgentAppEventInfo(object):
 
 
         :return: The step_states of this AgentAppEventInfo.  # noqa: E501
-        :rtype: dict(str, object)
+        :rtype: dict(str, AgentAppStepState)
         """
         return self._step_states
 
@@ -428,7 +428,7 @@ class AgentAppEventInfo(object):
 
 
         :param step_states: The step_states of this AgentAppEventInfo.  # noqa: E501
-        :type: dict(str, object)
+        :type: dict(str, AgentAppStepState)
         """
 
         self._step_states = step_states

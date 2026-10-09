@@ -4076,7 +4076,7 @@ class RestClient(Thread):
                                                                                     sort_property=sort_property,
                                                                                     sort_order=sort_order)
 
-    def get_managed_related_entity_ids(self, entity_type: str) -> List[Any]:
+    def get_managed_related_entity_ids(self, entity_type: str) -> List[EntityId]:
         return self.agent_application_controller.get_managed_related_entity_ids(entity_type=entity_type)
 
     def get_related_entity_candidates(self, entity_type: str, page_size: int, page: int,

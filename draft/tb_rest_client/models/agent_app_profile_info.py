@@ -35,7 +35,7 @@ class AgentAppProfileInfo(object):
         'description': 'str',
         'app_type': 'AgentApplicationType',
         'template_version': 'str',
-        'config': 'OneOfAgentAppProfileInfoConfig',
+        'config': 'AgentAppConfig',
         'version': 'int',
         'template_current_version': 'str'
     }
@@ -252,7 +252,7 @@ class AgentAppProfileInfo(object):
         Shared config (compose definition)  # noqa: E501
 
         :return: The config of this AgentAppProfileInfo.  # noqa: E501
-        :rtype: OneOfAgentAppProfileInfoConfig
+        :rtype: AgentAppConfig
         """
         return self._config
 
@@ -263,7 +263,7 @@ class AgentAppProfileInfo(object):
         Shared config (compose definition)  # noqa: E501
 
         :param config: The config of this AgentAppProfileInfo.  # noqa: E501
-        :type: OneOfAgentAppProfileInfoConfig
+        :type: AgentAppConfig
         """
 
         self._config = config

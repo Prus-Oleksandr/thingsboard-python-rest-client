@@ -48,17 +48,18 @@ class AgentAppStep(object):
     }
 
     discriminator_value_class_map = {
-          'ComposeDownStep': 'ComposeDownStep',
-'BackupVolumesRemoveStep': 'BackupVolumesRemoveStep',
-'ComposeTypeChoiceStep': 'ComposeTypeChoiceStep',
-'AgentFinalizeStep': 'AgentFinalizeStep',
-'ComposeStep': 'ComposeStep',
-'ComposeStartStep': 'ComposeStartStep',
-'ComposeRestartStep': 'ComposeRestartStep',
-'RollBackStep': 'RollBackStep',
-'RunJobStep': 'RunJobStep',
-'BackupVolumesStep': 'BackupVolumesStep',
-'AgentPrepareStep': 'AgentPrepareStep'    }
+            'COMPOSE_TEMPLATE'.lower(): 'ComposeTypeChoiceStep',
+            'COMPOSE'.lower(): 'ComposeStep',
+            'COMPOSE_START'.lower(): 'ComposeStartStep',
+            'COMPOSE_DOWN'.lower(): 'ComposeDownStep',
+            'ROLLBACK'.lower(): 'RollBackStep',
+            'BACKUP_VOLUME'.lower(): 'BackupVolumesStep',
+            'BACKUP_VOLUME_REMOVE'.lower(): 'BackupVolumesRemoveStep',
+            'COMPOSE_RESTART'.lower(): 'ComposeRestartStep',
+            'RUN_JOB'.lower(): 'RunJobStep',
+            'AGENT_PREPARE'.lower(): 'AgentPrepareStep',
+            'AGENT_FINALIZE'.lower(): 'AgentFinalizeStep',
+    }
 
     def __init__(self, id=None, next_id=None, title=None, template_only=None, condition=None, stateful=None, type=None):  # noqa: E501
         """AgentAppStep - a model defined in Swagger"""  # noqa: E501

@@ -40,7 +40,8 @@ class AgentAppConfig(object):
     }
 
     discriminator_value_class_map = {
-          'DockerComposeConfig': 'DockerComposeConfig'    }
+            'DOCKER_COMPOSE'.lower(): 'DockerComposeConfig',
+    }
 
     def __init__(self, arguments=None, edge_routing_key=None, type=None):  # noqa: E501
         """AgentAppConfig - a model defined in Swagger"""  # noqa: E501

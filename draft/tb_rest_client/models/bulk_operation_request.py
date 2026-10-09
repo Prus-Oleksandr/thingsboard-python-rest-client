@@ -29,7 +29,7 @@ class BulkOperationRequest(object):
     """
     swagger_types = {
         'action_type': 'AgentAppEventActionType',
-        'step_inputs': 'dict(str, object)'
+        'step_inputs': 'dict(str, AgentAppStepState)'
     }
 
     attribute_map = {
@@ -74,7 +74,7 @@ class BulkOperationRequest(object):
 
 
         :return: The step_inputs of this BulkOperationRequest.  # noqa: E501
-        :rtype: dict(str, object)
+        :rtype: dict(str, AgentAppStepState)
         """
         return self._step_inputs
 
@@ -84,7 +84,7 @@ class BulkOperationRequest(object):
 
 
         :param step_inputs: The step_inputs of this BulkOperationRequest.  # noqa: E501
-        :type: dict(str, object)
+        :type: dict(str, AgentAppStepState)
         """
 
         self._step_inputs = step_inputs
