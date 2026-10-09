@@ -64,6 +64,8 @@ class EntityAggregationCalculatedFieldConfiguration(CalculatedFieldConfiguration
         if produce_intermediate_result is not None:
             self.produce_intermediate_result = produce_intermediate_result
         CalculatedFieldConfiguration.__init__(self, *args, **kwargs)
+        # output is inherited, but required for this configuration type (the generator cannot enforce it)
+        self.output = self._output
 
     @property
     def arguments(self):
@@ -175,6 +177,29 @@ class EntityAggregationCalculatedFieldConfiguration(CalculatedFieldConfiguration
         """
 
         self._produce_intermediate_result = produce_intermediate_result
+
+    @property
+    def output(self):
+        """Gets the output of this EntityAggregationCalculatedFieldConfiguration.  # noqa: E501
+
+
+        :return: The output of this EntityAggregationCalculatedFieldConfiguration.  # noqa: E501
+        :rtype: Output
+        """
+        return self._output
+
+    @output.setter
+    def output(self, output):
+        """Sets the output of this EntityAggregationCalculatedFieldConfiguration.
+
+
+        :param output: The output of this EntityAggregationCalculatedFieldConfiguration.  # noqa: E501
+        :type: Output
+        """
+        if output is None:
+            raise ValueError("Invalid value for `output`, must not be `None`")  # noqa: E501
+
+        self._output = output
 
     def to_dict(self):
         """Returns the model properties as a dict"""

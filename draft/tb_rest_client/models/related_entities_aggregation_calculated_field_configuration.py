@@ -74,6 +74,8 @@ class RelatedEntitiesAggregationCalculatedFieldConfiguration(CalculatedFieldConf
         if scheduled_update_enabled is not None:
             self.scheduled_update_enabled = scheduled_update_enabled
         CalculatedFieldConfiguration.__init__(self, *args, **kwargs)
+        # output is inherited, but required for this configuration type (the generator cannot enforce it)
+        self.output = self._output
 
     @property
     def relation(self):
@@ -227,6 +229,29 @@ class RelatedEntitiesAggregationCalculatedFieldConfiguration(CalculatedFieldConf
         """
 
         self._scheduled_update_enabled = scheduled_update_enabled
+
+    @property
+    def output(self):
+        """Gets the output of this RelatedEntitiesAggregationCalculatedFieldConfiguration.  # noqa: E501
+
+
+        :return: The output of this RelatedEntitiesAggregationCalculatedFieldConfiguration.  # noqa: E501
+        :rtype: Output
+        """
+        return self._output
+
+    @output.setter
+    def output(self, output):
+        """Sets the output of this RelatedEntitiesAggregationCalculatedFieldConfiguration.
+
+
+        :param output: The output of this RelatedEntitiesAggregationCalculatedFieldConfiguration.  # noqa: E501
+        :type: Output
+        """
+        if output is None:
+            raise ValueError("Invalid value for `output`, must not be `None`")  # noqa: E501
+
+        self._output = output
 
     def to_dict(self):
         """Returns the model properties as a dict"""
