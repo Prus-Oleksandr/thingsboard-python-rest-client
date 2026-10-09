@@ -63,7 +63,8 @@ def placeholders(path):
 def edition_of(module):
     """tb_rest_client.api.api_ce[.x_api] -> api_ce; tb_rest_client.api[.x_api] -> api (single edition)"""
     parts = module.split('.')
-    return parts[2] if len(parts) > 2 and parts[2].startswith('api_') else 'api'
+    # an edition is a package (api_ce, api_pe), not a module such as api.api_key_controller_api
+    return parts[2] if len(parts) > 2 and parts[2] in editions else 'api'
 
 
 # ---------- old generated API, per edition (api_ce/api_pe, or a single api) ----------
