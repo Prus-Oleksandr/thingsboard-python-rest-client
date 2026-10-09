@@ -183,7 +183,38 @@ def fix_response_types(pkg_dir):
     print('response types: %d operations, %d files changed' % (len(found), changed))
 
 
-FIXES = [fix_discriminator_maps, fix_entity_id_arg_order, fix_response_types]
+# (schema, field) the spec marks required, but a 4.4 server returns null in them. The generated
+# setter raises ValueError on None, so the whole response failed to deserialize.
+NULLABLE_REQUIRED_FIELDS = {
+    ('RuleChainMetaData', 'ruleChainConnections'),  # null in the metadata of the Root Rule Chain
+}
+
+
+def fix_nullable_required_fields(pkg_dir):
+    """Drops the 'must not be None' check of the fields in NULLABLE_REQUIRED_FIELDS."""
+    sources, classes = load_models(pkg_dir)
+    by_class = {re.search(r'^class (\w+)\(', src, re.M).group(1): path for path, src in sources.items()}
+    changed = 0
+    for schema, wire in sorted(NULLABLE_REQUIRED_FIELDS):
+        path = by_class.get(classes.get(norm(schema)))
+        if path is None:
+            sys.exit('nullable required fields: no model for %s' % schema)
+        src = sources[path]
+        py = re.search(r"'(\w+)': '%s'" % re.escape(wire), src)
+        if py is None:
+            sys.exit('nullable required fields: no field %s in %s' % (wire, schema))
+        check = ('        if {0} is None:\n'
+                 '            raise ValueError("Invalid value for `{0}`, must not be `None`")  # noqa: E501\n'
+                 ).format(py.group(1))
+        if check in src:
+            sources[path] = src.replace(check, '')
+            with open(path, 'w') as f:
+                f.write(sources[path])
+            changed += 1
+    print('nullable required fields: %d fields, %d changed' % (len(NULLABLE_REQUIRED_FIELDS), changed))
+
+
+FIXES = [fix_discriminator_maps, fix_entity_id_arg_order, fix_response_types, fix_nullable_required_fields]
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

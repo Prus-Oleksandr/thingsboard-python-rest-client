@@ -86,5 +86,15 @@ check('JSON object body as dict', result == {'client': {'a': 1}}, repr(result))
 result = client.deserialize(Body(b''), 'object')
 check('empty body of an object response is None', result is None, repr(result))
 
+# metadata of the Root Rule Chain on a 4.4 server: ruleChainConnections is null, the spec says required
+body = (b'{"ruleChainId":{"entityType":"RULE_CHAIN","id":"784f394c-42b6-435a-983c-b7beff2784f9"},'
+        b'"version":1,"firstNodeIndex":0,"nodes":[],"connections":[],"ruleChainConnections":null}')
+try:
+    result = client.deserialize(Body(body), 'RuleChainMetaData')
+    check('null in a nullable required field', result.rule_chain_connections is None
+          and result.rule_chain_id.id == '784f394c-42b6-435a-983c-b7beff2784f9', repr(result.rule_chain_id))
+except ValueError as e:
+    check('null in a nullable required field', False, e)
+
 del client
 sys.exit(1 if check.failed else 0)

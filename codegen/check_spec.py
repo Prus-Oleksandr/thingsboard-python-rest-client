@@ -16,7 +16,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from client_parser import parse_api_dir, parse_models_dir  # noqa: E402
-from postprocess import response_type_overrides  # noqa: E402
+from postprocess import NULLABLE_REQUIRED_FIELDS, response_type_overrides  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HTTP_METHODS = ('get', 'post', 'put', 'delete', 'patch', 'head', 'options')
@@ -159,7 +159,11 @@ def check_model(name, s):
         if 'enum' in p and '$ref' not in p and p.get('type') == 'string' \
                 and sorted(allowed.get(py, [])) != sorted(p['enum']):
             report('ERROR', 'enum values differ', '%s.%s' % (name, wire), p['enum'], allowed.get(py))
-        if wire in required and py not in gen_required:
+        if (name, wire) in NULLABLE_REQUIRED_FIELDS:
+            # the server sends null although the spec says required, postprocess.py drops the check
+            if py in gen_required:
+                report('ERROR', 'nullable required field still enforced', name, wire)
+        elif wire in required and py not in gen_required:
             report('WARN', 'required field not enforced', name, wire)
     for wire in py_by_wire:
         if wire not in props:

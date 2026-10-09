@@ -87,7 +87,12 @@ Generator and runtime (`postprocess.py`, `api_client.py`, `configuration.py`):
 - Plain-text bodies of `str` responses are decoded (4.3 and the generator returned `"b'...'"`);
   undecodable (binary) bodies are returned as bytes.
 - Not ported on purpose: 4.3 models_ce/models_pe lookup, `{?...}` path templates, Deferred* handling
-  (none in 4.4), `return e` on deserialization errors (see Q4).
+  (none in 4.4), `return e` on deserialization errors: it came with the CE/PE model guessing
+  (`1d8049c4`, 2020) and hid real errors (4.3 `get_rule_chain_meta_data` returned a ValueError
+  object for the Root Rule Chain). Decided (Q4): deserialization errors raise; a field the spec
+  marks required but the server sends as null goes into `NULLABLE_REQUIRED_FIELDS` in
+  `postprocess.py` (its None check is dropped, `check_spec.py` verifies). Found with
+  `probe_deserialization.py`: only `RuleChainMetaData.ruleChainConnections` (240 calls, 2634 models).
 
 Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
 - Mechanical renames applied automatically (matched by HTTP method + path, then by the Java
@@ -144,9 +149,6 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
     `claimDevice`/`reClaimDevice`: decide from the ThingsBoard controller code.
   Done, see Done above. The 9 ops typed from the spec descriptions can be confirmed on a server
   with an edge, an agent, claiming or a connected device.
-- **Q4. Deserialization errors.** 4.3 returned the exception object instead of raising. Not
-  ported: currently raises (e.g. when the server returns null in a field the spec marks required).
-  Decide: raise, or log a warning and return the raw dict.
 - **Q5. 154 new 4.4 operations without wrappers** (`check_wrappers.py --full`, INFO): which to add
   (e.g. `update_mobile_app_bundle_oauth2_clients`, AI, agents, trendz views).
 - **Q6. Params coverage.** Some wrappers do not expose every spec param (found: `get_widget_types`

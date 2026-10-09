@@ -208,8 +208,6 @@ class RuleChainMetaData(object):
         :param rule_chain_connections: The rule_chain_connections of this RuleChainMetaData.  # noqa: E501
         :type: list[RuleChainConnectionInfo]
         """
-        if rule_chain_connections is None:
-            raise ValueError("Invalid value for `rule_chain_connections`, must not be `None`")  # noqa: E501
 
         self._rule_chain_connections = rule_chain_connections
 
