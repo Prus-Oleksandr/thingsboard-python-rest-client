@@ -1136,7 +1136,7 @@ class RestClient(Thread):
                                                                   sort_property=sort_property,
                                                                   object_ids=object_ids)
 
-    def download_resource(self, resource_id: EntityId) -> Resource:
+    def download_resource(self, resource_id: EntityId) -> bytes:
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.download_resource(resource_id=resource_id)
 
@@ -1169,24 +1169,24 @@ class RestClient(Thread):
         return self.admin_controller.get_mail_processing_url()
 
     def download_jks_resource_if_changed(self, resource_id: EntityId,
-                                         if_none_match: Optional[str] = '') -> str:
+                                         if_none_match: Optional[str] = '') -> bytes:
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.download_jks_resource_if_changed(resource_id=resource_id,
                                                                             if_none_match=if_none_match)
 
-    def download_js_resource_if_changed(self, resource_id: EntityId, if_none_match: Optional[str] = '') -> str:
+    def download_js_resource_if_changed(self, resource_id: EntityId, if_none_match: Optional[str] = '') -> bytes:
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.download_js_resource_if_changed(resource_id=resource_id,
                                                                            if_none_match=if_none_match)
 
     def download_lwm2m_resource_if_changed(self, resource_id: EntityId,
-                                           if_none_match: Optional[str] = '') -> str:
+                                           if_none_match: Optional[str] = '') -> bytes:
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.download_lwm2m_resource_if_changed(resource_id=resource_id,
                                                                               if_none_match=if_none_match)
 
     def download_pkcs12_resource_if_changed(self, resource_id: EntityId,
-                                            if_none_match: Optional[str] = '') -> str:
+                                            if_none_match: Optional[str] = '') -> bytes:
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.download_pkcs12_resource_if_changed(resource_id=resource_id,
                                                                                if_none_match=if_none_match)
@@ -1195,7 +1195,7 @@ class RestClient(Thread):
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.get_resource_by_id(resource_id=resource_id)
 
-    def download_resource_if_changed(self, resource_type: str, scope: str, key: str, if_none_match: Optional[str] = ''):
+    def download_resource_if_changed(self, resource_type: str, scope: str, key: str, if_none_match: Optional[str] = '') -> bytes:
         return self.tb_resource_controller.download_resource_if_changed(resource_type=resource_type,
                                                                         scope=scope,
                                                                         key=key,
@@ -1635,7 +1635,7 @@ class RestClient(Thread):
                                                                 shared_keys=shared_keys)
 
     def get_firmware(self, device_token: str, title: str, version: str, size: Optional[int] = None,
-                     chunk: Optional[int] = None) -> str:
+                     chunk: Optional[int] = None) -> bytes:
         return self.device_api_controller.get_firmware(device_token=device_token, title=title,
                                                        version=version, size=size, chunk=chunk)
 
@@ -1645,7 +1645,7 @@ class RestClient(Thread):
                                                            body=body)
 
     def get_software(self, device_token: str, title: str, version: str, size: Optional[int] = None,
-                     chunk: Optional[int] = None) -> str:
+                     chunk: Optional[int] = None) -> bytes:
         return self.device_api_controller.get_software(device_token=device_token, title=title,
                                                        version=version, size=size, chunk=chunk)
 
@@ -1726,7 +1726,7 @@ class RestClient(Thread):
         ota_package_id = self.get_id(ota_package_id)
         return self.ota_package_controller.get_ota_package_by_id(ota_package_id=ota_package_id)
 
-    def download_ota_package(self, ota_package_id: OtaPackageId) -> Resource:
+    def download_ota_package(self, ota_package_id: OtaPackageId) -> bytes:
         ota_package_id = self.get_id(ota_package_id)
         return self.ota_package_controller.download_ota_package(ota_package_id=ota_package_id)
 
@@ -1997,7 +1997,7 @@ class RestClient(Thread):
         return self.entity_query_controller.count_entities_by_query(body=body)
 
     # Device Connectivity Controller
-    def download_server_certificate(self, protocol: str) -> Resource:
+    def download_server_certificate(self, protocol: str) -> bytes:
         return self.device_connectivity_controller.download_server_certificate(protocol=protocol)
 
     def get_device_publish_telemetry_commands(self, device_id: DeviceId):
@@ -2013,14 +2013,14 @@ class RestClient(Thread):
         return self.image_controller.delete_image(type=_type, key=key, force=force)
 
     def download_image_preview(self, type: str, key: str, if_none_match: Optional[str] = None,
-                               accept_encoding: Optional[str] = None) -> str:
+                               accept_encoding: Optional[str] = None) -> bytes:
         return self.image_controller.download_image_preview(type=type, key=key, if_none_match=if_none_match,
                                                             accept_encoding=accept_encoding)
 
-    def download_image(self, _type: str, key: str, if_none_match: Optional[str] = '') -> str:
+    def download_image(self, _type: str, key: str, if_none_match: Optional[str] = '') -> bytes:
         return self.image_controller.download_image(type=_type, key=key, if_none_match=if_none_match)
 
-    def download_public_image(self, public_resource_key: str, if_none_match: Optional[str] = '') -> str:
+    def download_public_image(self, public_resource_key: str, if_none_match: Optional[str] = '') -> bytes:
         return self.image_controller.download_public_image(public_resource_key=public_resource_key,
                                                            if_none_match=if_none_match)
 
@@ -2064,7 +2064,7 @@ class RestClient(Thread):
         asset_profile_ids = ','.join(asset_profile_ids)
         return self.asset_profile_controller.get_asset_profiles_by_ids(asset_profile_ids=asset_profile_ids)
 
-    def download_gateway_docker_compose(self, device_id: DeviceId) -> Resource:
+    def download_gateway_docker_compose(self, device_id: DeviceId) -> bytes:
         device_id = self.get_id(device_id)
         return self.device_connectivity_controller.download_gateway_docker_compose(device_id=device_id)
 
@@ -2960,12 +2960,12 @@ class RestClient(Thread):
                                                                            sort_order=sort_order)
 
     def download_dashboard_report(self, dashboard_id: DashboardId,
-                                  body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None):
+                                  body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None) -> bytes:
         dashboard_id = self.get_id(dashboard_id)
         return self.dashboard_report_controller.download_dashboard_report(dashboard_id=dashboard_id,
                                                                                      body=body)
 
-    def download_test_report(self, body: Optional[DashboardReportConfig], reports_server_endpoint_url: Optional[str] = None):
+    def download_test_report(self, body: Optional[DashboardReportConfig], reports_server_endpoint_url: Optional[str] = None) -> bytes:
         return self.dashboard_report_controller.download_test_report(body=body,
                                                                      reports_server_endpoint_url=reports_server_endpoint_url)
 
@@ -3135,7 +3135,7 @@ class RestClient(Thread):
         blob_entity_id = self.get_id(blob_entity_id)
         return self.blob_entity_controller.delete_blob_entity(blob_entity_id=blob_entity_id)
 
-    def download_blob_entity(self, blob_entity_id: BlobEntityId) -> Resource:
+    def download_blob_entity(self, blob_entity_id: BlobEntityId) -> bytes:
         blob_entity_id = self.get_id(blob_entity_id)
         return self.blob_entity_controller.download_blob_entity(blob_entity_id=blob_entity_id)
 
@@ -3585,10 +3585,10 @@ class RestClient(Thread):
         user_id = self.get_id(user_id)
         return self.user_controller.get_user_info_by_id(user_id=user_id)
 
-    def download_login_favicon(self, type: str, key: str, if_none_match: str) -> str:
+    def download_login_favicon(self, type: str, key: str, if_none_match: str) -> bytes:
         return self.image_controller.download_login_favicon(type=type, key=key, if_none_match=if_none_match)
 
-    def download_login_logo(self, type: str, key: str, if_none_match: str) -> str:
+    def download_login_logo(self, type: str, key: str, if_none_match: str) -> bytes:
         return self.image_controller.download_login_logo(type=type, key=key, if_none_match=if_none_match)
 
     def enable_scheduler_event(self, scheduler_event_id: SchedulerEventId, enabled_value: bool) -> SchedulerEvent:
@@ -3596,7 +3596,7 @@ class RestClient(Thread):
         return self.scheduler_event_controller.enable_scheduler_event(scheduler_event_id=scheduler_event_id,
                                                                       enabled_value=enabled_value)
 
-    def download_full_translation(self, locale_code: str) -> str:
+    def download_full_translation(self, locale_code: str) -> bytes:
         return self.translation_controller.download_full_translation(locale_code=locale_code)
 
     def get_available_java_locales(self) -> JsonNode:
@@ -3737,7 +3737,7 @@ class RestClient(Thread):
     def send_addon_access_error(self, addon_type: str):
         return self.notification_controller.send_addon_access_error(addon_type=addon_type)
 
-    def test_report_and_download(self, body: ReportRequest):
+    def test_report_and_download(self, body: ReportRequest) -> bytes:
         return self.report_controller.test_report_and_download(body=body)
 
     def get_timeseries_by_read_ts_kv_queries(self, body, entity_id: EntityId):

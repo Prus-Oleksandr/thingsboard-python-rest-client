@@ -76,8 +76,11 @@ Generator and runtime (`postprocess.py`, `api_client.py`, `configuration.py`):
 - Comma-separated strings for array (`multi`) params are sent as one value (wrappers pass
   `','.join(ids)`; the generator iterated the string char by char).
 - 43 operations typed as JSON `string` in the spec are retyped from what a live server returned
-  (`STRING_RESPONSE_TYPES` in `postprocess.py`: 12 -> `None`, 20 -> `object`, 11 stay `str`);
-  `check_spec.py` checks the generated types against that table. An empty body of an `object`
+  (`STRING_RESPONSE_TYPES` in `postprocess.py`: 12 -> `None`, 20 -> `object`, 2 firmware -> `bytes`,
+  9 stay `str`); `check_spec.py` checks the generated types against `response_type_overrides()`.
+- Files (`type: string, format: binary` in the spec, 21 ops: images, reports, OTA, resources,
+  translations, certificates) are `bytes`, the raw body; as `str` text files came back decoded and
+  JSON files (translations) as a repr string. Their wrappers are annotated `-> bytes`. An empty body of an `object`
   response gives `None`. Wrapper annotations follow: `None`, `Dict` (JSON object seen on the
   server), `Any` (JSON from a device or rule chain, or not seen with data).
 - Plain-text bodies of `str` responses are decoded (4.3 and the generator returned `"b'...'"`);
@@ -122,7 +125,7 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
   (-> getAssetProfileNames), `get_device_types` (-> getDeviceProfileNames),
   `find_available_entity_keys_by_query` (-> `POST /api/v2/entitiesQuery/find/keys`),
   `save_resource`, `get_resource_by_id`. Proposal: a WARN in check_wrappers, then decide on switching.
-- **Q3. Responses typed as `string` in the spec** (43 ops). Checked on the server (GETs with
+- **Q3 (resolved). Responses typed as `string` in the spec** (43 ops). Checked on the server (GETs with
   `probes/string_responses.json`; writes on a temporary device that was deleted afterwards):
   - empty body (200, no Content-Type): telemetry/attribute save and delete (8), device API
     `postTelemetry`, `postDeviceAttributes`, `replyToCommand`, `saveClaimingInfo` -> `None`;
@@ -138,9 +141,8 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
   - not determined (500/404/409/400 on test data): edge missing attributes (2),
     `getAgentUpgradeTarget`, one-way RPC, `activateEmail`, `mobileLogin`, `syncEdge`,
     `claimDevice`/`reClaimDevice`: decide from the ThingsBoard controller code.
-  Done: decode fix (step 1), the op -> type table (step 2, see Done). Left (step 3): binary
-  responses already come back as bytes, but `get_firmware`, `get_software` and the 8 `download_*`
-  wrappers are still annotated `str`.
+  Done, see Done above. The 9 ops typed from the spec descriptions can be confirmed on a server
+  with an edge, an agent, claiming or a connected device.
 - **Q4. Deserialization errors.** 4.3 returned the exception object instead of raising. Not
   ported: currently raises (e.g. when the server returns null in a field the spec marks required).
   Decide: raise, or log a warning and return the raw dict.

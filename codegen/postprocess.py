@@ -4,9 +4,12 @@ Usage: python3 codegen/postprocess.py <package_dir>   (e.g. draft/tb_rest_client
 
 Every fix is idempotent, so the script can be re-run on an already edited draft.
 """
+import json
 import os
 import re
 import sys
+
+SPEC = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'spec', 'thingsboard-swagger.json')
 
 
 def norm(name):
@@ -122,14 +125,31 @@ STRING_RESPONSE_TYPES = {
     ('GET', '/api/admin/mail/oauth2/loginProcessingUrl'): 'str',
     ('GET', '/api/noauth/activateEmail'): 'str',
     ('GET', '/api/noauth/login'): 'str',
-    # binary file; ApiClient returns bytes when the body is not text
-    ('GET', '/api/v1/{deviceToken}/firmware'): 'str',
-    ('GET', '/api/v1/{deviceToken}/software'): 'str',
+    # firmware package: a file, not 'format: binary' in the spec
+    ('GET', '/api/v1/{deviceToken}/firmware'): 'bytes',
+    ('GET', '/api/v1/{deviceToken}/software'): 'bytes',
 }
 
 
-def fix_string_response_types(pkg_dir):
-    """Sets the response type of the operations in STRING_RESPONSE_TYPES."""
+def response_type_overrides(spec):
+    """(method, path) -> response type the generated code must have instead of the generator's.
+
+    Files ('type: string, format: binary' in the spec) were generated as 'str': text files came back
+    decoded or, for JSON files such as translations, as a repr string. They are 'bytes' now, the raw
+    body. Plus STRING_RESPONSE_TYPES."""
+    overrides = {}
+    for path, item in spec['paths'].items():
+        for method, op in item.items():
+            content = op.get('responses', {}).get('200', {}).get('content', {}) if isinstance(op, dict) else {}
+            if any((c.get('schema') or {}).get('format') == 'binary' for c in content.values()):
+                overrides[(method.upper(), path)] = 'bytes'
+    overrides.update(STRING_RESPONSE_TYPES)
+    return overrides
+
+
+def fix_response_types(pkg_dir):
+    """Sets the response types from response_type_overrides()."""
+    overrides = response_type_overrides(json.load(open(SPEC)))
     api_dir = os.path.join(pkg_dir, 'api')
     found, changed = set(), 0
     for f in sorted(os.listdir(api_dir)):
@@ -142,28 +162,28 @@ def fix_string_response_types(pkg_dir):
         names = [re.match(r'    def (\w+)', p).group(1) if p.startswith('    def ') else None for p in parts]
         for i, part in enumerate(parts):
             call = re.search(r"call_api\(\s*'([^']+)', '([A-Z]+)'", part)
-            if not call or (call.group(2), call.group(1)) not in STRING_RESPONSE_TYPES:
+            if not call or (call.group(2), call.group(1)) not in overrides:
                 continue
             key = (call.group(2), call.group(1))
             found.add(key)
-            new_type = STRING_RESPONSE_TYPES[key]
+            new_type = overrides[key]
             public = names.index(names[i][:-len('_with_http_info')])
             for j in (public, i):
                 parts[j] = parts[j].replace(':return: str\n', ':return: %s\n' % new_type)
-            parts[i] = re.sub(r"response_type=(?:'str'|'object'|None),",
+            parts[i] = re.sub(r"response_type=(?:'str'|'object'|'bytes'|None),",
                               'response_type=%s,' % (repr(new_type) if new_type else 'None'), parts[i])
         new = ''.join(parts)
         if new != src:
             changed += 1
             with open(path, 'w') as fh:
                 fh.write(new)
-    missing = set(STRING_RESPONSE_TYPES) - found
+    missing = set(overrides) - found
     if missing:
-        sys.exit('string response types: operations not found: %s' % sorted(missing))
-    print('string response types: %d operations, %d files changed' % (len(found), changed))
+        sys.exit('response types: operations not found: %s' % sorted(missing))
+    print('response types: %d operations, %d files changed' % (len(found), changed))
 
 
-FIXES = [fix_discriminator_maps, fix_entity_id_arg_order, fix_string_response_types]
+FIXES = [fix_discriminator_maps, fix_entity_id_arg_order, fix_response_types]
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

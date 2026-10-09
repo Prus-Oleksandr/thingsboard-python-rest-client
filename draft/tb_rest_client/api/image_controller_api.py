@@ -150,7 +150,7 @@ class ImageControllerApi(object):
         :param str key: Image resource key, for example thermostats_dashboard_background.jpeg (required)
         :param str if_none_match:
         :param str accept_encoding:
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -174,7 +174,7 @@ class ImageControllerApi(object):
         :param str key: Image resource key, for example thermostats_dashboard_background.jpeg (required)
         :param str if_none_match:
         :param str accept_encoding:
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -238,7 +238,7 @@ class ImageControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='bytes',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -259,7 +259,7 @@ class ImageControllerApi(object):
         :param str key: Image resource key, for example thermostats_dashboard_background.jpeg (required)
         :param str if_none_match:
         :param str accept_encoding:
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -283,7 +283,7 @@ class ImageControllerApi(object):
         :param str key: Image resource key, for example thermostats_dashboard_background.jpeg (required)
         :param str if_none_match:
         :param str accept_encoding:
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -347,7 +347,7 @@ class ImageControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='bytes',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -368,7 +368,7 @@ class ImageControllerApi(object):
         :param str key: Image resource key, for example thermostats_dashboard_background.jpeg (required)
         :param str if_none_match:
         :param str accept_encoding:
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -392,7 +392,7 @@ class ImageControllerApi(object):
         :param str key: Image resource key, for example thermostats_dashboard_background.jpeg (required)
         :param str if_none_match:
         :param str accept_encoding:
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -456,7 +456,7 @@ class ImageControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='bytes',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -477,7 +477,7 @@ class ImageControllerApi(object):
         :param str key: Image resource key, for example thermostats_dashboard_background.jpeg (required)
         :param str if_none_match:
         :param str accept_encoding:
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -501,7 +501,7 @@ class ImageControllerApi(object):
         :param str key: Image resource key, for example thermostats_dashboard_background.jpeg (required)
         :param str if_none_match:
         :param str accept_encoding:
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -565,7 +565,7 @@ class ImageControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='bytes',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -585,7 +585,7 @@ class ImageControllerApi(object):
         :param str public_resource_key: (required)
         :param str if_none_match:
         :param str accept_encoding:
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -608,7 +608,7 @@ class ImageControllerApi(object):
         :param str public_resource_key: (required)
         :param str if_none_match:
         :param str accept_encoding:
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -666,7 +666,7 @@ class ImageControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='bytes',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

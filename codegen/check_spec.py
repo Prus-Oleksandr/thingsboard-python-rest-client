@@ -16,7 +16,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from client_parser import parse_api_dir, parse_models_dir  # noqa: E402
-from postprocess import STRING_RESPONSE_TYPES  # noqa: E402
+from postprocess import response_type_overrides  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HTTP_METHODS = ('get', 'post', 'put', 'delete', 'patch', 'head', 'options')
@@ -229,11 +229,11 @@ def check_operation(key, o):
         report('ERROR', 'request body not in spec', op_id)
     responses = o.get('responses', {})
     content = (responses.get('200') or responses.get('201') or {}).get('content', {})
-    if key in STRING_RESPONSE_TYPES:
-        # typed 'string' in the spec, retyped by postprocess.py after checking a live server
-        if g['response_type'] != STRING_RESPONSE_TYPES[key]:
-            report('ERROR', 'string response not retyped as postprocess.py says', op_id,
-                   STRING_RESPONSE_TYPES[key], g['response_type'])
+    if key in overrides:
+        # files and JSON typed as 'string' in the spec, retyped by postprocess.py
+        if g['response_type'] != overrides[key]:
+            report('ERROR', 'response not retyped as postprocess.py says', op_id,
+                   overrides[key], g['response_type'])
     elif content:
         first = next(iter(content))
         if g['response_type'] is None:
@@ -246,6 +246,7 @@ def check_operation(key, o):
             report('WARN', 'spec: JSON response typed as string', op_id, '%s %s' % key)
 
 
+overrides = response_type_overrides(spec)
 spec_ops = [((m.upper(), p), o) for p, v in spec['paths'].items() for m, o in v.items() if m in HTTP_METHODS]
 for key, o in spec_ops:
     check_operation(key, o)

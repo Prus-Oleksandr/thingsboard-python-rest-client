@@ -237,6 +237,9 @@ class ApiClient(object):
         # save response body into a tmp file and return the instance
         if response_type == "file":
             return self.__deserialize_file(response)
+        # a file ('format: binary' in the spec): the raw body, even if it is text or JSON
+        if response_type == 'bytes':
+            return response.data
 
         # fetch data from response object
         try:

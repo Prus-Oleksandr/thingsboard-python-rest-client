@@ -44,7 +44,7 @@ class DashboardReportControllerApi(object):
         :param async_req bool
         :param object body: (required)
         :param str dashboard_id: A string value representing the dashboard id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -67,7 +67,7 @@ class DashboardReportControllerApi(object):
         :param async_req bool
         :param object body: (required)
         :param str dashboard_id: A string value representing the dashboard id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -131,7 +131,7 @@ class DashboardReportControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='bytes',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -151,7 +151,7 @@ class DashboardReportControllerApi(object):
         :param async_req bool
         :param DashboardReportConfig body: (required)
         :param str reports_server_endpoint_url: A string value representing the report server endpoint.
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -174,7 +174,7 @@ class DashboardReportControllerApi(object):
         :param async_req bool
         :param DashboardReportConfig body: (required)
         :param str reports_server_endpoint_url: A string value representing the report server endpoint.
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -234,7 +234,7 @@ class DashboardReportControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='bytes',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

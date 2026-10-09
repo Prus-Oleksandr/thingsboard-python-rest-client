@@ -158,7 +158,7 @@ class DeviceApiControllerApi(object):
         :param str version: Version of the firmware, corresponds to the value of 'fw_version' attribute. (required)
         :param int size: Size of the chunk. Optional. Omit to download the entire file without chunks.
         :param int chunk: Index of the chunk. Optional. Omit to download the entire file without chunks.
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -184,7 +184,7 @@ class DeviceApiControllerApi(object):
         :param str version: Version of the firmware, corresponds to the value of 'fw_version' attribute. (required)
         :param int size: Size of the chunk. Optional. Omit to download the entire file without chunks.
         :param int chunk: Index of the chunk. Optional. Omit to download the entire file without chunks.
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -254,7 +254,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='bytes',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -277,7 +277,7 @@ class DeviceApiControllerApi(object):
         :param str version: Version of the software, corresponds to the value of 'sw_version' attribute. (required)
         :param int size: Size of the chunk. Optional. Omit to download the entire file without using  chunks.
         :param int chunk: Index of the chunk. Optional. Omit to download the entire file without using chunks.
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -303,7 +303,7 @@ class DeviceApiControllerApi(object):
         :param str version: Version of the software, corresponds to the value of 'sw_version' attribute. (required)
         :param int size: Size of the chunk. Optional. Omit to download the entire file without using  chunks.
         :param int chunk: Index of the chunk. Optional. Omit to download the entire file without using chunks.
-        :return: str
+        :return: bytes
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -373,7 +373,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='bytes',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

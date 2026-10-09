@@ -1,5 +1,6 @@
-"""Calls wrappers of operations the spec types as 'string' with the response bodies a 4.4 server
-returned (see STRING_RESPONSE_TYPES in codegen/postprocess.py) and checks what the caller gets.
+"""Calls wrappers of operations the spec types as 'string' (JSON or files) with the response bodies
+a 4.4 server returned (see response_type_overrides in codegen/postprocess.py) and checks what the
+caller gets.
 
 Usage: python3 codegen/tests/test_string_responses.py [package_parent_dir]   (default: draft)
 """
@@ -13,7 +14,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'draft'))
 
 from tb_rest_client.rest_client import RestClient
-from tb_rest_client.models import DeviceId, EdgeId
+from tb_rest_client.models import DeviceId, EdgeId, TbResourceId
 
 U = '784f394c-42b6-435a-983c-b7beff2784f9'
 body = [b'']
@@ -66,6 +67,13 @@ cases = [
      lambda: c.get_privacy_policy()),
     ('get_firmware (binary)', b'\x89PNG\r\n\x1a\n\xff', b'\x89PNG\r\n\x1a\n\xff',
      lambda: c.get_firmware('token', 'fw', '1')),
+    # files ('format: binary' in the spec) are returned as the raw body even when it is text or JSON
+    ('download_full_translation (JSON file)', b'{"home":"Home"}', b'{"home":"Home"}',
+     lambda: c.download_full_translation('en_US')),
+    ('download_js_resource_if_changed (text file)', b'export const a = 1;', b'export const a = 1;',
+     lambda: c.download_js_resource_if_changed(TbResourceId(id=U, entity_type='TB_RESOURCE'))),
+    ('download_image (SVG)', b'<svg xmlns="http://www.w3.org/2000/svg"/>', b'<svg xmlns="http://www.w3.org/2000/svg"/>',
+     lambda: c.download_image('tenant', 'logo.svg')),
 ]
 for name, data, expected, call in cases:
     body[0] = data
