@@ -79,6 +79,16 @@ def expected_type(p):
     return 'object'
 
 
+def common_base(variants):
+    """The schema with a discriminator that every variant extends (allOf $ref), or None."""
+    bases = None
+    for v in variants:
+        parents = {ref_name(p['$ref']) for p in schemas.get(v, {}).get('allOf', []) if '$ref' in p}
+        bases = parents if bases is None else bases & parents
+    found = [b for b in (bases or ()) if 'discriminator' in schemas.get(b, {})]
+    return found[0] if len(found) == 1 else None
+
+
 def compare_types(where, exp, got):
     # free-form schemas (JsonNode, ServerSentEventString, ...) are generated either as 'object' or as an empty class
     got_free_form = re.sub(r'\w+', lambda m: 'object' if is_free_form(m.group()) else m.group(), got)
@@ -86,6 +96,10 @@ def compare_types(where, exp, got):
         return
     if exp == 'object' and got in gen_classes:
         return  # inline object schema generated as its own model, e.g. AuthTokenBody
+    # oneOf of subclasses of one discriminator base: the base is the right type, it resolves to the subclass
+    resolved = re.sub(r'<oneOf:([\w,]+)>', lambda m: common_base(m.group(1).split(',')) or m.group(), exp)
+    if resolved != exp and norm(resolved) in (norm(got), norm(got_free_form)):
+        return
     if '<' in exp:
         report('WARN', 'oneOf/anyOf typed loosely', *where, exp, got)
     elif norm(got).endswith('object') and not norm(exp).endswith('object'):
@@ -138,10 +152,10 @@ def check_model(name, s):
         return report('ERROR', 'model missing', name)
     info = gen_classes[cls]
     if 'enum' in s:
-        if sorted(map(str, s['enum'])) != sorted(info['enum_values']):
+        if sorted(map(str, s['enum'])) != sorted(map(str, info['enum_values'])):
             report('ERROR', 'enum values differ', name, s['enum'], info['enum_values'])
-        elif not all(isinstance(v, str) for v in s['enum']):
-            report('WARN', 'non-string enum constants are strings', name, s['enum'])
+        elif sorted(s['enum'], key=str) != sorted(info['enum_values'], key=str):
+            report('ERROR', 'enum constants have another type than in the spec', name, s['enum'], info['enum_values'])
         return
     props, required = spec_props(name)
     types, amap, gen_required, allowed = gen_props(cls)
@@ -180,6 +194,21 @@ def check_model(name, s):
         missing = {v.lower() for v in mapping} - set(info['disc_map'])
         if missing:
             report('ERROR', 'discriminator values missing', name, sorted(missing))
+        # get_real_child_model looks the value up lowercased: other keys never match
+        unreachable = [k for k in info['disc_map'] if k != k.lower()]
+        if unreachable:
+            report('ERROR', 'discriminator keys never match (not lowercase)', name, unreachable)
+        if not mapping and children:
+            # no mapping in the spec: the server sends the values of the discriminator property's enum
+            # (checked on a 4.4 server), so the map is filled by hand and must cover every subclass
+            prop = spec_props(name)[0].get(s['discriminator']['propertyName'], {})
+            values = schemas.get(ref_name(prop.get('$ref', '')), {}).get('enum') or prop.get('enum') or []
+            if not set(info['disc_map']) <= {v.lower() for v in values}:
+                report('ERROR', 'discriminator keys are not values of the property', name,
+                       sorted(set(info['disc_map']) - {v.lower() for v in values}))
+            if sorted(set(info['disc_map'].values())) != sorted(children):
+                report('ERROR', 'discriminator map does not cover the subclasses', name,
+                       sorted(set(children) - set(info['disc_map'].values())))
     parents = [ref_name(p['$ref']) for p in s.get('allOf', []) if '$ref' in p]
     if parents and not info['bases']:
         report('WARN', 'allOf parent not inherited', name, parents)

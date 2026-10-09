@@ -89,7 +89,8 @@ def parse_model(path):
                 info['disc_map'] = {
                     (k.func.value.value.lower() if isinstance(k, ast.Call) else k.value): v.value
                     for k, v in zip(st.value.keys, st.value.values)}
-            elif isinstance(st.value, ast.Constant) and isinstance(st.value.value, str):
+            elif isinstance(st.value, ast.Constant) and isinstance(st.value.value, (str, int)) \
+                    and not isinstance(st.value.value, bool):
                 info['enum_values'].append(st.value.value)
         elif isinstance(st, ast.FunctionDef) and len(st.args.args) == 2:  # property setter
             body = ast.get_source_segment(src, st)
