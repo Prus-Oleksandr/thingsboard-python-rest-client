@@ -243,6 +243,12 @@ class ApiClient(object):
             data = json.loads(response.data)
         except ValueError:
             data = response.data
+            # plain-text body of a 'str' response: decode it instead of returning "b'...'"
+            if response_type == 'str' and isinstance(data, bytes):
+                try:
+                    return data.decode('utf-8')
+                except UnicodeDecodeError:
+                    return data  # binary content, e.g. a downloaded file
 
         return self.__deserialize(data, response_type)
 

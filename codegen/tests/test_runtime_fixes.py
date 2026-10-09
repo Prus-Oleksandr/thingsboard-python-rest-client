@@ -66,5 +66,23 @@ check('entity id object in path', sent[-1]['url'].endswith('/api/device/784f394c
 CustomMenuControllerApi(client).get_custom_menu(if_none_match=None)
 check('None header params dropped', 'If-None-Match' not in sent[-1]['headers'], sent[-1]['headers'])
 
+
+class Body:
+    def __init__(self, data):
+        self.data = data
+
+
+# response bodies seen on a 4.4 server for operations typed as string in the spec
+for name, body, expected in (
+        ('plain text body decoded', b'https://raw.githubusercontent.com/x', 'https://raw.githubusercontent.com/x'),
+        ('JSON string body unquoted', b'"/login/oauth2/code/"', '/login/oauth2/code/'),
+        ('empty body is empty string', b'', ''),
+        ('non-ASCII text decoded', 'Умови'.encode(), 'Умови'),
+        ('binary body kept as bytes', b'\x89PNG\r\n\x1a\n\xff', b'\x89PNG\r\n\x1a\n\xff')):
+    result = client.deserialize(Body(body), 'str')
+    check(name, result == expected, repr(result))
+result = client.deserialize(Body(b'{"client":{"a":1}}'), 'object')
+check('JSON object body as dict', result == {'client': {'a': 1}}, repr(result))
+
 del client
 sys.exit(1 if check.failed else 0)

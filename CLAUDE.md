@@ -75,6 +75,8 @@ Generator and runtime (`postprocess.py`, `api_client.py`, `configuration.py`):
   id objects can be path params; lazy ThreadPool.
 - Comma-separated strings for array (`multi`) params are sent as one value (wrappers pass
   `','.join(ids)`; the generator iterated the string char by char).
+- Plain-text bodies of `str` responses are decoded (4.3 and the generator returned `"b'...'"`);
+  undecodable (binary) bodies are returned as bytes.
 - Not ported on purpose: 4.3 models_ce/models_pe lookup, `{?...}` path templates, Deferred* handling
   (none in 4.4), `return e` on deserialization errors (see Q4).
 
@@ -115,9 +117,24 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
   (-> getAssetProfileNames), `get_device_types` (-> getDeviceProfileNames),
   `find_available_entity_keys_by_query` (-> `POST /api/v2/entitiesQuery/find/keys`),
   `save_resource`, `get_resource_by_id`. Proposal: a WARN in check_wrappers, then decide on switching.
-- **Q3. JSON responses typed as `string` in the spec** (43 ops, e.g. `get_device_attributes`,
-  `get_persisted_rpc_by_device`): the client then returns a Python repr string of the JSON. Needs a
-  fix approach (e.g. postprocess response_type to `object`) and a check on a live server.
+- **Q3. Responses typed as `string` in the spec** (43 ops). Checked on the server (GETs with
+  `probes/string_responses.json`; writes on a temporary device that was deleted afterwards):
+  - empty body (200, no Content-Type): telemetry/attribute save and delete (8), device API
+    `postTelemetry`, `postDeviceAttributes`, `replyToCommand`, `saveClaimingInfo` -> `None`;
+  - JSON object: `getPersistedRpcByDevice`, `getDeviceAttributes`, `findMissingToRelatedRuleChains`,
+    `provisionDevice` (errors too: 200 `{"status":"NOT_FOUND"}`) -> `object`;
+  - JSON only when a device or rule answers, else 408/504/409 with an empty body:
+    `subscribeTo{Attributes,Commands}`, device API `postRpcRequest`, two-way RPC v1/v2, rule-engine
+    (4) -> `object` (200 not seen, no device connected);
+  - JSON string: `getLoginProcessingUrl`, `getMailProcessingUrl` -> `str` (already works);
+  - plain text or empty: `getHelpBaseUrl`, `getLatestAgentImageRef`, `getPrivacyPolicy`,
+    `getTermsOfUse` -> `str` (works since the decode fix);
+  - binary: `getFirmware`, `getSoftware` and the 8 `download_*` wrappers -> `bytes`;
+  - not determined (500/404/409/400 on test data): edge missing attributes (2),
+    `getAgentUpgradeTarget`, one-way RPC, `activateEmail`, `mobileLogin`, `syncEdge`,
+    `claimDevice`/`reClaimDevice`: decide from the ThingsBoard controller code.
+  Done: decode fix (step 1). Next: step 2, an op -> type table in `postprocess.py` (wrapper
+  annotations `Dict` / `None`); step 3, binary responses as `bytes`.
 - **Q4. Deserialization errors.** 4.3 returned the exception object instead of raising. Not
   ported: currently raises (e.g. when the server returns null in a field the spec marks required).
   Decide: raise, or log a warning and return the raw dict.
