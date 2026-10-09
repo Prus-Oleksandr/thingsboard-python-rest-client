@@ -220,6 +220,10 @@ class ApiClient(object):
             obj_dict = {obj.attribute_map[attr]: getattr(obj, attr)
                         for attr, _ in six.iteritems(obj.swagger_types)
                         if getattr(obj, attr) is not None}
+            # fields the model does not have, kept from the server answer (see __deserialize_model)
+            for key, val in six.iteritems(getattr(obj, 'additional_properties', None) or {}):
+                if key not in obj_dict and val is not None:
+                    obj_dict[key] = val
 
         return {key: self.sanitize_for_serialization(val)
                 for key, val in six.iteritems(obj_dict)}
@@ -655,5 +659,12 @@ class ApiClient(object):
         if self.__hasattr(instance, 'get_real_child_model'):
             klass_name = instance.get_real_child_model(data)
             if klass_name:
-                instance = self.__deserialize(data, klass_name)
+                return self.__deserialize(data, klass_name)
+        # fields the server sends that the spec, and so the model, does not have (externalId, the fields
+        # of NotificationInfo subtypes, ...): kept on the object and sent back by sanitize_for_serialization
+        if isinstance(data, dict) and not isinstance(instance, dict):
+            known = set(klass.attribute_map.values())
+            extra = {key: value for key, value in six.iteritems(data) if key not in known}
+            if extra:
+                instance.additional_properties = extra
         return instance

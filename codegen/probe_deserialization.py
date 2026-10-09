@@ -1,7 +1,7 @@
 """Deserializes real responses of a ThingsBoard server with the generated client to find models that
 do not accept what the server sends (e.g. null in a field the spec marks required), fields the server
-sends that a model drops (not in the spec), and polymorphic objects left as their base class because
-the discriminator value is not in the map.
+sends that the spec does not have (kept in `additional_properties`; any field dropped is an error), and
+polymorphic objects left as their base class because the discriminator value is not in the map.
 
 Usage: python3 codegen/probe_deserialization.py [package_parent_dir]   (default: draft)
 
@@ -55,8 +55,10 @@ for f in sorted(glob.glob(os.path.join(package_dir, 'api', '*_api.py'))):
 calls = ok = http_errors = models = 0
 errors = []
 ids = {}  # entity type -> ids seen in the answers
-dropped = collections.defaultdict(collections.Counter)  # model -> JSON field the model does not have -> count
-unresolved = collections.Counter()  # (base model, discriminator value) -> count
+not_in_spec = collections.defaultdict(collections.Counter)  # model -> JSON field the model does not have -> count
+dropped = collections.defaultdict(collections.Counter)  # the same, but not kept in additional_properties
+unresolved = collections.Counter()  # (base model, discriminator value) -> count: a subclass exists but was not found
+no_subtypes = collections.Counter()  # the same for bases whose subtypes the spec does not describe (NotificationInfo)
 deserialize_model = ApiClient._ApiClient__deserialize_model
 
 
@@ -64,10 +66,14 @@ def watched_deserialize_model(self, data, klass):
     result = deserialize_model(self, data, klass)
     cls = type(result)
     if isinstance(data, dict) and hasattr(cls, 'attribute_map'):
+        kept = getattr(result, 'additional_properties', None) or {}
         for field in set(data) - set(cls.attribute_map.values()):
-            dropped[cls.__name__][field] += 1
+            not_in_spec[cls.__name__][field] += 1
+            if field not in kept:
+                dropped[cls.__name__][field] += 1
         if cls.__dict__.get('discriminator_value_class_map') is not None and getattr(result, 'discriminator', None):
-            unresolved[(cls.__name__, data.get(result.discriminator))] += 1
+            (unresolved if cls.discriminator_value_class_map else no_subtypes)[
+                (cls.__name__, data.get(result.discriminator))] += 1
     return result
 
 
@@ -124,10 +130,17 @@ print('%d calls: %d deserialized (%d models), %d HTTP errors (403/404/... not ch
 print('entity types seen: %s' % ', '.join('%s %d' % (k, len(v)) for k, v in sorted(ids.items())))
 for e in errors:
     print('  ' + e)
+print('%d models get fields the spec does not have (kept in additional_properties):' % len(not_in_spec))
+for name, fields in sorted(not_in_spec.items()):
+    print('  %-44s %s' % (name, ', '.join('%s (%d)' % kv for kv in sorted(fields.items()))))
 print('%d models drop fields the server sends:' % len(dropped))
 for name, fields in sorted(dropped.items()):
     print('  %-44s %s' % (name, ', '.join('%s (%d)' % kv for kv in sorted(fields.items()))))
 print('%d polymorphic objects left as their base class:' % sum(unresolved.values()))
 for (name, value), n in sorted(unresolved.items(), key=str):
+    print('  %-44s discriminator %r (%d)' % (name, value, n))
+print('%d objects of a base without subtypes in the spec (their fields are in additional_properties):'
+      % sum(no_subtypes.values()))
+for (name, value), n in sorted(no_subtypes.items(), key=str):
     print('  %-44s discriminator %r (%d)' % (name, value, n))
 sys.exit(1 if errors or dropped or unresolved else 0)

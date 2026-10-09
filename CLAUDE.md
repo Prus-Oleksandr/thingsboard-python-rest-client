@@ -138,6 +138,14 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
 - `rest.py` sent `'{}'` for a JSON request without a body (also in 4.3); now it sends none (an
   optional body has a meaning, e.g. mergeAgentApplicationForPreview creates from the template).
 - `AgentApplication.agentId` in `NULLABLE_REQUIRED_FIELDS` (null in a merge preview).
+- Q10: fields the server sends that the spec (so the model) does not have are kept on the object in
+  `additional_properties` (JSON names, only when there are any) and sent back by
+  `sanitize_for_serialization` (None left out, like known fields). Before (4.3 and every version since
+  3.6) they were dropped silently: `externalId` (hidden in the spec since 3.5; hand-added to ~13
+  models in 2023, wiped by the 3.6 regeneration), the fields of `NotificationInfo` subtypes (entityId,
+  entityName, actionType, user...), the tenant fields of `get_owners`, `DeviceProfileData.alarms`.
+  Not in `to_dict()`/`print`; `external_id` is not a typed attribute (user's choice: only option 1).
+  `probe_deserialization.py` fails if any field is dropped.
 - Q8 (generator limitations, fixed by hand in the draft and checked on a 4.4 server; the generator
   is treated as a draft, the client result is what counts):
   - Discriminators without a mapping in the spec (`AgentAppConfig`, `AgentAppStep`,
@@ -207,12 +215,6 @@ the same for `is_public` in `update_image_public_status`. All of them:
     `claimDevice`/`reClaimDevice`: decide from the ThingsBoard controller code.
   Done, see Done above. The 9 ops typed from the spec descriptions can be confirmed on a server
   with an edge, an agent, claiming or a connected device.
-- **Q10. Fields the server sends that the models drop** (`probe_deserialization.py`; 4.3 dropped them
-  too): `externalId` (hidden in the spec; 17 models seen, null on the test server but set for entities
-  imported by version control, and lost on get -> save), `NotificationInfo` subtypes (the spec has
-  only the base; 12 fields such as entityId, entityName, userEmail are lost), `ContactBasedObject`
-  (owners are Tenant/Customer: region, title, ...), `DeviceProfileData.alarms` (gone from the spec,
-  the server sends null). Proposal: keep unknown fields on the model and send them back.
 - **Q9. License header.** 4.3 files had the Apache header; generated files do not.
 
 ## Remaining work to the final result

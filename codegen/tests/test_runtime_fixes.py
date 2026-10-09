@@ -2,6 +2,7 @@
 
 Usage: python3 codegen/tests/test_runtime_fixes.py [package_parent_dir]   (default: draft)
 """
+import json
 import os
 import sys
 
@@ -95,6 +96,28 @@ try:
           and result.rule_chain_id.id == '784f394c-42b6-435a-983c-b7beff2784f9', repr(result.rule_chain_id))
 except ValueError as e:
     check('null in a nullable required field', False, e)
+
+# fields the server sends that the model does not have are kept and sent back
+info = {'type': 'org.thingsboard.server.common.data.notification.info.EntityActionNotificationInfo',
+        'stateEntityId': {'entityType': 'DEVICE', 'id': '784f394c-42b6-435a-983c-b7beff2784f9'},
+        'entityName': 'Thermostat', 'actionType': 'ADDED', 'affectedUserId': None}
+notification = client.deserialize(Body(json.dumps({'subject': 's', 'info': info}).encode()), 'Notification')
+kept = getattr(notification.info, 'additional_properties', None)
+check('unknown fields kept on the object', kept == {'entityName': 'Thermostat', 'actionType': 'ADDED', 'affectedUserId': None},
+      kept)
+check('known fields still typed', type(notification.info.state_entity_id).__name__ == 'DeviceId',
+      type(notification.info.state_entity_id).__name__)
+back = client.sanitize_for_serialization(notification)
+check('unknown fields sent back, nulls left out', back['info'] == {k: v for k, v in info.items() if v is not None}, back['info'])
+device = client.deserialize(Body(b'{"name": "d", "type": "default", "externalId": {"entityType": "DEVICE", '
+                                 b'"id": "784f394c-42b6-435a-983c-b7beff2784f9"}}'), 'Device')
+check('externalId kept through get -> save', client.sanitize_for_serialization(device).get('externalId') ==
+      {'entityType': 'DEVICE', 'id': '784f394c-42b6-435a-983c-b7beff2784f9'}, getattr(device, 'additional_properties', None))
+plain = client.deserialize(Body(b'{"name": "d", "type": "default"}'), 'Device')
+check('no attribute when nothing is unknown', not hasattr(plain, 'additional_properties'), plain.__dict__.keys())
+step = client.deserialize(Body(b'{"type": "COMPOSE", "title": "t", "futureField": 1}'), 'AgentAppStep')
+check('unknown fields kept on a resolved subclass', type(step).__name__ == 'ComposeStep'
+      and getattr(step, 'additional_properties', None) == {'futureField': 1}, getattr(step, 'additional_properties', None))
 
 # rest.py: a JSON request without a body sends none (the generator sent '{}')
 from tb_rest_client.rest import RESTClientObject
