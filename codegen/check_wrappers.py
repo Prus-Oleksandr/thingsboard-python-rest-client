@@ -328,7 +328,9 @@ for call in calls:
     if (old['response_type'] or 'None') != (new['response_type'] or 'None'):
         issue('WARN', 'response type changed', old['response_type'], new['response_type'])
 
-    # ---------- the wrapper against the spec of the new op ----------
+    # ---------- the wrapper against the spec of the new op (private helpers are not checked) ----------
+    if call['wrapper'].split('.')[-1].startswith('_'):
+        continue
     spec_op = spec['paths'].get(new['path'], {}).get(new['http_method'].lower(), {})
     if spec_op.get('deprecated'):
         issue('WARN', 'calls an operation deprecated in the spec', entry['new'], '%s %s' % (new['http_method'], new['path']))

@@ -301,9 +301,11 @@ class RestClient(Thread):
         rule_chain_id = self.get_id(rule_chain_id)
         return self.rule_chain_controller.get_rule_chain_by_id(rule_chain_id=rule_chain_id)
 
-    def test_script(self, body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None) -> Union[
+    def test_script(self, body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None,
+                    script_lang: Optional[str] = None) -> Union[
             dict, str, list, bytes, None, RESTResponse, tuple, Any]:
-        return self.rule_chain_controller.test_rule_chain_script(body=body)
+        return self.rule_chain_controller.test_rule_chain_script(body=body,
+                                                                 script_lang=script_lang)
 
     def save_rule_chain_v1(self, body: Optional[RuleChain] = None) -> RuleChain:
         return self.rule_chain_controller.save_rule_chain(body=body)
@@ -420,19 +422,23 @@ class RestClient(Thread):
     def get_timeseries(self, entity_id: EntityId, keys: str, start_ts: int, end_ts: int,
                        interval_type: Optional[str] = None, interval: Optional[int] = None,
                        time_zone: Optional[str] = None, limit: Optional[int] = None, agg: Optional[str] = None,
-                       order_by: Optional[str] = None, use_strict_data_types: Optional[bool] = None):
+                       order_by: Optional[str] = None, use_strict_data_types: Optional[bool] = None,
+                       key: Optional[List[str]] = None):
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.get_timeseries_history(entity_type=entity_type, entity_id=entity_id,
                                                                 keys=keys, start_ts=start_ts, end_ts=end_ts,
                                                                 interval=interval, limit=limit, agg=agg,
                                                                 order_by=order_by, interval_type=interval_type,
-                                                                use_strict_data_types=use_strict_data_types, time_zone=time_zone)
+                                                                use_strict_data_types=use_strict_data_types, time_zone=time_zone,
+                                                                key=key)
 
-    def delete_device_attributes(self, device_id: DeviceId, scope: str, keys: str) -> None:
+    def delete_device_attributes(self, device_id: DeviceId, scope: str, keys: str,
+                                 key: Optional[List[str]] = None) -> None:
         device_id = self.get_id(device_id)
         return self.telemetry_controller.delete_device_attributes(device_id=device_id, scope=scope,
-                                                                  keys=keys)
+                                                                  keys=keys,
+                                                                  key=key)
 
     def save_entity_attributes_v1(self, entity_id: EntityId, scope: str,
                                   body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None) -> None:
@@ -445,7 +451,8 @@ class RestClient(Thread):
     def delete_entity_timeseries(self, entity_id: EntityId, keys: str, delete_all_data_for_keys: Optional[bool] = None,
                                  start_ts: Optional[int] = None, end_ts: Optional[int] = None,
                                  delete_latest: Optional[bool] = None,
-                                 rewrite_latest_if_deleted: Optional[bool] = None) -> None:
+                                 rewrite_latest_if_deleted: Optional[bool] = None,
+                                 key: Optional[List[str]] = None) -> None:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.delete_entity_timeseries(entity_type=entity_type,
@@ -453,7 +460,8 @@ class RestClient(Thread):
                                                                   delete_all_data_for_keys=delete_all_data_for_keys,
                                                                   start_ts=start_ts, end_ts=end_ts,
                                                                   delete_latest=delete_latest,
-                                                                  rewrite_latest_if_deleted=rewrite_latest_if_deleted)
+                                                                  rewrite_latest_if_deleted=rewrite_latest_if_deleted,
+                                                                  key=key)
 
     def save_device_attributes(self, device_id: DeviceId, scope: str,
                                body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None) -> None:
@@ -461,12 +469,14 @@ class RestClient(Thread):
         return self.telemetry_controller.save_device_attributes(device_id=device_id, scope=scope, body=body)
 
     def get_latest_timeseries(self, entity_id: EntityId, keys: Optional[str] = None,
-                              use_strict_data_types: Optional[bool] = None):
+                              use_strict_data_types: Optional[bool] = None,
+                              key: Optional[List[str]] = None):
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.get_latest_timeseries(entity_type=entity_type, entity_id=entity_id,
                                                                keys=keys,
-                                                               use_strict_data_types=use_strict_data_types)
+                                                               use_strict_data_types=use_strict_data_types,
+                                                               key=key)
 
     def get_timeseries_keys_v1(self, entity_id: EntityId):
         entity_type = self.get_type(entity_id)
@@ -474,11 +484,13 @@ class RestClient(Thread):
         return self.telemetry_controller.get_timeseries_keys(entity_type=entity_type, entity_id=entity_id)
 
     def get_attributes_by_scope(self, entity_id: EntityId, scope: str,
-                                keys: Optional[str] = None):
+                                keys: Optional[str] = None,
+                                key: Optional[List[str]] = None):
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.get_attributes_by_scope(entity_type=entity_type, entity_id=entity_id,
-                                                                 scope=scope, keys=keys)
+                                                                 scope=scope, keys=keys,
+                                                                 key=key)
 
     def get_attribute_keys(self, entity_id: EntityId):
         entity_type = self.get_type(entity_id)
@@ -509,18 +521,22 @@ class RestClient(Thread):
                                                                         entity_id=entity_id, scope=scope,
                                                                         ttl=ttl, body=body)
 
-    def get_attributes(self, entity_id: EntityId, keys: Optional[str] = None):
+    def get_attributes(self, entity_id: EntityId, keys: Optional[str] = None,
+                       key: Optional[List[str]] = None):
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.get_attributes(entity_type=entity_type, entity_id=entity_id,
-                                                        keys=keys)
+                                                        keys=keys,
+                                                        key=key)
 
-    def delete_entity_attributes(self, entity_id: EntityId, scope: str, keys: str) -> None:
+    def delete_entity_attributes(self, entity_id: EntityId, scope: str, keys: str,
+                                 key: Optional[List[str]] = None) -> None:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.delete_entity_attributes(entity_type=entity_type,
                                                                   entity_id=entity_id, scope=scope,
-                                                                  keys=keys)
+                                                                  keys=keys,
+                                                                  key=key)
 
     # Alarm Controller
     def ack_alarm(self, alarm_id: AlarmId) -> AlarmInfo:
@@ -658,12 +674,14 @@ class RestClient(Thread):
                        text_search: Optional[str] = None,
                        sort_property: Optional[str] = None, sort_order: Optional[str] = None, start_time: Optional[int] = None,
                        end_time: Optional[int] = None,
-                       fetch_originator: Optional[bool] = None) -> PageDataAlarmInfo:
+                       fetch_originator: Optional[bool] = None,
+                       assignee_id: Optional[str] = None) -> PageDataAlarmInfo:
         return self.alarm_controller.get_all_alarms(page_size=page_size, page=page,
                                                     search_status=search_status, status=status,
                                                     text_search=text_search, sort_property=sort_property,
                                                     sort_order=sort_order, start_time=start_time,
-                                                    end_time=end_time, fetch_originator=fetch_originator)
+                                                    end_time=end_time, fetch_originator=fetch_originator,
+                                                    assignee_id=assignee_id)
 
     # Alarm Comment Controller
     def delete_alarm_comment(self, alarm_id: AlarmId, comment_id: AlarmCommentId):
@@ -1126,10 +1144,12 @@ class RestClient(Thread):
         return self.tb_resource_controller.save_resource(body=body)
 
     def get_resources(self, page_size: int, page: int, text_search: Optional[str] = None, sort_property: Optional[str] = None,
-                      sort_order: Optional[str] = None) -> PageDataTbResourceInfo:
+                      sort_order: Optional[str] = None,
+                      resource_type: Optional[List[str]] = None, resource_sub_type: Optional[str] = None) -> PageDataTbResourceInfo:
         return self.tb_resource_controller.get_resources(page_size=page_size, page=page,
                                                          text_search=text_search, sort_property=sort_property,
-                                                         sort_order=sort_order)
+                                                         sort_order=sort_order,
+                                                         resource_type=resource_type, resource_sub_type=resource_sub_type)
 
     def get_lwm2m_list_objects(self, sort_order: str, sort_property: str, object_ids: list) -> List[LwM2mObject]:
         return self.tb_resource_controller.get_lwm2m_list_objects(sort_order=sort_order,
@@ -1306,13 +1326,15 @@ class RestClient(Thread):
     def get_widgets_bundles_v1(self, page_size: int, page: int, text_search: Optional[str] = None,
                                sort_property: Optional[str] = None, sort_order: Optional[str] = None,
                                tenant_only: Optional[bool] = None,
-                               full_search: Optional[bool] = None) -> PageDataWidgetsBundle:
+                               full_search: Optional[bool] = None,
+                               scada_first: Optional[bool] = None) -> PageDataWidgetsBundle:
         return self.widgets_bundle_controller.get_widgets_bundles(page_size=page_size, page=page,
                                                                   text_search=text_search,
                                                                   sort_property=sort_property,
                                                                   sort_order=sort_order,
                                                                   tenant_only=tenant_only,
-                                                                  full_search=full_search)
+                                                                  full_search=full_search,
+                                                                  scada_first=scada_first)
 
     def delete_widgets_bundle(self, widgets_bundle_id: WidgetsBundleId) -> None:
         widgets_bundle_id = self.get_id(widgets_bundle_id)
@@ -1395,8 +1417,8 @@ class RestClient(Thread):
         dashboard_id = self.get_id(dashboard_id)
         return self.dashboard_controller.get_dashboard_info_by_id(dashboard_id=dashboard_id)
 
-    def get_home_dashboard(self, ) -> HomeDashboard:
-        return self.dashboard_controller.get_home_dashboard()
+    def get_home_dashboard(self, accept_encoding: Optional[str] = None) -> HomeDashboard:
+        return self.dashboard_controller.get_home_dashboard(accept_encoding=accept_encoding)
 
     def set_tenant_home_dashboard_info(self, body: Optional[HomeDashboardInfo] = None) -> None:
         return self.dashboard_controller.set_tenant_home_dashboard_info(body=body)
@@ -1476,7 +1498,8 @@ class RestClient(Thread):
                          text_search: Optional[str] = None,
                          sort_property: Optional[str] = None, sort_order: Optional[str] = None,
                          tenant_only: Optional[bool] = None, full_search: Optional[bool] = None,
-                         deprecated_filter: Optional[str] = None, widget_type_list: Optional[List[str]] = None):
+                         deprecated_filter: Optional[str] = None, widget_type_list: Optional[List[str]] = None,
+                         scada_first: Optional[bool] = None):
         if widget_type_list:
             widget_type_list = ','.join(widget_type_list)
         return self.widget_type_controller.get_widget_types(page_size=page_size, page=page,
@@ -1485,7 +1508,8 @@ class RestClient(Thread):
                                                             sort_order=sort_order, tenant_only=tenant_only,
                                                             full_search=full_search,
                                                             deprecated_filter=deprecated_filter,
-                                                            widget_type_list=widget_type_list)
+                                                            widget_type_list=widget_type_list,
+                                                            scada_first=scada_first)
 
     def get_widget_type_info_by_id(self, widget_type_id: WidgetTypeId) -> WidgetTypeInfo:
         widget_type_id = self.get_id(widget_type_id)
@@ -1597,10 +1621,12 @@ class RestClient(Thread):
 
     def save_device_with_credentials(self, body: Optional[SaveDeviceWithCredentialsRequest] = None,
                                      entity_group_id: Optional[str] = None,
-                                     entity_group_ids: Optional[str] = None) -> Device:
+                                     entity_group_ids: Optional[str] = None,
+                                     name_conflict_policy: Optional[str] = None, uniquify_separator: Optional[str] = None, uniquify_strategy: Optional[str] = None) -> Device:
         return self.device_controller.save_device_with_credentials(body=body,
                                                                    entity_group_id=entity_group_id,
-                                                                   entity_group_ids=entity_group_ids)
+                                                                   entity_group_ids=entity_group_ids,
+                                                                   name_conflict_policy=name_conflict_policy, uniquify_separator=uniquify_separator, uniquify_strategy=uniquify_strategy)
 
     # Component Descriptor Controller
     def get_component_descriptors_by_type(self, component_type: str, rule_chain_type: Optional[str] = None) -> List[
@@ -1629,10 +1655,12 @@ class RestClient(Thread):
         return self.device_api_controller.subscribe_to_commands(device_token=device_token, timeout=timeout)
 
     def get_device_attributes(self, device_token: str, client_keys: str,
-                              shared_keys: str) -> Dict:
+                              shared_keys: str,
+                              all_client_keys: Optional[bool] = None, all_shared_keys: Optional[bool] = None) -> Dict:
         return self.device_api_controller.get_device_attributes(device_token=device_token,
                                                                 client_keys=client_keys,
-                                                                shared_keys=shared_keys)
+                                                                shared_keys=shared_keys,
+                                                                all_client_keys=all_client_keys, all_shared_keys=all_shared_keys)
 
     def get_firmware(self, device_token: str, title: str, version: str, size: Optional[int] = None,
                      chunk: Optional[int] = None) -> bytes:
@@ -1745,21 +1773,25 @@ class RestClient(Thread):
 
     def list_entity_versions(self, entity_type: str, external_entity_uuid: str, branch: str, page_size: int, page: int,
                              text_search: Optional[str] = None, sort_property: Optional[str] = None,
-                             sort_order: Optional[str] = None):
+                             sort_order: Optional[str] = None,
+                             internal_entity_id: Optional[str] = None):
         return self.entities_version_control_controller.list_entity_versions(entity_type=entity_type,
                                                                              external_entity_uuid=external_entity_uuid,
                                                                              branch=branch,
                                                                              page_size=page_size, page=page,
                                                                              text_search=text_search,
                                                                              sort_property=sort_property,
-                                                                             sort_order=sort_order)
+                                                                             sort_order=sort_order,
+                                                                             internal_entity_id=internal_entity_id)
 
-    def get_entity_data_info(self, version_id: str, entity_id: EntityId):
+    def get_entity_data_info(self, version_id: str, entity_id: EntityId,
+                             internal_entity_id: Optional[str] = None):
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.entities_version_control_controller.get_entity_data_info(version_id=version_id,
                                                                              entity_type=entity_type,
-                                                                             external_entity_uuid=entity_id)
+                                                                             external_entity_uuid=entity_id,
+                                                                             internal_entity_id=internal_entity_id)
 
     def get_version_create_request_status(self, request_id: str) -> VersionCreationResult:
         return self.entities_version_control_controller.get_version_create_request_status(
@@ -1892,18 +1924,21 @@ class RestClient(Thread):
 
     def get_notifications(self, page_size: int, page: int, text_search: Optional[str] = None,
                           sort_property: Optional[str] = None,
-                          sort_order: Optional[str] = None, delivery_method: Optional[str] = None) -> PageDataNotification:
+                          sort_order: Optional[str] = None, delivery_method: Optional[str] = None,
+                          unread_only: Optional[bool] = None) -> PageDataNotification:
         return self.notification_controller.get_notifications(page_size=page_size, page=page,
                                                               text_search=text_search,
                                                               sort_property=sort_property,
                                                               sort_order=sort_order,
-                                                              delivery_method=delivery_method)
+                                                              delivery_method=delivery_method,
+                                                              unread_only=unread_only)
 
     def get_unread_notifications_count(self, delivery_method: Optional[str] = None) -> int:
         return self.notification_controller.get_unread_notifications_count(delivery_method=delivery_method)
 
-    def mark_all_notifications_as_read(self):
-        return self.notification_controller.mark_all_notifications_as_read()
+    def mark_all_notifications_as_read(self,
+                                       delivery_method: Optional[str] = None):
+        return self.notification_controller.mark_all_notifications_as_read(delivery_method=delivery_method)
 
     def mark_notification_as_read(self, id: str):
         return self.notification_controller.mark_notification_as_read(id=id)
@@ -1917,8 +1952,10 @@ class RestClient(Thread):
     def save_user_notification_settings(self, body: UserNotificationSettings) -> UserNotificationSettings:
         return self.notification_controller.save_user_notification_settings(body=body)
 
-    def send_entities_limit_increase_request(self, entity_type: str):
-        return self.notification_controller.send_entities_limit_increase_request(entity_type=entity_type)
+    def send_entities_limit_increase_request(self, entity_type: str,
+                                             subscription_violation: Optional[bool] = None):
+        return self.notification_controller.send_entities_limit_increase_request(entity_type=entity_type,
+                                                                                 subscription_violation=subscription_violation)
 
     def delete_notification_rule(self, id: str):
         return self.notification_rule_controller.delete_notification_rule(id=id)
@@ -1980,12 +2017,14 @@ class RestClient(Thread):
 
     def get_notification_templates(self, page_size: int, page: int, text_search: Optional[str] = None,
                                    sort_property: Optional[str] = None,
-                                   sort_order: Optional[str] = None) -> PageDataNotificationTemplate:
+                                   sort_order: Optional[str] = None,
+                                   notification_types: Optional[List[str]] = None) -> PageDataNotificationTemplate:
         return self.notification_template_controller.get_notification_templates(page_size=page_size,
                                                                                 page=page,
                                                                                 text_search=text_search,
                                                                                 sort_property=sort_property,
-                                                                                sort_order=sort_order)
+                                                                                sort_order=sort_order,
+                                                                                notification_types=notification_types)
 
     def list_slack_conversations(self, type: str, token: Optional[str] = None) -> List[SlackConversation]:
         return self.notification_template_controller.list_slack_conversations(type=type, token=token)
@@ -2017,12 +2056,16 @@ class RestClient(Thread):
         return self.image_controller.download_image_preview(type=type, key=key, if_none_match=if_none_match,
                                                             accept_encoding=accept_encoding)
 
-    def download_image(self, _type: str, key: str, if_none_match: Optional[str] = '') -> bytes:
-        return self.image_controller.download_image(type=_type, key=key, if_none_match=if_none_match)
+    def download_image(self, _type: str, key: str, if_none_match: Optional[str] = '',
+                       accept_encoding: Optional[str] = None) -> bytes:
+        return self.image_controller.download_image(type=_type, key=key, if_none_match=if_none_match,
+                                                    accept_encoding=accept_encoding)
 
-    def download_public_image(self, public_resource_key: str, if_none_match: Optional[str] = '') -> bytes:
+    def download_public_image(self, public_resource_key: str, if_none_match: Optional[str] = '',
+                              accept_encoding: Optional[str] = None) -> bytes:
         return self.image_controller.download_public_image(public_resource_key=public_resource_key,
-                                                           if_none_match=if_none_match)
+                                                           if_none_match=if_none_match,
+                                                           accept_encoding=accept_encoding)
 
     def export_image(self, _type: str, key: str) -> ResourceExportData:
         return self.image_controller.export_image(type=_type, key=key)
@@ -2033,10 +2076,12 @@ class RestClient(Thread):
     def get_images(self, page_size: int, page: int, text_search: Optional[str] = None,
                    include_system_images: Optional[bool] = None,
                    sort_property: Optional[str] = None,
-                   sort_order: Optional[str] = None) -> PageDataTbResourceInfo:
+                   sort_order: Optional[str] = None,
+                   image_sub_type: Optional[str] = None) -> PageDataTbResourceInfo:
         return self.image_controller.get_images(page_size=page_size, page=page, text_search=text_search,
                                                 include_system_images=include_system_images,
-                                                sort_order=sort_order, sort_property=sort_property)
+                                                sort_order=sort_order, sort_property=sort_property,
+                                                image_sub_type=image_sub_type)
 
     def import_image(self, body: ResourceExportData) -> TbResourceInfo:
         return self.image_controller.import_image(body=body)
@@ -2050,8 +2095,10 @@ class RestClient(Thread):
     def update_image(self, _type: str, key: str, file: str) -> TbResourceInfo:
         return self.image_controller.update_image(type=_type, key=key, file=file)
 
-    def upload_image(self, title: str, file: str) -> TbResourceInfo:
-        return self.image_controller.upload_image(title=title, file=file)
+    def upload_image(self, title: str, file: str,
+                     image_sub_type: Optional[str] = None) -> TbResourceInfo:
+        return self.image_controller.upload_image(title=title, file=file,
+                                                  image_sub_type=image_sub_type)
 
     def get_asset_profile_by_id(self, asset_profile_id: str, inline_images: Optional[bool] = None) -> AssetProfile:
         return self.asset_profile_controller.get_asset_profile_by_id(asset_profile_id=asset_profile_id,
@@ -2136,11 +2183,13 @@ class RestClient(Thread):
 
     def get_tenant_mobile_app_infos(self, page_size: int, page: int, text_search: Optional[str] = None,
                                     sort_property: Optional[str] = None,
-                                    sort_order: Optional[str] = None) -> PageDataMobileApp:
+                                    sort_order: Optional[str] = None,
+                                    platform_type: Optional[str] = None) -> PageDataMobileApp:
         return self.mobile_app_controller.get_tenant_mobile_apps(page_size=page_size, page=page,
                                                                  text_search=text_search,
                                                                  sort_property=sort_property,
-                                                                 sort_order=sort_order)
+                                                                 sort_order=sort_order,
+                                                                 platform_type=platform_type)
 
     def save_mobile_app(self, body: MobileApp) -> MobileApp:
         return self.mobile_app_controller.save_mobile_app(body=body)
@@ -2154,11 +2203,13 @@ class RestClient(Thread):
 
     def get_tenant_mobile_apps(self, page_size: int, page: int, text_search: Optional[str] = None,
                                sort_property: Optional[str] = None,
-                               sort_order: Optional[str] = None) -> PageDataMobileApp:
+                               sort_order: Optional[str] = None,
+                               platform_type: Optional[str] = None) -> PageDataMobileApp:
         return self.mobile_app_controller.get_tenant_mobile_apps(page_size=page_size, page=page,
                                                                  text_search=text_search,
                                                                  sort_property=sort_property,
-                                                                 sort_order=sort_order)
+                                                                 sort_order=sort_order,
+                                                                 platform_type=platform_type)
 
     def get_user_mobile_info(self, pkg_name: str, platform: str) -> UserMobileInfo:
         return self.mobile_app_controller.get_user_mobile_info(pkg_name=pkg_name, platform=platform)
@@ -2202,7 +2253,8 @@ class RestClient(Thread):
 
     def get_calculated_fields_by_entity_id(self, entity_id: EntityId, page_size: int, page: int,
                                            text_search: Optional[str] = None, sort_property: Optional[str] = None,
-                                           sort_order: Optional[str] = None) -> PageDataCalculatedField:
+                                           sort_order: Optional[str] = None,
+                                           type: Optional[str] = None) -> PageDataCalculatedField:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.calculated_field_controller.get_calculated_fields_by_entity_id(entity_id=entity_id,
@@ -2210,7 +2262,8 @@ class RestClient(Thread):
                                                                                    page_size=page_size, page=page,
                                                                                    text_search=text_search,
                                                                                    sort_property=sort_property,
-                                                                                   sort_order=sort_order)
+                                                                                   sort_order=sort_order,
+                                                                                   type=type)
 
     def get_latest_calculated_field_debug_event(self, calculated_field_id: CalculatedFieldId) -> JsonNode:
         calculated_field_id = self.get_id(calculated_field_id)
@@ -2243,10 +2296,12 @@ class RestClient(Thread):
         return self.job_controller.get_job_by_id(id=id)
 
     def get_jobs(self, page_size: int, page: int, text_search: Optional[str] = None, sort_property: Optional[str] = None,
-                        sort_order: Optional[str] = None, start_time: Optional[int] = None, end_time: Optional[int] = None):
+                        sort_order: Optional[str] = None, start_time: Optional[int] = None, end_time: Optional[int] = None,
+                 types: Optional[List[str]] = None, statuses: Optional[List[str]] = None, entities: Optional[List[str]] = None, include_customers: Optional[bool] = None):
         return self.job_controller.get_jobs(page_size=page_size, page=page, text_search=text_search,
                                             sort_property=sort_property, sort_order=sort_order,
-                                            start_time=start_time, end_time=end_time)
+                                            start_time=start_time, end_time=end_time,
+                                            types=types, statuses=statuses, entities=entities, include_customers=include_customers)
 
     def reprocess_job(self, id: JobId) -> None:
         id = self.get_id(id)
@@ -2397,10 +2452,12 @@ class RestClient(Thread):
     # Edge Controller
     def get_tenant_edge_infos(self, page_size: int, page: int, type: Optional[str] = None, text_search: Optional[str] = None,
                               sort_property: Optional[str] = None,
-                              sort_order: Optional[str] = None) -> PageDataEdgeInfo:
+                              sort_order: Optional[str] = None,
+                              include_customers: Optional[bool] = None) -> PageDataEdgeInfo:
         return self.edge_controller.get_all_edge_infos(page_size=page_size, page=page, type=type,
                                                        text_search=text_search,
-                                                       sort_property=sort_property, sort_order=sort_order)
+                                                       sort_property=sort_property, sort_order=sort_order,
+                                                       include_customers=include_customers)
 
     def get_edge_info_by_id(self, edge_id: EdgeId) -> EdgeInfo:
         edge_id = self.get_id(edge_id)
@@ -2408,12 +2465,14 @@ class RestClient(Thread):
 
     def get_customer_edge_infos(self, customer_id: CustomerId, page_size: int, page: int, type: Optional[str] = None,
                                 text_search: Optional[str] = None,
-                                sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataEdgeInfo:
+                                sort_property: Optional[str] = None, sort_order: Optional[str] = None,
+                                include_customers: Optional[bool] = None) -> PageDataEdgeInfo:
         customer_id = self.get_id(customer_id)
         return self.edge_controller.get_customer_edge_infos(customer_id=customer_id, page_size=page_size,
                                                             page=page, type=type, text_search=text_search,
                                                             sort_property=sort_property,
-                                                            sort_order=sort_order)
+                                                            sort_order=sort_order,
+                                                            include_customers=include_customers)
 
     def assign_edge_to_customer(self, customer_id: CustomerId, edge_id: EdgeId) -> Edge:
         self._assign_to_customer(customer_id, 'EDGE', edge_id)
@@ -2456,19 +2515,23 @@ class RestClient(Thread):
         return self.get_entity_view_by_id(entity_view_id)
 
     def get_tenant_entity_view_infos(self, page_size: int, page: int, type: Optional[str] = None, text_search: Optional[str] = None,
-                                     sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataEntityViewInfo:
+                                     sort_property: Optional[str] = None, sort_order: Optional[str] = None,
+                                     include_customers: Optional[bool] = None) -> PageDataEntityViewInfo:
         return self.entity_view_controller.get_all_entity_view_infos(page_size=page_size, page=page,
                                                                      type=type, text_search=text_search,
                                                                      sort_property=sort_property,
-                                                                     sort_order=sort_order)
+                                                                     sort_order=sort_order,
+                                                                     include_customers=include_customers)
 
     def unassign_entity_view_from_customer(self, entity_view_id: EntityViewId) -> EntityView:
         self._unassign_from_customer('ENTITY_VIEW', entity_view_id)
         return self.get_entity_view_by_id(entity_view_id)
 
-    def delete_resource_v1(self, resource_id: EntityId) -> TbResourceDeleteResult:
+    def delete_resource_v1(self, resource_id: EntityId,
+                           force: Optional[bool] = None) -> TbResourceDeleteResult:
         resource_id = self.get_id(resource_id)
-        return self.tb_resource_controller.delete_resource(resource_id=resource_id)
+        return self.tb_resource_controller.delete_resource(resource_id=resource_id,
+                                                           force=force)
 
     def get_device_profile_infos_by_ids(self, device_profile_ids: list[str]):
         device_profile_ids = ','.join(device_profile_ids)
@@ -2485,17 +2548,19 @@ class RestClient(Thread):
         return self.get_dashboard_by_id(dashboard_id)
 
     # Self Registration Controller
-    def get_privacy_policy(self, ) -> str:
-        return self.self_registration_controller.get_privacy_policy()
+    def get_privacy_policy(self, pkg_name: Optional[str] = None, platform: Optional[str] = None) -> str:
+        return self.self_registration_controller.get_privacy_policy(pkg_name=pkg_name, platform=platform)
 
     def get_self_registration_params(self, ) -> SelfRegistrationParams:
         return self.self_registration_controller.get_web_self_registration_params()
 
-    def get_sign_up_self_registration_params(self, pkg_name: Optional[str] = None) -> SignUpSelfRegistrationParams:
-        return self.self_registration_controller.get_sign_up_self_registration_params(pkg_name=pkg_name)
+    def get_sign_up_self_registration_params(self, pkg_name: Optional[str] = None,
+                                             platform_type: Optional[str] = None) -> SignUpSelfRegistrationParams:
+        return self.self_registration_controller.get_sign_up_self_registration_params(pkg_name=pkg_name,
+                                                                                      platform_type=platform_type)
 
-    def get_terms_of_use(self, ) -> str:
-        return self.self_registration_controller.get_terms_of_use()
+    def get_terms_of_use(self, pkg_name: Optional[str] = None, platform: Optional[str] = None) -> str:
+        return self.self_registration_controller.get_terms_of_use(pkg_name=pkg_name, platform=platform)
 
     def save_self_registration_params(self, body: Optional[SelfRegistrationParams] = None) -> SelfRegistrationParams:
         return self.self_registration_controller.save_web_self_registration_params(body=body)
@@ -2516,11 +2581,13 @@ class RestClient(Thread):
     def process_asset_bulk_import(self, body: Optional[BulkImportRequest] = None) -> BulkImportResultAsset:
         return self.asset_controller.process_asset_bulk_import(body=body)
 
-    def save_asset(self, body: Optional[Asset] = None, entity_group_id: EntityGroupId = None, entity_group_ids: Optional[str] = None):
+    def save_asset(self, body: Optional[Asset] = None, entity_group_id: EntityGroupId = None, entity_group_ids: Optional[str] = None,
+                   name_conflict_policy: Optional[str] = None, uniquify_separator: Optional[str] = None, uniquify_strategy: Optional[str] = None):
         entity_group_id = self.get_id(entity_group_id)
         if entity_group_ids:
             entity_group_ids = ','.join(entity_group_ids)
-        return self.asset_controller.save_asset(body=body, entity_group_id=entity_group_id, entity_group_ids=entity_group_ids)
+        return self.asset_controller.save_asset(body=body, entity_group_id=entity_group_id, entity_group_ids=entity_group_ids,
+                                                name_conflict_policy=name_conflict_policy, uniquify_separator=uniquify_separator, uniquify_strategy=uniquify_strategy)
 
     def get_all_customer_infos(self, page_size: int, page: int, include_customers: Optional[bool] = None,
                                text_search: Optional[str] = None, sort_property: Optional[str] = None,
@@ -2588,8 +2655,10 @@ class RestClient(Thread):
                                                    text_search=text_search, sort_property=sort_property,
                                                    sort_order=sort_order)
 
-    def save_edge(self, body: Optional[Edge] = None) -> Edge:
-        return self.edge_controller.save_edge(body=body)
+    def save_edge(self, body: Optional[Edge] = None,
+                  entity_group_id: Optional[str] = None, entity_group_ids: Optional[List[str]] = None) -> Edge:
+        return self.edge_controller.save_edge(body=body,
+                                              entity_group_id=entity_group_id, entity_group_ids=entity_group_ids)
 
     def get_allowed_permissions(self, ) -> AllowedPermissionsInfo:
         return self.user_permissions_controller.get_allowed_permissions()
@@ -2636,12 +2705,14 @@ class RestClient(Thread):
                                                                          sort_property=sort_property,
                                                                          sort_order=sort_order)
 
-    def save_customer(self, body: Optional[Customer] = None, entity_group_id: Optional[EntityGroupId] = None, entity_group_ids: Optional[List[str]] = None) -> Customer:
+    def save_customer(self, body: Optional[Customer] = None, entity_group_id: Optional[EntityGroupId] = None, entity_group_ids: Optional[List[str]] = None,
+                      name_conflict_policy: Optional[str] = None, uniquify_separator: Optional[str] = None, uniquify_strategy: Optional[str] = None) -> Customer:
         if entity_group_id:
             entity_group_id = self.get_id(entity_group_id)
         if entity_group_ids:
             entity_group_ids = ','.join(entity_group_ids)
-        return self.customer_controller.save_customer(body=body, entity_group_id=entity_group_id, entity_group_ids=entity_group_ids)
+        return self.customer_controller.save_customer(body=body, entity_group_id=entity_group_id, entity_group_ids=entity_group_ids,
+                                                      name_conflict_policy=name_conflict_policy, uniquify_separator=uniquify_separator, uniquify_strategy=uniquify_strategy)
 
     def get_user_users(self, page_size: int, page: int,text_search: Optional[str] = None, sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> PageDataUser:
         return self.user_controller.get_user_users(page_size=page_size, page=page, text_search=text_search,
@@ -2722,8 +2793,10 @@ class RestClient(Thread):
                                                        text_search=text_search, sort_property=sort_property,
                                                        sort_order=sort_order)
 
-    def save_device(self, body: Optional[Device], access_token: Optional[str] = None) -> Device:
-        return self.device_controller.save_device(body=body, access_token=access_token)
+    def save_device(self, body: Optional[Device], access_token: Optional[str] = None,
+                    entity_group_id: Optional[str] = None, entity_group_ids: Optional[List[str]] = None, name_conflict_policy: Optional[str] = None, uniquify_separator: Optional[str] = None, uniquify_strategy: Optional[str] = None) -> Device:
+        return self.device_controller.save_device(body=body, access_token=access_token,
+                                                  entity_group_id=entity_group_id, entity_group_ids=entity_group_ids, name_conflict_policy=name_conflict_policy, uniquify_separator=uniquify_separator, uniquify_strategy=uniquify_strategy)
 
     def count_by_device_group_and_empty_ota_package(self, ota_package_type: str, ota_package_id: OtaPackageId,
                                                     entity_group_id: EntityGroupId) -> int:
@@ -2746,13 +2819,16 @@ class RestClient(Thread):
 
     def get_converters(self, page_size: int, page: int, is_edge_template: Optional[bool] = None,
                        text_search: Optional[str] = None, sort_property: Optional[str] = None,
-                       sort_order: Optional[str] = None) -> PageDataConverter:
+                       sort_order: Optional[str] = None,
+                       integration_type: Optional[str] = None) -> PageDataConverter:
         return self.converter_controller.get_converters(page_size=page_size, page=page,
                                                         is_edge_template=is_edge_template,
                                                         text_search=text_search, sort_property=sort_property,
-                                                        sort_order=sort_order)
+                                                        sort_order=sort_order,
+                                                        integration_type=integration_type)
 
-    def get_latest_converter_debug_input(self, converter_id: ConverterId, integration: Optional[Integration] = None) -> \
+    def get_latest_converter_debug_input(self, converter_id: ConverterId, integration: Optional[Integration] = None,
+                                         converter_type: Optional[str] = None, converter_version: Optional[int] = None) -> \
     Union[
         dict, str, list, bytes, None, RESTResponse, tuple, Any]:
         converter_id = self.get_id(converter_id)
@@ -2765,7 +2841,8 @@ class RestClient(Thread):
 
         return self.converter_controller.get_latest_converter_debug_input(converter_id=converter_id,
                                                                           integration_type=integration_type,
-                                                                          integration_name=integration_name)
+                                                                          integration_name=integration_name,
+                                                                          converter_type=converter_type, converter_version=converter_version)
 
     def assign_integration_to_edge(self, edge_id: EdgeId, integration_id: IntegrationId) -> Integration:
         edge_id = self.get_id(edge_id)
@@ -2839,12 +2916,14 @@ class RestClient(Thread):
             sort_property=sort_property, sort_order=sort_order)
 
     def save_entity_view(self, body: Optional[EntityView] = None, entity_group_id: Optional[EntityGroupId] = None,
-                         entity_group_ids: Optional[List[str]] = None) -> EntityView:
+                         entity_group_ids: Optional[List[str]] = None,
+                         name_conflict_policy: Optional[str] = None, uniquify_separator: Optional[str] = None, uniquify_strategy: Optional[str] = None) -> EntityView:
         if entity_group_id:
             entity_group_id = self.get_id(entity_group_id)
         if entity_group_ids:
             entity_group_ids = ','.join(entity_group_ids)
-        return self.entity_view_controller.save_entity_view(body=body, entity_group_id=entity_group_id, entity_group_ids=entity_group_ids)
+        return self.entity_view_controller.save_entity_view(body=body, entity_group_id=entity_group_id, entity_group_ids=entity_group_ids,
+                                                            name_conflict_policy=name_conflict_policy, uniquify_separator=uniquify_separator, uniquify_strategy=uniquify_strategy)
 
     def get_admin_settings(self, key: str, system_by_default=None) -> AdminSettings:
         return self.admin_controller.get_admin_settings(key=key, system_by_default=system_by_default)
@@ -2852,12 +2931,16 @@ class RestClient(Thread):
     def sign_up(self, body: Optional[SignUpRequest] = None) -> str:
         return self.sign_up_controller.sign_up(body=body)
 
-    def resend_email_activation(self, email: str, pkg_name: Optional[str] = None) -> None:
-        return self.sign_up_controller.resend_email_activation(email=email, pkg_name=pkg_name)
+    def resend_email_activation(self, email: str, pkg_name: Optional[str] = None,
+                                platform: Optional[str] = None) -> None:
+        return self.sign_up_controller.resend_email_activation(email=email, pkg_name=pkg_name,
+                                                               platform=platform)
 
-    def activate_user_by_email_code(self, email_code: str, pkg_name: Optional[str] = None) -> Union[
+    def activate_user_by_email_code(self, email_code: str, pkg_name: Optional[str] = None,
+                                    platform: Optional[str] = None) -> Union[
             dict, str, list, bytes, None, RESTResponse, tuple, Any]:
-        return self.sign_up_controller.activate_user_by_email_code(email_code=email_code, pkg_name=pkg_name)
+        return self.sign_up_controller.activate_user_by_email_code(email_code=email_code, pkg_name=pkg_name,
+                                                                   platform=platform)
 
     def privacy_policy_accepted(self, ) -> bool:
         return self.sign_up_controller.privacy_policy_accepted()
@@ -2866,8 +2949,10 @@ class RestClient(Thread):
             dict, str, list, bytes, None, RESTResponse, tuple, Any]:
         return self.sign_up_controller.accept_terms_of_use()
 
-    def activate_email(self, email_code: str, pkg_name: Optional[str] = None) -> str:
-        return self.sign_up_controller.activate_email(email_code=email_code, pkg_name=pkg_name)
+    def activate_email(self, email_code: str, pkg_name: Optional[str] = None,
+                       platform: Optional[str] = None) -> str:
+        return self.sign_up_controller.activate_email(email_code=email_code, pkg_name=pkg_name,
+                                                      platform=platform)
 
     def mobile_login(self, pkg_name: str, platform: str) -> str:
         return self.sign_up_controller.mobile_login(pkg_name=pkg_name, platform=platform)
@@ -2978,8 +3063,10 @@ class RestClient(Thread):
                                                                            sort_property=sort_property,
                                                                            sort_order=sort_order)
 
-    def save_dashboard(self, body: Optional[Dashboard] = None) -> Dashboard:
-        return self.dashboard_controller.save_dashboard(body=body)
+    def save_dashboard(self, body: Optional[Dashboard] = None,
+                       accept_encoding: Optional[str] = None, entity_group_id: Optional[str] = None, entity_group_ids: Optional[List[str]] = None) -> Dashboard:
+        return self.dashboard_controller.save_dashboard(body=body,
+                                                        accept_encoding=accept_encoding, entity_group_id=entity_group_id, entity_group_ids=entity_group_ids)
 
     def set_customer_home_dashboard_info(self, body: Optional[HomeDashboardInfo] = None) -> None:
         return self.dashboard_controller.set_customer_home_dashboard_info(body=body)
@@ -3005,9 +3092,11 @@ class RestClient(Thread):
         return self.dashboard_controller.import_group_dashboards(entity_group_id=entity_group_id, body=body,
                                                                  overwrite=overwrite)
 
-    def export_group_dashboards(self, entity_group_id: EntityGroupId, limit: int) -> List[Dashboard]:
+    def export_group_dashboards(self, entity_group_id: EntityGroupId, limit: int,
+                                accept_encoding: Optional[str] = None) -> List[Dashboard]:
         entity_group_id = self.get_id(entity_group_id)
-        return self.dashboard_controller.export_group_dashboards(entity_group_id=entity_group_id, limit=limit)
+        return self.dashboard_controller.export_group_dashboards(entity_group_id=entity_group_id, limit=limit,
+                                                                 accept_encoding=accept_encoding)
 
     def check_integration_connection(self, body: Optional[Integration] = None) -> None:
         return self.integration_controller.check_integration_connection(body=body)
@@ -3048,8 +3137,8 @@ class RestClient(Thread):
     def save_integration(self, body: Optional[Integration] = None) -> Integration:
         return self.integration_controller.save_integration(body=body)
 
-    def get_custom_menu(self, ) -> CustomMenuConfig:
-        return self.custom_menu_controller.get_custom_menu()
+    def get_custom_menu(self, if_none_match: Optional[str] = None) -> CustomMenuConfig:
+        return self.custom_menu_controller.get_custom_menu(if_none_match=if_none_match)
 
     def create_custom_menu(self, body: Optional[CustomMenuInfo] = None, assign_to_list: Optional[List[str]] = None, force: Optional[bool] = None) -> CustomMenu:
         if assign_to_list is not None:
@@ -3154,11 +3243,11 @@ class RestClient(Thread):
         blob_entity_id = self.get_id(blob_entity_id)
         return self.blob_entity_controller.get_blob_entity_info_by_id(blob_entity_id=blob_entity_id)
 
-    def get_current_login_white_label_params(self, ) -> LoginWhiteLabelingParams:
-        return self.white_labeling_controller.get_current_login_white_label_params()
+    def get_current_login_white_label_params(self, customer_id: Optional[str] = None) -> LoginWhiteLabelingParams:
+        return self.white_labeling_controller.get_current_login_white_label_params(customer_id=customer_id)
 
-    def get_current_white_label_params(self, ) -> WhiteLabelingParams:
-        return self.white_labeling_controller.get_current_white_label_params()
+    def get_current_white_label_params(self, customer_id: Optional[str] = None) -> WhiteLabelingParams:
+        return self.white_labeling_controller.get_current_white_label_params(customer_id=customer_id)
 
     def get_login_white_label_params(self) -> LoginWhiteLabelingParams:
         return self.white_labeling_controller.get_login_white_label_params()
@@ -3175,11 +3264,15 @@ class RestClient(Thread):
     def preview_white_label_params(self, body: Optional[WhiteLabelingParams] = None) -> WhiteLabelingParams:
         return self.white_labeling_controller.preview_white_label_params(body=body)
 
-    def save_login_white_label_params(self, body: Optional[LoginWhiteLabelingParams] = None) -> LoginWhiteLabelingParams:
-        return self.white_labeling_controller.save_login_white_label_params(body=body)
+    def save_login_white_label_params(self, body: Optional[LoginWhiteLabelingParams] = None,
+                                      customer_id: Optional[str] = None) -> LoginWhiteLabelingParams:
+        return self.white_labeling_controller.save_login_white_label_params(body=body,
+                                                                            customer_id=customer_id)
 
-    def save_white_label_params(self, body: Optional[WhiteLabelingParams] = None) -> WhiteLabelingParams:
-        return self.white_labeling_controller.save_white_label_params(body=body)
+    def save_white_label_params(self, body: Optional[WhiteLabelingParams] = None,
+                                customer_id: Optional[str] = None) -> WhiteLabelingParams:
+        return self.white_labeling_controller.save_white_label_params(body=body,
+                                                                      customer_id=customer_id)
 
     def delete_current_login_white_label_params(self, customer_id: CustomerId) -> None:
         customer_id = self.get_id(customer_id)
@@ -3220,12 +3313,14 @@ class RestClient(Thread):
         return self.entity_group_controller.get_all_edge_entity_groups(edge_id=edge_id, group_type=group_type)
 
     def get_edge_entity_groups(self, edge_id: EdgeId, group_type: str, page_size: int, page: int, sort_property: Optional[str] = None,
-                               sort_order: Optional[str] = None,) -> PageDataEntityGroupInfo:
+                               sort_order: Optional[str] = None,
+                               text_search: Optional[str] = None,) -> PageDataEntityGroupInfo:
         edge_id = self.get_id(edge_id)
         return self.entity_group_controller.get_edge_entity_groups(edge_id=edge_id, group_type=group_type,
                                                                    page_size=page_size, page=page,
                                                                    sort_property=sort_property,
-                                                                   sort_order=sort_order)
+                                                                   sort_order=sort_order,
+                                                                   text_search=text_search)
 
     def get_entities(self, entity_group_id: EntityGroupId, page_size: int, page: int,text_search: Optional[str] = None,
                      sort_property: Optional[str] = None, sort_order: Optional[str] = None,) -> PageDataShortEntityView:
@@ -3413,7 +3508,8 @@ class RestClient(Thread):
                              sort_property: Optional[str] = None,
                              sort_order: Optional[str] = None,
                              include_customers: Optional[bool] = None,
-                             device_profile_id: Optional[DeviceProfileId] = None) -> PageDataDeviceInfo:
+                             device_profile_id: Optional[DeviceProfileId] = None,
+                             active: Optional[bool] = None) -> PageDataDeviceInfo:
         if device_profile_id:
             device_profile_id = self.get_id(device_profile_id)
 
@@ -3422,7 +3518,8 @@ class RestClient(Thread):
                                                            sort_property=sort_property,
                                                            sort_order=sort_order,
                                                            include_customers=include_customers,
-                                                           device_profile_id=device_profile_id)
+                                                           device_profile_id=device_profile_id,
+                                                           active=active)
 
     def get_customer_device_infos(self, customer_id: CustomerId, page_size: int, page: int,
                                   include_customers: Optional[bool] = None,
@@ -3459,10 +3556,12 @@ class RestClient(Thread):
                                                             text_search: Optional[str] = None,
                                                             sort_property: Optional[str] = None,
                                                             sort_order: Optional[
-                                                                str] = None) -> PageDataEntityInfo:
+                                                                str] = None,
+                                                            include_shared: Optional[bool] = None) -> PageDataEntityInfo:
         return self.entity_group_controller.get_entity_group_entity_infos_by_type_and_page_link(
             group_type=group_type, page_size=page_size, page=page,
-            text_search=text_search, sort_property=sort_property, sort_order=sort_order)
+            text_search=text_search, sort_property=sort_property, sort_order=sort_order,
+            include_shared=include_shared)
 
     def get_entity_group_entity_infos_hierarchy_by_owner_and_type_and_page_link(self, owner_id: str, owner_type: str,
                                                                                 group_type: str, page_size: int,
@@ -3479,13 +3578,15 @@ class RestClient(Thread):
                                                 text_search: Optional[str] = None,
                                                 sort_property: Optional[str] = None,
                                                 sort_order: Optional[
-                                                    str] = None) -> PageDataEntityGroupInfo:
+                                                    str] = None,
+                                                include_shared: Optional[bool] = None) -> PageDataEntityGroupInfo:
         return self.entity_group_controller.get_entity_groups_by_type_and_page_link(group_type=group_type,
                                                                                     page_size=page_size,
                                                                                     page=page,
                                                                                     text_search=text_search,
                                                                                     sort_property=sort_property,
-                                                                                    sort_order=sort_order)
+                                                                                    sort_order=sort_order,
+                                                                                    include_shared=include_shared)
 
     def get_entity_groups_hierarchy_by_owner_and_type_and_page_link(self, owner_id: str, owner_type: str,
                                                                     group_type: str, page_size: int,
@@ -3585,11 +3686,15 @@ class RestClient(Thread):
         user_id = self.get_id(user_id)
         return self.user_controller.get_user_info_by_id(user_id=user_id)
 
-    def download_login_favicon(self, type: str, key: str, if_none_match: str) -> bytes:
-        return self.image_controller.download_login_favicon(type=type, key=key, if_none_match=if_none_match)
+    def download_login_favicon(self, type: str, key: str, if_none_match: str,
+                               accept_encoding: Optional[str] = None) -> bytes:
+        return self.image_controller.download_login_favicon(type=type, key=key, if_none_match=if_none_match,
+                                                            accept_encoding=accept_encoding)
 
-    def download_login_logo(self, type: str, key: str, if_none_match: str) -> bytes:
-        return self.image_controller.download_login_logo(type=type, key=key, if_none_match=if_none_match)
+    def download_login_logo(self, type: str, key: str, if_none_match: str,
+                            accept_encoding: Optional[str] = None) -> bytes:
+        return self.image_controller.download_login_logo(type=type, key=key, if_none_match=if_none_match,
+                                                         accept_encoding=accept_encoding)
 
     def enable_scheduler_event(self, scheduler_event_id: SchedulerEventId, enabled_value: bool) -> SchedulerEvent:
         scheduler_event_id = self.get_id(scheduler_event_id)
@@ -3646,13 +3751,17 @@ class RestClient(Thread):
         return self.converter_library_controller.get_uplink_payload(integration_type=integration_type,
                                                                     vendor_name=vendor_name, model=model)
 
-    def get_vendor_models(self, integration_type: str, vendor_name: str, converter_type: str) -> List[Model]:
+    def get_vendor_models(self, integration_type: str, vendor_name: str, converter_type: str,
+                          page: Optional[int] = None, page_size: Optional[int] = None, load_images: Optional[bool] = None) -> List[Model]:
         return self.converter_library_controller.get_vendor_models(integration_type=integration_type,
                                                                    vendor_name=vendor_name,
-                                                                   converter_type=converter_type)
+                                                                   converter_type=converter_type,
+                                                                   page=page, page_size=page_size, load_images=load_images)
 
-    def get_vendors(self, integration_type: str) -> List[JsonNode]:
-        return self.converter_library_controller.get_vendors(integration_type=integration_type)
+    def get_vendors(self, integration_type: str,
+                    converter_type: Optional[str] = None, page: Optional[int] = None, page_size: Optional[int] = None, load_images: Optional[bool] = None) -> List[JsonNode]:
+        return self.converter_library_controller.get_vendors(integration_type=integration_type,
+                                                             converter_type=converter_type, page=page, page_size=page_size, load_images=load_images)
 
     # Secret Controller
     def delete_secret(self, secret_id: SecretId) -> None:
