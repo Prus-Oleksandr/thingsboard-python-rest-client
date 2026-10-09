@@ -1,5 +1,5 @@
-"""Calls wrappers with the spec params added to them in 4.4 (Q6), or left out where the spec makes
-them optional, with the HTTP layer faked and checks the request.
+"""Calls wrappers with the spec params added to them in 4.4 (Q6), left out where the spec makes them
+optional, or missing where the spec requires them, with the HTTP layer faked and checks the result.
 
 Usage: python3 codegen/tests/test_spec_params.py [package_parent_dir]   (default: draft)
 """
@@ -13,7 +13,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'draft'))
 
 from tb_rest_client.rest_client import RestClient
-from tb_rest_client.models import Device, DeviceId
+from tb_rest_client.models import Device, DeviceId, OtaPackageId
 
 U = '784f394c-42b6-435a-983c-b7beff2784f9'
 sent = []
@@ -64,6 +64,10 @@ cases = [
      ('GET', '/api/plugins/telemetry/DEVICE/%s/values/timeseries/history' % U, [('startTs', 1), ('endTs', 2), ('key', 't')], {})),
     (lambda: c.delete_entity_attributes(device, 'SERVER_SCOPE', key=['a']),
      ('DELETE', '/api/plugins/telemetry/DEVICE/%s/SERVER_SCOPE' % U, [('key', 'a')], {})),
+    # params required in the spec must be passed
+    (lambda: c.save_entity_telemetry(device, 'ANY'), 'TypeError'),
+    (lambda: c.save_ota_package_data(OtaPackageId(id=U, entity_type='OTA_PACKAGE'), 'SHA256', '/tmp/no-such-fw.bin'),
+     'FileNotFoundError'),  # the file is opened only after the required params are checked
 ]
 passed = 0
 for call, expected in cases:
@@ -71,8 +75,8 @@ for call, expected in cases:
     try:
         call()
         got = sent[-1] if sent else None
-    except Exception as e:  # report every case
-        got = e
+    except Exception as e:  # report every case; an expected error is given by its class name
+        got = type(e).__name__
     ok = got == expected
     passed += ok
     print('%-4s %s' % ('OK' if ok else 'FAIL', got if ok else 'expected %s\n     got      %s' % (expected, got)))

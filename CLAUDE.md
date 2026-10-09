@@ -114,6 +114,16 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
   `oauth2_client_ids`. All of them answer 404 "No static resource" on a 4.4 server.
 - Base/CE/PE merged: for duplicates the most specific 4.3 version wins (PE, then CE, then Base);
   `__init__` and login from Base; `__load_controllers` creates all 78 controllers.
+- Q2: 6 wrappers on operations deprecated in the 4.4 spec are kept (the spec still has them, the
+  server serves them; upstream kept wrappers while the spec listed the op): `get_asset_types`
+  (-> `get_asset_profile_by_names`), `get_device_types` (-> `get_device_profile_names`),
+  `find_entity_timeseries_and_attributes_keys_by_query` / `find_available_entity_keys_by_query`
+  (-> `POST /api/v2/entitiesQuery/find/keys`, no wrapper yet, Q5), `save_resource`,
+  `get_resource_by_id`. `check_wrappers.py` WARNs about them; mention them in the release notes.
+- Q6: wrappers aligned with the spec of the op they call (`check_wrappers.py` WARNs otherwise):
+  63 calls got the spec params they lacked (optional, at the end), 24 params optional in the spec
+  got `= None`, 91 params required in the spec (88 `body`) lost their default. Enum query params
+  are typed `str`. Tested in `test_spec_params.py`.
 - Q1: 5 wrappers of hidden endpoints deleted (`get_events_get`,
   `get_bundle_widget_types[_details|_infos]_by_bundle_alias`,
   `get_widget_type_by_bundle_alias_and_type_alias`). Replacements: `get_events_v1_get1` with
@@ -126,8 +136,7 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
 ## Current state
 
 - `check_spec.py`: 824/824 operations, 0 errors, 23 warnings (Q8).
-- `check_wrappers.py --old-package draft/tb_rest_client`: 690 controller calls, all work; WARN wrapper vs spec: 6 deprecated ops (Q2, kept), 91 spec-required params
-  optional in the wrapper (88 `body`, Q6 step 3); 154 new operations without a wrapper (Q5).
+- `check_wrappers.py --old-package draft/tb_rest_client`: 690 controller calls, all work; WARN 6 deprecated ops (Q2, kept on purpose); 154 new operations without a wrapper (Q5).
 - `codegen/tests/run_all.py`: all 7 test files pass.
 
 ## Positional order changes (for the release notes)
@@ -138,13 +147,16 @@ Calls by keyword keep working; positional calls of these wrappers must be update
 - `upload_image(title, file, ...)` -> `(file, title, ...)`: only `file` is required.
 - `upload_resource(title, resource_type, descriptor, resource_sub_type, file)` ->
   `(resource_type, file, title, descriptor, resource_sub_type)`.
+- `save_ota_package_data(ota_package_id, checksum, checksum_algorithm, file)` ->
+  `(ota_package_id, checksum_algorithm, file, checksum)`.
+
+Also breaking: 88 wrappers no longer default `body` to None (the spec requires the body), e.g.
+`save_entity_telemetry(entity_id, scope)` now raises TypeError instead of sending an empty request;
+the same for `is_public` in `update_image_public_status`. All of them:
+`git log -1 -p --grep "Require wrapper params" -- draft/tb_rest_client/rest_client.py`.
 
 ## Open questions (need the user's decision)
 
-- **Q2. Deprecated operations in the 4.4 spec** used by wrappers: `get_asset_types`
-  (-> getAssetProfileNames), `get_device_types` (-> getDeviceProfileNames),
-  `find_available_entity_keys_by_query` (-> `POST /api/v2/entitiesQuery/find/keys`),
-  `save_resource`, `get_resource_by_id`. Proposal: a WARN in check_wrappers, then decide on switching.
 - **Q3 (resolved). Responses typed as `string` in the spec** (43 ops). Checked on the server (GETs with
   `probes/string_responses.json`; writes on a temporary device that was deleted afterwards):
   - empty body (200, no Content-Type): telemetry/attribute save and delete (8), device API
@@ -165,8 +177,6 @@ Calls by keyword keep working; positional calls of these wrappers must be update
   with an edge, an agent, claiming or a connected device.
 - **Q5. 154 new 4.4 operations without wrappers** (`check_wrappers.py --full`, INFO): which to add
   (e.g. `update_mobile_app_bundle_oauth2_clients`, AI, agents, trendz views).
-- **Q6. Params coverage.** Some wrappers do not expose every spec param (found: `get_widget_types`
-  lacks `scada_first`). Proposal: check_wrappers lists spec params a wrapper does not accept, then align.
 - **Q8. Generator limitations** (check_spec WARN): `oneOf` fields typed as empty `OneOf*` classes or
   `object` (15, mostly AgentApp*; single-ref oneOf could be fixed in postprocess), 4 `*ExportData`
   models do not inherit `EntityExportData`, 3 required `output` fields not enforced,
