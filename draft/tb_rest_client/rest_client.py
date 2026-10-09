@@ -352,7 +352,7 @@ class RestClient(Thread):
     def get_user(self, ) -> User:
         return self.auth_controller.get_user()
 
-    def change_password(self, body: Optional[ChangePasswordRequest] = None) -> ObjectNode:
+    def change_password(self, body: Optional[ChangePasswordRequest] = None) -> JwtPair:
         return self.auth_controller.change_password(body=body)
 
     def logout(self, ) -> None:
@@ -393,7 +393,7 @@ class RestClient(Thread):
     def get_events_v1_get1(self, entity_id: EntityId, event_type: str, tenant_id: TenantId,
                            page_size: int, page: int, text_search: Optional[str] = None, sort_property: Optional[str] = None,
                            sort_order: Optional[str] = None,
-                           start_time: Optional[int] = None, end_time: Optional[int] = None) -> PageDataEvent:
+                           start_time: Optional[int] = None, end_time: Optional[int] = None) -> PageDataEventInfo:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         tenant_id = self.get_id(tenant_id)
@@ -403,7 +403,7 @@ class RestClient(Thread):
                                                         sort_property=sort_property, sort_order=sort_order,
                                                         start_time=start_time, end_time=end_time)
 
-    def clear_events_post(self, entity_id: EntityId, body: Optional[EntityIdClearstartTimeendTimeBody] = None, start_time: Optional[int] = None,
+    def clear_events_post(self, entity_id: EntityId, body: Optional[EventFilter] = None, start_time: Optional[int] = None,
                           end_time: Optional[int] = None):
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
@@ -700,7 +700,7 @@ class RestClient(Thread):
         edge_id = self.get_id(edge_id)
         return self.edge_controller.get_edge_by_id(edge_id=edge_id)
 
-    def sync_edge(self, edge_id: EdgeId) -> DeferredResultResponseEntity:
+    def sync_edge(self, edge_id: EdgeId) -> str:
         edge_id = self.get_id(edge_id)
         return self.edge_controller.sync_edge(edge_id=edge_id)
 
@@ -1090,16 +1090,16 @@ class RestClient(Thread):
     def get_repository_settings(self) -> RepositorySettings:
         return self.admin_controller.get_repository_settings()
 
-    def save_repository_settings(self, body: Optional[RepositorySettings] = None) -> DeferredResultRepositorySettings:
+    def save_repository_settings(self, body: Optional[RepositorySettings] = None) -> RepositorySettings:
         return self.admin_controller.save_repository_settings(body=body)
 
-    def delete_repository_settings(self) -> DeferredResultVoid:
+    def delete_repository_settings(self) -> None:
         return self.admin_controller.delete_repository_settings()
 
     def repository_settings_exists(self) -> bool:
         return self.admin_controller.repository_settings_exists()
 
-    def check_repository_access(self, body: Optional[RepositorySettings] = None) -> DeferredResultVoid:
+    def check_repository_access(self, body: Optional[RepositorySettings] = None) -> None:
         return self.admin_controller.check_repository_access(body=body)
 
     def delete_auto_commit_settings(self) -> None:
@@ -1172,24 +1172,24 @@ class RestClient(Thread):
         return self.admin_controller.get_mail_processing_url()
 
     def download_jks_resource_if_changed(self, resource_id: EntityId,
-                                         if_none_match: Optional[str] = '') -> ByteArrayResource:
+                                         if_none_match: Optional[str] = '') -> str:
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.download_jks_resource_if_changed(resource_id=resource_id,
                                                                             if_none_match=if_none_match)
 
-    def download_js_resource_if_changed(self, resource_id: EntityId, if_none_match: Optional[str] = '') -> ByteArrayResource:
+    def download_js_resource_if_changed(self, resource_id: EntityId, if_none_match: Optional[str] = '') -> str:
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.download_js_resource_if_changed(resource_id=resource_id,
                                                                            if_none_match=if_none_match)
 
     def download_lwm2m_resource_if_changed(self, resource_id: EntityId,
-                                           if_none_match: Optional[str] = '') -> ByteArrayResource:
+                                           if_none_match: Optional[str] = '') -> str:
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.download_lwm2m_resource_if_changed(resource_id=resource_id,
                                                                               if_none_match=if_none_match)
 
     def download_pkcs12_resource_if_changed(self, resource_id: EntityId,
-                                            if_none_match: Optional[str] = '') -> ByteArrayResource:
+                                            if_none_match: Optional[str] = '') -> str:
         resource_id = self.get_id(resource_id)
         return self.tb_resource_controller.download_pkcs12_resource_if_changed(resource_id=resource_id,
                                                                                if_none_match=if_none_match)
@@ -1449,7 +1449,7 @@ class RestClient(Thread):
 
     # Entity Query Controller
     def find_entity_timeseries_and_attributes_keys_by_query(self, timeseries: bool, attributes: bool, body: Optional[
-        EntityDataQuery], scope: Optional[str] = None) -> DeferredResultResponseEntity:
+        EntityDataQuery], scope: Optional[str] = None) -> AvailableEntityKeys:
         return self.entity_query_controller.find_available_entity_keys_by_query(
             timeseries=timeseries, attributes=attributes, body=body, scope=scope)
 
@@ -1594,7 +1594,7 @@ class RestClient(Thread):
                                                                      action_types=action_types)
 
     # Lwm2M Controller
-    def get_lwm2m_bootstrap_security_info(self, is_bootstrap_server: bool) -> ServerSecurityConfig:
+    def get_lwm2m_bootstrap_security_info(self, is_bootstrap_server: bool) -> LwM2MServerSecurityConfigDefault:
         return self.lwm2m_controller.get_lwm2m_bootstrap_security_info(
             is_bootstrap_server=is_bootstrap_server)
 
@@ -1625,46 +1625,46 @@ class RestClient(Thread):
         return self.ui_settings_controller.get_help_base_url()
 
     # Device API Controller
-    def subscribe_to_attributes(self, device_token: str, timeout: Optional[int] = None) -> DeferredResultResponseEntity:
+    def subscribe_to_attributes(self, device_token: str, timeout: Optional[int] = None) -> str:
         return self.device_api_controller.subscribe_to_attributes(device_token=device_token, timeout=timeout)
 
-    def subscribe_to_commands(self, device_token: str, timeout: Optional[int] = None) -> DeferredResultResponseEntity:
+    def subscribe_to_commands(self, device_token: str, timeout: Optional[int] = None) -> str:
         return self.device_api_controller.subscribe_to_commands(device_token=device_token, timeout=timeout)
 
     def get_device_attributes(self, device_token: str, client_keys: str,
-                              shared_keys: str) -> DeferredResultResponseEntity:
+                              shared_keys: str) -> str:
         return self.device_api_controller.get_device_attributes(device_token=device_token,
                                                                 client_keys=client_keys,
                                                                 shared_keys=shared_keys)
 
     def get_firmware(self, device_token: str, title: str, version: str, size: Optional[int] = None,
-                     chunk: Optional[int] = None) -> DeferredResultResponseEntity:
+                     chunk: Optional[int] = None) -> str:
         return self.device_api_controller.get_firmware(device_token=device_token, title=title,
                                                        version=version, size=size, chunk=chunk)
 
     def reply_to_command(self, device_token: str, request_id: int,
-                         body: Optional[str] = None) -> DeferredResultResponseEntity:
+                         body: Optional[str] = None) -> str:
         return self.device_api_controller.reply_to_command(device_token=device_token, request_id=request_id,
                                                            body=body)
 
     def get_software(self, device_token: str, title: str, version: str, size: Optional[int] = None,
-                     chunk: Optional[int] = None) -> DeferredResultResponseEntity:
+                     chunk: Optional[int] = None) -> str:
         return self.device_api_controller.get_software(device_token=device_token, title=title,
                                                        version=version, size=size, chunk=chunk)
 
-    def post_telemetry(self, device_token: str, body: Optional[str] = None) -> DeferredResultResponseEntity:
+    def post_telemetry(self, device_token: str, body: Optional[str] = None) -> str:
         return self.device_api_controller.post_telemetry(device_token=device_token, body=body)
 
-    def claim_device(self, device_token: str, body: Optional[str] = None) -> DeferredResultResponseEntity:
+    def claim_device(self, device_token: str, body: Optional[str] = None) -> str:
         return self.device_api_controller.save_claiming_info(device_token=device_token, body=body)
 
-    def post_rpc_request(self, device_token: str, body: Optional[Dict] = None) -> DeferredResultResponseEntity:
+    def post_rpc_request(self, device_token: str, body: Optional[Dict] = None) -> str:
         return self.device_api_controller.post_rpc_request(device_token=device_token, body=body)
 
-    def provision_device(self, body: Optional[str] = None) -> DeferredResultResponseEntity:
+    def provision_device(self, body: Optional[str] = None) -> str:
         return self.device_api_controller.provision_device(body=body)
 
-    def post_device_attributes(self, device_token: str, body: Optional[str] = None) -> DeferredResultResponseEntity:
+    def post_device_attributes(self, device_token: str, body: Optional[str] = None) -> str:
         return self.device_api_controller.post_device_attributes(device_token=device_token, body=body)
 
     # Tenant Controller
@@ -2020,14 +2020,14 @@ class RestClient(Thread):
         return self.image_controller.download_image_preview(type=type, key=key, if_none_match=if_none_match,
                                                             accept_encoding=accept_encoding)
 
-    def download_image(self, _type: str, key: str, if_none_match: Optional[str] = '') -> ByteArrayResource:
+    def download_image(self, _type: str, key: str, if_none_match: Optional[str] = '') -> str:
         return self.image_controller.download_image(type=_type, key=key, if_none_match=if_none_match)
 
-    def download_public_image(self, public_resource_key: str, if_none_match: Optional[str] = '') -> ByteArrayResource:
+    def download_public_image(self, public_resource_key: str, if_none_match: Optional[str] = '') -> str:
         return self.image_controller.download_public_image(public_resource_key=public_resource_key,
                                                            if_none_match=if_none_match)
 
-    def export_image(self, _type: str, key: str) -> ImageExportData:
+    def export_image(self, _type: str, key: str) -> ResourceExportData:
         return self.image_controller.export_image(type=_type, key=key)
 
     def get_image_info(self, _type: str, key: str) -> TbResourceInfo:
@@ -2041,7 +2041,7 @@ class RestClient(Thread):
                                                 include_system_images=include_system_images,
                                                 sort_order=sort_order, sort_property=sort_property)
 
-    def import_image(self, body: ImageExportData) -> TbResourceInfo:
+    def import_image(self, body: ResourceExportData) -> TbResourceInfo:
         return self.image_controller.import_image(body=body)
 
     def update_image_info(self, _type: str, key: str, body: TbResourceInfo) -> TbResourceInfo:
@@ -2968,7 +2968,7 @@ class RestClient(Thread):
         return self.dashboard_report_controller.download_dashboard_report(dashboard_id=dashboard_id,
                                                                                      body=body)
 
-    def download_test_report(self, body: Optional[ReportConfig], reports_server_endpoint_url: Optional[str] = None):
+    def download_test_report(self, body: Optional[DashboardReportConfig], reports_server_endpoint_url: Optional[str] = None):
         return self.dashboard_report_controller.download_test_report(body=body,
                                                                      reports_server_endpoint_url=reports_server_endpoint_url)
 
@@ -3091,10 +3091,10 @@ class RestClient(Thread):
         id = self.get_id(id)
         return self.custom_menu_controller.update_custom_menu_name(custom_menu_id=id, body=body)
 
-    def get_custom_translation(self, locale_code: str) -> CustomTranslation:
+    def get_custom_translation(self, locale_code: str) -> JsonNode:
         return self.custom_translation_controller.get_custom_translation(locale_code=locale_code)
 
-    def save_custom_translation(self, locale_code: str, body: CustomTranslation) -> CustomTranslation:
+    def save_custom_translation(self, locale_code: str, body: object) -> None:
         return self.custom_translation_controller.save_custom_translation(body=body, locale_code=locale_code)
 
     def delete_custom_translation(self, locale_code: str) -> None:
@@ -3104,13 +3104,13 @@ class RestClient(Thread):
         return self.custom_translation_controller.delete_custom_translation_key(locale_code=locale_code,
                                                                                 key_path=key_path)
 
-    def patch_custom_translation(self, body: CustomTranslation, locale_code: str):
+    def patch_custom_translation(self, body: object, locale_code: str):
         return self.custom_translation_controller.patch_custom_translation(body=body, locale_code=locale_code)
 
     def upload_custom_translation(self, locale_code: str, file):
         return self.custom_translation_controller.upload_custom_translation(locale_code=locale_code, file=file)
 
-    def get_merged_custom_translation(self, locale_code: str) -> CustomTranslation:
+    def get_merged_custom_translation(self, locale_code: str) -> JsonNode:
         return self.custom_translation_controller.get_merged_custom_translation(locale_code=locale_code)
 
     def delete_role(self, role_id: RoleId) -> None:
@@ -3297,7 +3297,7 @@ class RestClient(Thread):
                                                              entity_id=entity_id)
 
     def get_owners(self, page_size: int, page: int, text_search: Optional[str] = None,
-                   sort_property: Optional[str] = None, sort_order: Optional[str] = None,) -> PageDataContactBasedobject:
+                   sort_property: Optional[str] = None, sort_order: Optional[str] = None,) -> PageDataContactBasedObject:
         return self.entity_group_controller.get_owners(page_size=page_size, page=page,
                                                        text_search=text_search, sort_property=sort_property,
                                                        sort_order=sort_order)
@@ -3588,10 +3588,10 @@ class RestClient(Thread):
         user_id = self.get_id(user_id)
         return self.user_controller.get_user_info_by_id(user_id=user_id)
 
-    def download_login_favicon(self, type: str, key: str, if_none_match: str) -> ByteArrayResource:
+    def download_login_favicon(self, type: str, key: str, if_none_match: str) -> str:
         return self.image_controller.download_login_favicon(type=type, key=key, if_none_match=if_none_match)
 
-    def download_login_logo(self, type: str, key: str, if_none_match: str) -> ByteArrayResource:
+    def download_login_logo(self, type: str, key: str, if_none_match: str) -> str:
         return self.image_controller.download_login_logo(type=type, key=key, if_none_match=if_none_match)
 
     def enable_scheduler_event(self, scheduler_event_id: SchedulerEventId, enabled_value: bool) -> SchedulerEvent:

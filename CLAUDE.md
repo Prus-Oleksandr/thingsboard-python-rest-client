@@ -98,11 +98,15 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
   `get_bundle_widget_types[_details|_infos]_by_bundle_alias`,
   `get_widget_type_by_bundle_alias_and_type_alias`). Replacements: `get_events_v1_get1` with
   `LC_EVENT`, the `widgets_bundle_id` variants, `get_widget_type(fqn=...)`.
+- Q7: 36 annotations naming models 4.4 does not have replaced with the spec types (Deferred* ->
+  the wrapped type, `ByteArrayResource` -> `str`, `ObjectNode` -> `JwtPair`, ...); every
+  `RestClient` annotation resolves with `typing.get_type_hints`. The `str` ones of JSON and binary
+  responses follow the spec and are revisited with Q3.
 
 ## Current state
 
 - `check_spec.py`: 824/824 operations, 0 errors, 66 warnings (see Q3, Q8).
-- `check_wrappers.py --old-package draft/tb_rest_client`: 690 controller calls, all work, 36 annotation warnings (Q7), 154 new operations without a wrapper (Q5).
+- `check_wrappers.py --old-package draft/tb_rest_client`: 690 controller calls, all work, 0 warnings, 154 new operations without a wrapper (Q5).
 - `codegen/tests/run_all.py`: all 5 test files pass.
 
 ## Open questions (need the user's decision)
@@ -121,8 +125,6 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
   (e.g. `update_mobile_app_bundle_oauth2_clients`, AI, agents, trendz views).
 - **Q6. Params coverage.** Some wrappers do not expose every spec param (found: `get_widget_types`
   lacks `scada_first`). Proposal: check_wrappers lists spec params a wrapper does not accept, then align.
-- **Q7. 36 annotations name models that 4.4 does not have** (hidden by
-  `from __future__ import annotations`). Fix to the new response types.
 - **Q8. Generator limitations** (check_spec WARN): `oneOf` fields typed as empty `OneOf*` classes or
   `object` (15, mostly AgentApp*; single-ref oneOf could be fixed in postprocess), 4 `*ExportData`
   models do not inherit `EntityExportData`, 3 required `output` fields not enforced,
