@@ -32,43 +32,51 @@ class ReportControllerApi(object):
             api_client = ApiClient()
         self.api_client = api_client
 
-    def create_report(self, **kwargs):  # noqa: E501
+    def create_report(self, file, info, **kwargs):  # noqa: E501
         """createReport  # noqa: E501
+
+        The server expects multipart/form-data with the parts 'file' and 'info' (a JSON string);
+        the 4.4 spec says application/json, which the server rejects ("not a multipart request").
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.create_report(async_req=True)
+        >>> thread = api.create_report(file, info, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param V2ReportBody body:
+        :param str file: path of the report file (required)
+        :param str info: report info as a JSON string (required)
         :return: Report
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.create_report_with_http_info(**kwargs)  # noqa: E501
+            return self.create_report_with_http_info(file, info, **kwargs)  # noqa: E501
         else:
-            (data) = self.create_report_with_http_info(**kwargs)  # noqa: E501
+            (data) = self.create_report_with_http_info(file, info, **kwargs)  # noqa: E501
             return data
 
-    def create_report_with_http_info(self, **kwargs):  # noqa: E501
+    def create_report_with_http_info(self, file, info, **kwargs):  # noqa: E501
         """createReport  # noqa: E501
+
+        The server expects multipart/form-data with the parts 'file' and 'info' (a JSON string);
+        the 4.4 spec says application/json, which the server rejects ("not a multipart request").
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.create_report_with_http_info(async_req=True)
+        >>> thread = api.create_report_with_http_info(file, info, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param V2ReportBody body:
+        :param str file: path of the report file (required)
+        :param str info: report info as a JSON string (required)
         :return: Report
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['body']  # noqa: E501
+        all_params = ['file', 'info']  # noqa: E501
         all_params.append('async_req')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -83,6 +91,14 @@ class ReportControllerApi(object):
                 )
             params[key] = val
         del params['kwargs']
+        # verify the required parameter 'file' is set
+        if ('file' not in params or
+                params['file'] is None):
+            raise ValueError("Missing the required parameter `file` when calling `create_report`")  # noqa: E501
+        # verify the required parameter 'info' is set
+        if ('info' not in params or
+                params['info'] is None):
+            raise ValueError("Missing the required parameter `info` when calling `create_report`")  # noqa: E501
 
         collection_formats = {}
 
@@ -94,17 +110,19 @@ class ReportControllerApi(object):
 
         form_params = []
         local_var_files = {}
+        if 'file' in params:
+            local_var_files['file'] = params['file']  # noqa: E501
+        if 'info' in params:
+            form_params.append(('info', params['info']))  # noqa: E501
 
         body_params = None
-        if 'body' in params:
-            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
             ['application/json'])  # noqa: E501
 
         # HTTP header `Content-Type`
         header_params['Content-Type'] = self.api_client.select_header_content_type(  # noqa: E501
-            ['application/json'])  # noqa: E501
+            ['multipart/form-data'])  # noqa: E501
 
         # Authentication setting
         auth_settings = ['ApiKeyForm', 'HttpLoginForm']  # noqa: E501

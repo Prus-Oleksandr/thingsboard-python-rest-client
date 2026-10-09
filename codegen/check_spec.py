@@ -194,6 +194,13 @@ for op in parse_api_dir(os.path.join(args.package, 'api')):
     gen_ops[key] = op
 
 
+# Request bodies the server accepts in another content type than the spec says (checked on a 4.4
+# server); the client is fixed by hand and must send the spec's fields in this content type.
+SERVER_CONTENT_TYPES = {
+    ('POST', '/api/v2/report'): 'multipart/form-data',  # spec: application/json; server: "not a multipart request"
+}
+
+
 def check_operation(key, o):
     g = gen_ops.get(key)
     op_id = o.get('operationId', '%s %s' % key)
@@ -214,7 +221,12 @@ def check_operation(key, o):
         if location != 'form' and (location, wire) not in spec_params:
             report('ERROR', 'param not in spec', op_id, location, wire)
     body = o.get('requestBody')
-    if body:
+    if body and key in SERVER_CONTENT_TYPES:
+        fields = set(next(iter(body.get('content', {}).values())).get('schema', {}).get('properties', {}))
+        if g['content_type'] != [SERVER_CONTENT_TYPES[key]] or set(g['form']) != fields:
+            report('ERROR', 'request not sent as the server expects', op_id, SERVER_CONTENT_TYPES[key],
+                   sorted(fields), g['content_type'], sorted(g['form']))
+    elif body:
         content = body.get('content', {})
         if 'multipart/form-data' in content:
             if not g['form'] and not g['body']:
