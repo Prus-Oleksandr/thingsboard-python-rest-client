@@ -83,6 +83,8 @@ for name, body, expected in (
     check(name, result == expected, repr(result))
 result = client.deserialize(Body(b'{"client":{"a":1}}'), 'object')
 check('JSON object body as dict', result == {'client': {'a': 1}}, repr(result))
+result = client.deserialize(Body(b''), 'object')
+check('empty body of an object response is None', result is None, repr(result))
 
 del client
 sys.exit(1 if check.failed else 0)

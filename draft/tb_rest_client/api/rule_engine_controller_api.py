@@ -45,7 +45,7 @@ class RuleEngineControllerApi(object):
         :param str body: A JSON object representing the message. (required)
         :param str entity_type: A string value representing the entity type. For example, 'DEVICE' (required)
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -69,7 +69,7 @@ class RuleEngineControllerApi(object):
         :param str body: A JSON object representing the message. (required)
         :param str entity_type: A string value representing the entity type. For example, 'DEVICE' (required)
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -139,7 +139,7 @@ class RuleEngineControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='object',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -162,7 +162,7 @@ class RuleEngineControllerApi(object):
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str queue_name: Queue name to process the request in the rule engine (required)
         :param int timeout: Timeout to process the request in milliseconds (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -188,7 +188,7 @@ class RuleEngineControllerApi(object):
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str queue_name: Queue name to process the request in the rule engine (required)
         :param int timeout: Timeout to process the request in milliseconds (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -270,7 +270,7 @@ class RuleEngineControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='object',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -292,7 +292,7 @@ class RuleEngineControllerApi(object):
         :param str entity_type: A string value representing the entity type. For example, 'DEVICE' (required)
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param int timeout: Timeout to process the request in milliseconds (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -317,7 +317,7 @@ class RuleEngineControllerApi(object):
         :param str entity_type: A string value representing the entity type. For example, 'DEVICE' (required)
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param int timeout: Timeout to process the request in milliseconds (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -393,7 +393,7 @@ class RuleEngineControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='object',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -412,7 +412,7 @@ class RuleEngineControllerApi(object):
 
         :param async_req bool
         :param str body: A JSON object representing the message. (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -434,7 +434,7 @@ class RuleEngineControllerApi(object):
 
         :param async_req bool
         :param str body: A JSON object representing the message. (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -492,7 +492,7 @@ class RuleEngineControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='object',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

@@ -46,7 +46,7 @@ class TelemetryControllerApi(object):
         :param str scope: A string value representing the attributes scope. For example, 'SERVER_SCOPE'. (required)
         :param str keys: A string value representing the comma-separated list of attributes keys. For example, 'active,inactivityAlarmTime'. If attribute keys contain comma, duplicate 'key' parameter for each key, for example '?key=my,key&key=my,second,key
         :param list[str] key: Repeatable key query parameter (alternative to comma-separated 'keys')
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -71,7 +71,7 @@ class TelemetryControllerApi(object):
         :param str scope: A string value representing the attributes scope. For example, 'SERVER_SCOPE'. (required)
         :param str keys: A string value representing the comma-separated list of attributes keys. For example, 'active,inactivityAlarmTime'. If attribute keys contain comma, duplicate 'key' parameter for each key, for example '?key=my,key&key=my,second,key
         :param list[str] key: Repeatable key query parameter (alternative to comma-separated 'keys')
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -136,7 +136,7 @@ class TelemetryControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -159,7 +159,7 @@ class TelemetryControllerApi(object):
         :param str scope: A string value representing the attributes scope. For example, 'SERVER_SCOPE'. (required)
         :param str keys: A string value representing the comma-separated list of attributes keys. For example, 'active,inactivityAlarmTime'. If attribute keys contain comma, duplicate 'key' parameter for each key, for example '?key=my,key&key=my,second,key
         :param list[str] key: Repeatable key query parameter (alternative to comma-separated 'keys')
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -185,7 +185,7 @@ class TelemetryControllerApi(object):
         :param str scope: A string value representing the attributes scope. For example, 'SERVER_SCOPE'. (required)
         :param str keys: A string value representing the comma-separated list of attributes keys. For example, 'active,inactivityAlarmTime'. If attribute keys contain comma, duplicate 'key' parameter for each key, for example '?key=my,key&key=my,second,key
         :param list[str] key: Repeatable key query parameter (alternative to comma-separated 'keys')
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -256,7 +256,7 @@ class TelemetryControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -283,7 +283,7 @@ class TelemetryControllerApi(object):
         :param bool delete_latest: If the parameter is set to true, the latest telemetry can be removed, otherwise, in case that parameter is set to false the latest value will not removed.
         :param bool rewrite_latest_if_deleted: If the parameter is set to true, the latest telemetry will be rewritten in case that current latest value was removed, otherwise, in case that parameter is set to false the new latest value will not set.
         :param list[str] key: Repeatable key query parameter (alternative to comma-separated 'keys')
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -313,7 +313,7 @@ class TelemetryControllerApi(object):
         :param bool delete_latest: If the parameter is set to true, the latest telemetry can be removed, otherwise, in case that parameter is set to false the latest value will not removed.
         :param bool rewrite_latest_if_deleted: If the parameter is set to true, the latest telemetry will be rewritten in case that current latest value was removed, otherwise, in case that parameter is set to false the new latest value will not set.
         :param list[str] key: Repeatable key query parameter (alternative to comma-separated 'keys')
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -388,7 +388,7 @@ class TelemetryControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -1345,7 +1345,7 @@ class TelemetryControllerApi(object):
         :param str body: A string value representing the json object. For example, '{\"key\":\"value\"}'. See API call description for more details. (required)
         :param str device_id: A string value representing the device id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str scope: A string value representing the attributes scope. For example, 'SERVER_SCOPE'. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1369,7 +1369,7 @@ class TelemetryControllerApi(object):
         :param str body: A string value representing the json object. For example, '{\"key\":\"value\"}'. See API call description for more details. (required)
         :param str device_id: A string value representing the device id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str scope: A string value representing the attributes scope. For example, 'SERVER_SCOPE'. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1439,7 +1439,7 @@ class TelemetryControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -1461,7 +1461,7 @@ class TelemetryControllerApi(object):
         :param str entity_type: A string value representing the entity type. For example, 'DEVICE' (required)
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str scope: A string value representing the attributes scope. For example, 'SERVER_SCOPE'. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1486,7 +1486,7 @@ class TelemetryControllerApi(object):
         :param str entity_type: A string value representing the entity type. For example, 'DEVICE' (required)
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str scope: A string value representing the attributes scope. For example, 'SERVER_SCOPE'. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1562,7 +1562,7 @@ class TelemetryControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -1584,7 +1584,7 @@ class TelemetryControllerApi(object):
         :param str entity_type: A string value representing the entity type. For example, 'DEVICE' (required)
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str scope: A string value representing the attributes scope. For example, 'SERVER_SCOPE'. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1609,7 +1609,7 @@ class TelemetryControllerApi(object):
         :param str entity_type: A string value representing the entity type. For example, 'DEVICE' (required)
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str scope: A string value representing the attributes scope. For example, 'SERVER_SCOPE'. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1685,7 +1685,7 @@ class TelemetryControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -1707,7 +1707,7 @@ class TelemetryControllerApi(object):
         :param str entity_type: A string value representing the entity type. For example, 'DEVICE' (required)
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str scope: Value is deprecated, reserved for backward compatibility and not used in the API call implementation. Specify any scope for compatibility (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1732,7 +1732,7 @@ class TelemetryControllerApi(object):
         :param str entity_type: A string value representing the entity type. For example, 'DEVICE' (required)
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str scope: Value is deprecated, reserved for backward compatibility and not used in the API call implementation. Specify any scope for compatibility (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1808,7 +1808,7 @@ class TelemetryControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -1831,7 +1831,7 @@ class TelemetryControllerApi(object):
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str scope: Value is deprecated, reserved for backward compatibility and not used in the API call implementation. Specify any scope for compatibility (required)
         :param int ttl: A long value representing TTL (Time to Live) parameter. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1857,7 +1857,7 @@ class TelemetryControllerApi(object):
         :param str entity_id: A string value representing the entity id. For example, '784f394c-42b6-435a-983c-b7beff2784f9' (required)
         :param str scope: Value is deprecated, reserved for backward compatibility and not used in the API call implementation. Specify any scope for compatibility (required)
         :param int ttl: A long value representing TTL (Time to Live) parameter. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1939,7 +1939,7 @@ class TelemetryControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

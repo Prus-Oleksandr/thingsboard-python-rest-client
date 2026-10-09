@@ -47,7 +47,7 @@ class DeviceApiControllerApi(object):
         :param str shared_keys: Comma separated key names for attribute with shared scope. Leave empty and set allSharedKeys=true to fetch all shared-scope attributes
         :param bool all_client_keys: Set to true to return ALL client-scope attributes (ignores clientKeys)
         :param bool all_shared_keys: Set to true to return ALL shared-scope attributes (ignores sharedKeys)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -73,7 +73,7 @@ class DeviceApiControllerApi(object):
         :param str shared_keys: Comma separated key names for attribute with shared scope. Leave empty and set allSharedKeys=true to fetch all shared-scope attributes
         :param bool all_client_keys: Set to true to return ALL client-scope attributes (ignores clientKeys)
         :param bool all_shared_keys: Set to true to return ALL shared-scope attributes (ignores sharedKeys)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -135,7 +135,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='object',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -393,7 +393,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str body: JSON with attribute key-value pairs. See API call description for example. (required)
         :param str device_token: Your device access token. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -416,7 +416,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str body: JSON with attribute key-value pairs. See API call description for example. (required)
         :param str device_token: Your device access token. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -480,7 +480,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -500,7 +500,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str body: The RPC request JSON (required)
         :param str device_token: Your device access token. (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -523,7 +523,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str body: The RPC request JSON (required)
         :param str device_token: Your device access token. (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -587,7 +587,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='object',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -607,7 +607,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str body: (required)
         :param str device_token: Your device access token. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -630,7 +630,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str body: (required)
         :param str device_token: Your device access token. (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -694,7 +694,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -713,7 +713,7 @@ class DeviceApiControllerApi(object):
 
         :param async_req bool
         :param str body: JSON with provision request. See API call description for example. (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -735,7 +735,7 @@ class DeviceApiControllerApi(object):
 
         :param async_req bool
         :param str body: JSON with provision request. See API call description for example. (required)
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -793,7 +793,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='object',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -814,7 +814,7 @@ class DeviceApiControllerApi(object):
         :param str body: Reply to the RPC request, JSON. For example: {\"status\":\"success\"} (required)
         :param str device_token: Your device access token. (required)
         :param str request_id: RPC request id from the incoming RPC request (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -838,7 +838,7 @@ class DeviceApiControllerApi(object):
         :param str body: Reply to the RPC request, JSON. For example: {\"status\":\"success\"} (required)
         :param str device_token: Your device access token. (required)
         :param str request_id: RPC request id from the incoming RPC request (required)
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -908,7 +908,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -928,7 +928,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str device_token: Your device access token. (required)
         :param str body:
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -951,7 +951,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str device_token: Your device access token. (required)
         :param str body:
-        :return: str
+        :return: None
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1011,7 +1011,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type=None,  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -1031,7 +1031,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str device_token: Your device access token. (required)
         :param int timeout: Optional timeout of the long poll. Typically less then 60 seconds, since limited on the server side.
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1054,7 +1054,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str device_token: Your device access token. (required)
         :param int timeout: Optional timeout of the long poll. Typically less then 60 seconds, since limited on the server side.
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1110,7 +1110,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='object',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),
@@ -1130,7 +1130,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str device_token: Your device access token. (required)
         :param int timeout: Optional timeout of the long poll. Typically less then 60 seconds, since limited on the server side.
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1153,7 +1153,7 @@ class DeviceApiControllerApi(object):
         :param async_req bool
         :param str device_token: Your device access token. (required)
         :param int timeout: Optional timeout of the long poll. Typically less then 60 seconds, since limited on the server side.
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1209,7 +1209,7 @@ class DeviceApiControllerApi(object):
             body=body_params,
             post_params=form_params,
             files=local_var_files,
-            response_type='str',  # noqa: E501
+            response_type='object',  # noqa: E501
             auth_settings=auth_settings,
             async_req=params.get('async_req'),
             _return_http_data_only=params.get('_return_http_data_only'),

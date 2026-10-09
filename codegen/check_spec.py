@@ -16,6 +16,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from client_parser import parse_api_dir, parse_models_dir  # noqa: E402
+from postprocess import STRING_RESPONSE_TYPES  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HTTP_METHODS = ('get', 'post', 'put', 'delete', 'patch', 'head', 'options')
@@ -228,7 +229,12 @@ def check_operation(key, o):
         report('ERROR', 'request body not in spec', op_id)
     responses = o.get('responses', {})
     content = (responses.get('200') or responses.get('201') or {}).get('content', {})
-    if content:
+    if key in STRING_RESPONSE_TYPES:
+        # typed 'string' in the spec, retyped by postprocess.py after checking a live server
+        if g['response_type'] != STRING_RESPONSE_TYPES[key]:
+            report('ERROR', 'string response not retyped as postprocess.py says', op_id,
+                   STRING_RESPONSE_TYPES[key], g['response_type'])
+    elif content:
         first = next(iter(content))
         if g['response_type'] is None:
             report('ERROR', 'response type missing', op_id, first, expected_type(content[first].get('schema', {})))

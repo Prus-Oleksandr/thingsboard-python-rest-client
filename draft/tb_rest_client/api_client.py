@@ -249,6 +249,8 @@ class ApiClient(object):
                     return data.decode('utf-8')
                 except UnicodeDecodeError:
                     return data  # binary content, e.g. a downloaded file
+            if not data:
+                return None  # empty body, e.g. a one-way RPC answered with 200
 
         return self.__deserialize(data, response_type)
 

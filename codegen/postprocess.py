@@ -70,7 +70,100 @@ def fix_entity_id_arg_order(pkg_dir):
         sys.exit('EntityId argument order: unexpected constructor in %s, check the fix' % path)
 
 
-FIXES = [fix_discriminator_maps, fix_entity_id_arg_order]
+# Operations the spec types as a JSON 'string' response (mostly DeferredResult in the controller),
+# with what a 4.4 server actually returns. 'str' made them come back as a repr string of the JSON
+# and an empty body as "b''". None: always an empty body; 'object': JSON parsed to dict/list (an
+# empty body, e.g. one-way RPC, gives None); 'str': text or a JSON string.
+_T = '/api/plugins/telemetry'
+STRING_RESPONSE_TYPES = {
+    # empty body, checked on a server
+    ('POST', _T + '/{entityType}/{entityId}/timeseries/{scope}'): None,
+    ('POST', _T + '/{entityType}/{entityId}/timeseries/{scope}/{ttl}'): None,
+    ('POST', _T + '/{entityType}/{entityId}/attributes/{scope}'): None,
+    ('POST', _T + '/{entityType}/{entityId}/{scope}'): None,
+    ('POST', _T + '/{deviceId}/{scope}'): None,
+    ('DELETE', _T + '/{deviceId}/{scope}'): None,
+    ('DELETE', _T + '/{entityType}/{entityId}/{scope}'): None,
+    ('DELETE', _T + '/{entityType}/{entityId}/timeseries/delete'): None,
+    ('POST', '/api/v1/{deviceToken}/telemetry'): None,
+    ('POST', '/api/v1/{deviceToken}/attributes'): None,
+    ('POST', '/api/v1/{deviceToken}/rpc/{requestId}'): None,
+    ('POST', '/api/v1/{deviceToken}/claim'): None,
+    # JSON, checked on a server
+    ('GET', '/api/rpc/persistent/device/{deviceId}'): 'object',
+    ('GET', '/api/v1/{deviceToken}/attributes'): 'object',
+    ('GET', '/api/edge/missingToRelatedRuleChains/{edgeId}'): 'object',
+    ('POST', '/api/v1/provision'): 'object',
+    # JSON when a device or rule chain answers (seen on a server: timeouts with an empty body)
+    ('GET', '/api/v1/{deviceToken}/attributes/updates'): 'object',
+    ('GET', '/api/v1/{deviceToken}/rpc'): 'object',
+    ('POST', '/api/v1/{deviceToken}/rpc'): 'object',
+    ('POST', '/api/rpc/twoway/{deviceId}'): 'object',
+    ('POST', '/api/plugins/rpc/twoway/{deviceId}'): 'object',
+    ('POST', '/api/rule-engine/'): 'object',
+    ('POST', '/api/rule-engine/{entityType}/{entityId}'): 'object',
+    ('POST', '/api/rule-engine/{entityType}/{entityId}/{timeout}'): 'object',
+    ('POST', '/api/rule-engine/{entityType}/{entityId}/{queueName}/{timeout}'): 'object',
+    # JSON or empty, from the spec descriptions (not seen with data on a server)
+    ('POST', '/api/rpc/oneway/{deviceId}'): 'object',  # persistent RPC returns {"rpcId": ...}
+    ('POST', '/api/plugins/rpc/oneway/{deviceId}'): 'object',
+    ('GET', '/api/edge/integration/{edgeId}/missingAttributes'): 'object',
+    ('GET', '/api/edge/integration/{integrationId}/allMissingAttributes'): 'object',
+    ('POST', '/api/edge/sync/{edgeId}'): 'object',
+    ('POST', '/api/customer/device/{deviceName}/claim'): 'object',
+    ('DELETE', '/api/customer/device/{deviceName}/claim'): 'object',
+    # text or a JSON string, checked on a server (activateEmail, mobileLogin: redirects)
+    ('GET', '/api/uiSettings/helpBaseUrl'): 'str',
+    ('GET', '/api/agent/upgrade/latest'): 'str',
+    ('GET', '/api/agent/{agentId}/upgrade/target'): 'str',
+    ('GET', '/api/noauth/selfRegistration/privacyPolicy'): 'str',
+    ('GET', '/api/noauth/selfRegistration/termsOfUse'): 'str',
+    ('GET', '/api/oauth2/loginProcessingUrl'): 'str',
+    ('GET', '/api/admin/mail/oauth2/loginProcessingUrl'): 'str',
+    ('GET', '/api/noauth/activateEmail'): 'str',
+    ('GET', '/api/noauth/login'): 'str',
+    # binary file; ApiClient returns bytes when the body is not text
+    ('GET', '/api/v1/{deviceToken}/firmware'): 'str',
+    ('GET', '/api/v1/{deviceToken}/software'): 'str',
+}
+
+
+def fix_string_response_types(pkg_dir):
+    """Sets the response type of the operations in STRING_RESPONSE_TYPES."""
+    api_dir = os.path.join(pkg_dir, 'api')
+    found, changed = set(), 0
+    for f in sorted(os.listdir(api_dir)):
+        if not f.endswith('_api.py'):
+            continue
+        path = os.path.join(api_dir, f)
+        src = open(path).read()
+        # methods of the class: '    def name(' up to the next one
+        parts = re.split(r'(?m)^(?=    def )', src)
+        names = [re.match(r'    def (\w+)', p).group(1) if p.startswith('    def ') else None for p in parts]
+        for i, part in enumerate(parts):
+            call = re.search(r"call_api\(\s*'([^']+)', '([A-Z]+)'", part)
+            if not call or (call.group(2), call.group(1)) not in STRING_RESPONSE_TYPES:
+                continue
+            key = (call.group(2), call.group(1))
+            found.add(key)
+            new_type = STRING_RESPONSE_TYPES[key]
+            public = names.index(names[i][:-len('_with_http_info')])
+            for j in (public, i):
+                parts[j] = parts[j].replace(':return: str\n', ':return: %s\n' % new_type)
+            parts[i] = re.sub(r"response_type=(?:'str'|'object'|None),",
+                              'response_type=%s,' % (repr(new_type) if new_type else 'None'), parts[i])
+        new = ''.join(parts)
+        if new != src:
+            changed += 1
+            with open(path, 'w') as fh:
+                fh.write(new)
+    missing = set(STRING_RESPONSE_TYPES) - found
+    if missing:
+        sys.exit('string response types: operations not found: %s' % sorted(missing))
+    print('string response types: %d operations, %d files changed' % (len(found), changed))
+
+
+FIXES = [fix_discriminator_maps, fix_entity_id_arg_order, fix_string_response_types]
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

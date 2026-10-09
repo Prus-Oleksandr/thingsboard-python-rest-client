@@ -429,14 +429,13 @@ class RestClient(Thread):
                                                                 order_by=order_by, interval_type=interval_type,
                                                                 use_strict_data_types=use_strict_data_types, time_zone=time_zone)
 
-    def delete_device_attributes(self, device_id: DeviceId, scope: str, keys: str):
+    def delete_device_attributes(self, device_id: DeviceId, scope: str, keys: str) -> None:
         device_id = self.get_id(device_id)
         return self.telemetry_controller.delete_device_attributes(device_id=device_id, scope=scope,
                                                                   keys=keys)
 
     def save_entity_attributes_v1(self, entity_id: EntityId, scope: str,
-                                  body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None) -> Union[
-            dict, str, list, bytes, None, RESTResponse, tuple, Any]:
+                                  body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None) -> None:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.save_entity_attributes_v1(entity_type=entity_type,
@@ -446,7 +445,7 @@ class RestClient(Thread):
     def delete_entity_timeseries(self, entity_id: EntityId, keys: str, delete_all_data_for_keys: Optional[bool] = None,
                                  start_ts: Optional[int] = None, end_ts: Optional[int] = None,
                                  delete_latest: Optional[bool] = None,
-                                 rewrite_latest_if_deleted: Optional[bool] = None):
+                                 rewrite_latest_if_deleted: Optional[bool] = None) -> None:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.delete_entity_timeseries(entity_type=entity_type,
@@ -457,8 +456,7 @@ class RestClient(Thread):
                                                                   rewrite_latest_if_deleted=rewrite_latest_if_deleted)
 
     def save_device_attributes(self, device_id: DeviceId, scope: str,
-                               body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None) -> Union[
-            dict, str, list, bytes, None, RESTResponse, tuple, Any]:
+                               body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None) -> None:
         device_id = self.get_id(device_id)
         return self.telemetry_controller.save_device_attributes(device_id=device_id, scope=scope, body=body)
 
@@ -488,8 +486,7 @@ class RestClient(Thread):
         return self.telemetry_controller.get_attribute_keys(entity_type=entity_type, entity_id=entity_id)
 
     def save_entity_attributes_v2(self, entity_id: EntityId, scope: str,
-                                  body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None) -> Union[
-            dict, str, list, bytes, None, RESTResponse, tuple, Any]:
+                                  body: Union[dict, str, list, bytes, None, RESTResponse, tuple, Any] = None) -> None:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.save_entity_attributes_v2(entity_type=entity_type,
@@ -497,14 +494,14 @@ class RestClient(Thread):
                                                                    body=body)
 
     def save_entity_telemetry(self, entity_id: EntityId, scope: str,
-                              body: Optional[dict] = None):
+                              body: Optional[dict] = None) -> None:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.save_entity_telemetry(entity_type=entity_type, entity_id=entity_id,
                                                                scope=scope, body=body)
 
     def save_entity_telemetry_with_ttl(self, entity_id: EntityId, scope: str, ttl: int,
-                                       body: Optional[dict] = None):
+                                       body: Optional[dict] = None) -> None:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         ttl = str(ttl)
@@ -518,7 +515,7 @@ class RestClient(Thread):
         return self.telemetry_controller.get_attributes(entity_type=entity_type, entity_id=entity_id,
                                                         keys=keys)
 
-    def delete_entity_attributes(self, entity_id: EntityId, scope: str, keys: str):
+    def delete_entity_attributes(self, entity_id: EntityId, scope: str, keys: str) -> None:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.telemetry_controller.delete_entity_attributes(entity_type=entity_type,
@@ -700,7 +697,7 @@ class RestClient(Thread):
         edge_id = self.get_id(edge_id)
         return self.edge_controller.get_edge_by_id(edge_id=edge_id)
 
-    def sync_edge(self, edge_id: EdgeId) -> str:
+    def sync_edge(self, edge_id: EdgeId) -> Any:
         edge_id = self.get_id(edge_id)
         return self.edge_controller.sync_edge(edge_id=edge_id)
 
@@ -725,7 +722,7 @@ class RestClient(Thread):
         rule_chain_id = self.get_id(rule_chain_id)
         return self.edge_controller.set_edge_root_rule_chain(edge_id=edge_id, rule_chain_id=rule_chain_id)
 
-    def find_missing_to_related_rule_chains(self, edge_id: EdgeId) -> str:
+    def find_missing_to_related_rule_chains(self, edge_id: EdgeId) -> Dict:
         edge_id = self.get_id(edge_id)
         return self.edge_controller.find_missing_to_related_rule_chains(edge_id=edge_id)
 
@@ -755,16 +752,16 @@ class RestClient(Thread):
         rpc_id = self.get_id(rpc_id)
         return self.rpc_v2_controller.get_persisted_rpc(rpc_id=rpc_id)
 
-    def handle_one_way_device_rpc_request_v1(self, device_id: DeviceId, body: Optional[str] = None):
+    def handle_one_way_device_rpc_request_v1(self, device_id: DeviceId, body: Optional[str] = None) -> Any:
         device_id = self.get_id(device_id)
         return self.rpc_v2_controller.handle_one_way_device_rpc_request_v2(device_id=device_id, body=body)
 
-    def handle_two_way_device_rpc_request_v1(self, device_id: DeviceId, body: Optional[str] = None):
+    def handle_two_way_device_rpc_request_v1(self, device_id: DeviceId, body: Optional[str] = None) -> Any:
         device_id = self.get_id(device_id)
         return self.rpc_v2_controller.handle_two_way_device_rpc_request_v2(device_id=device_id, body=body)
 
     def get_persisted_rpc_by_device(self, device_id: DeviceId, page_size: int, page: int, rpc_status: str,
-                                   text_search: Optional[str] = None, sort_property: Optional[str] = None, sort_order: Optional[str] = None):
+                                   text_search: Optional[str] = None, sort_property: Optional[str] = None, sort_order: Optional[str] = None) -> Dict:
         device_id = self.get_id(device_id)
         return self.rpc_v2_controller.get_persisted_rpc_by_device(device_id=device_id, page_size=page_size,
                                                                   page=page, rpc_status=rpc_status,
@@ -885,12 +882,12 @@ class RestClient(Thread):
 
     # RPC v1 Controller
     def handle_one_way_device_rpc_request(self, device_id: DeviceId,
-                                          body: Optional[str] = None):
+                                          body: Optional[str] = None) -> Any:
         device_id = self.get_id(device_id)
         return self.rpc_v1_controller.handle_one_way_device_rpc_request_v1(device_id=device_id, body=body)
 
     def handle_two_way_device_rpc_request(self, device_id: DeviceId,
-                                          body: Optional[Dict] = None):
+                                          body: Optional[Dict] = None) -> Any:
         device_id = self.get_id(device_id)
         return self.rpc_v1_controller.handle_two_way_device_rpc_request_v1(device_id=device_id, body=body)
 
@@ -910,7 +907,7 @@ class RestClient(Thread):
         device_id = self.get_id(device_id)
         return self.device_controller.assign_device_to_tenant(tenant_id=tenant_id, device_id=device_id)
 
-    def re_claim_device(self, device_name: str):
+    def re_claim_device(self, device_name: str) -> Any:
         return self.device_controller.re_claim_device(device_name=device_name)
 
     def process_devices_bulk_import(self, body: Optional[BulkImportRequest] = None) -> BulkImportResultDevice:
@@ -1625,14 +1622,14 @@ class RestClient(Thread):
         return self.ui_settings_controller.get_help_base_url()
 
     # Device API Controller
-    def subscribe_to_attributes(self, device_token: str, timeout: Optional[int] = None) -> str:
+    def subscribe_to_attributes(self, device_token: str, timeout: Optional[int] = None) -> Dict:
         return self.device_api_controller.subscribe_to_attributes(device_token=device_token, timeout=timeout)
 
-    def subscribe_to_commands(self, device_token: str, timeout: Optional[int] = None) -> str:
+    def subscribe_to_commands(self, device_token: str, timeout: Optional[int] = None) -> Dict:
         return self.device_api_controller.subscribe_to_commands(device_token=device_token, timeout=timeout)
 
     def get_device_attributes(self, device_token: str, client_keys: str,
-                              shared_keys: str) -> str:
+                              shared_keys: str) -> Dict:
         return self.device_api_controller.get_device_attributes(device_token=device_token,
                                                                 client_keys=client_keys,
                                                                 shared_keys=shared_keys)
@@ -1643,7 +1640,7 @@ class RestClient(Thread):
                                                        version=version, size=size, chunk=chunk)
 
     def reply_to_command(self, device_token: str, request_id: int,
-                         body: Optional[str] = None) -> str:
+                         body: Optional[str] = None) -> None:
         return self.device_api_controller.reply_to_command(device_token=device_token, request_id=request_id,
                                                            body=body)
 
@@ -1652,19 +1649,19 @@ class RestClient(Thread):
         return self.device_api_controller.get_software(device_token=device_token, title=title,
                                                        version=version, size=size, chunk=chunk)
 
-    def post_telemetry(self, device_token: str, body: Optional[str] = None) -> str:
+    def post_telemetry(self, device_token: str, body: Optional[str] = None) -> None:
         return self.device_api_controller.post_telemetry(device_token=device_token, body=body)
 
-    def claim_device(self, device_token: str, body: Optional[str] = None) -> str:
+    def claim_device(self, device_token: str, body: Optional[str] = None) -> None:
         return self.device_api_controller.save_claiming_info(device_token=device_token, body=body)
 
-    def post_rpc_request(self, device_token: str, body: Optional[Dict] = None) -> str:
+    def post_rpc_request(self, device_token: str, body: Optional[Dict] = None) -> Any:
         return self.device_api_controller.post_rpc_request(device_token=device_token, body=body)
 
-    def provision_device(self, body: Optional[str] = None) -> str:
+    def provision_device(self, body: Optional[str] = None) -> Dict:
         return self.device_api_controller.provision_device(body=body)
 
-    def post_device_attributes(self, device_token: str, body: Optional[str] = None) -> str:
+    def post_device_attributes(self, device_token: str, body: Optional[str] = None) -> None:
         return self.device_api_controller.post_device_attributes(device_token=device_token, body=body)
 
     # Tenant Controller
@@ -2790,7 +2787,7 @@ class RestClient(Thread):
                                                                  sort_property=sort_property,
                                                                  sort_order=sort_order)
 
-    def find_all_related_edges_missing_attributes(self, integration_id: IntegrationId) -> str:
+    def find_all_related_edges_missing_attributes(self, integration_id: IntegrationId) -> Any:
         integration_id = self.get_id(integration_id)
         return self.integration_controller.find_all_related_edges_missing_attributes(
             integration_id=integration_id)
@@ -2804,7 +2801,7 @@ class RestClient(Thread):
                                                                       sort_property=sort_property,
                                                                       sort_order=sort_order)
 
-    def find_edge_missing_attributes_get(self, edge_id: EdgeId, integration_ids: str) -> str:
+    def find_edge_missing_attributes_get(self, edge_id: EdgeId, integration_ids: str) -> Any:
         edge_id = self.get_id(edge_id)
         return self.integration_controller.find_edge_missing_attributes(edge_id=edge_id,
                                                                         integration_ids=integration_ids)
@@ -3787,24 +3784,24 @@ class RestClient(Thread):
         return self.trendz_controller.save_trendz_config(body=body)
 
     # Rule Engine Controller
-    def handle_rule_engine_request_for_entity(self, entity_id: EntityId, body: Any) -> str:
+    def handle_rule_engine_request_for_entity(self, entity_id: EntityId, body: Any) -> Any:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.rule_engine_controller.handle_rule_engine_request_for_entity(body=body, entity_type=entity_type,
                                                                                  entity_id=entity_id)
 
-    def handle_rule_engine_request_for_entity_with_timeout(self, entity_id: EntityId, timeout: int, body: Any) -> str:
+    def handle_rule_engine_request_for_entity_with_timeout(self, entity_id: EntityId, timeout: int, body: Any) -> Any:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.rule_engine_controller.handle_rule_engine_request_for_entity_with_timeout(
             body=body, entity_type=entity_type, entity_id=entity_id, timeout=timeout)
 
     def handle_rule_engine_request_for_entity_with_queue_and_timeout(self, entity_id: EntityId, queue_name: str,
-                                                                     timeout: int, body: Any) -> str:
+                                                                     timeout: int, body: Any) -> Any:
         entity_type = self.get_type(entity_id)
         entity_id = self.get_id(entity_id)
         return self.rule_engine_controller.handle_rule_engine_request_for_entity_with_queue_and_timeout(
             body=body, entity_type=entity_type, entity_id=entity_id, queue_name=queue_name, timeout=timeout)
 
-    def handle_rule_engine_request_for_user(self, body: Any) -> str:
+    def handle_rule_engine_request_for_user(self, body: Any) -> Any:
         return self.rule_engine_controller.handle_rule_engine_request_for_user(body=body)

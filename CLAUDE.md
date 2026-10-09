@@ -75,6 +75,11 @@ Generator and runtime (`postprocess.py`, `api_client.py`, `configuration.py`):
   id objects can be path params; lazy ThreadPool.
 - Comma-separated strings for array (`multi`) params are sent as one value (wrappers pass
   `','.join(ids)`; the generator iterated the string char by char).
+- 43 operations typed as JSON `string` in the spec are retyped from what a live server returned
+  (`STRING_RESPONSE_TYPES` in `postprocess.py`: 12 -> `None`, 20 -> `object`, 11 stay `str`);
+  `check_spec.py` checks the generated types against that table. An empty body of an `object`
+  response gives `None`. Wrapper annotations follow: `None`, `Dict` (JSON object seen on the
+  server), `Any` (JSON from a device or rule chain, or not seen with data).
 - Plain-text bodies of `str` responses are decoded (4.3 and the generator returned `"b'...'"`);
   undecodable (binary) bodies are returned as bytes.
 - Not ported on purpose: 4.3 models_ce/models_pe lookup, `{?...}` path templates, Deferred* handling
@@ -107,9 +112,9 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
 
 ## Current state
 
-- `check_spec.py`: 824/824 operations, 0 errors, 66 warnings (see Q3, Q8).
+- `check_spec.py`: 824/824 operations, 0 errors, 23 warnings (Q8).
 - `check_wrappers.py --old-package draft/tb_rest_client`: 690 controller calls, all work, 0 warnings, 154 new operations without a wrapper (Q5).
-- `codegen/tests/run_all.py`: all 5 test files pass.
+- `codegen/tests/run_all.py`: all 6 test files pass.
 
 ## Open questions (need the user's decision)
 
@@ -133,8 +138,9 @@ Wrappers (`rest_client.py`), 1022 calls in the 4.3 wrappers:
   - not determined (500/404/409/400 on test data): edge missing attributes (2),
     `getAgentUpgradeTarget`, one-way RPC, `activateEmail`, `mobileLogin`, `syncEdge`,
     `claimDevice`/`reClaimDevice`: decide from the ThingsBoard controller code.
-  Done: decode fix (step 1). Next: step 2, an op -> type table in `postprocess.py` (wrapper
-  annotations `Dict` / `None`); step 3, binary responses as `bytes`.
+  Done: decode fix (step 1), the op -> type table (step 2, see Done). Left (step 3): binary
+  responses already come back as bytes, but `get_firmware`, `get_software` and the 8 `download_*`
+  wrappers are still annotated `str`.
 - **Q4. Deserialization errors.** 4.3 returned the exception object instead of raising. Not
   ported: currently raises (e.g. when the server returns null in a field the spec marks required).
   Decide: raise, or log a warning and return the raw dict.
